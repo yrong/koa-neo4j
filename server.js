@@ -3,6 +3,7 @@
 import Koa from 'koa';
 import Router from 'koa-router';
 import * as logic from './logic'
+import queryString from 'query-string';
 
 const app = new Koa();
 const router = new Router();
@@ -23,7 +24,10 @@ function* properties(obj) {
 
 for (let model of properties(logic)) {
     let handler = async (ctx, next) => {
-        ctx.body = await model.body(ctx.request);
+        let params = '?' + ctx.url.split('?')[1];
+        params = queryString.parse(params);
+        console.log('skdjfhksdjhgfik ' + JSON.stringify(params));
+        ctx.body = await model.body(params);
         await next();
     };
     methods[model.method].apply(router, [model.route, handler])

@@ -5,7 +5,11 @@ import executeCypher from '../data'
 let sege = (s) => new Promise((resolve, reject) => {console.log('gggggggggg ' + s); resolve('riidiiiiiiiii')});
 
 let doctors = {
-    body: async (request) => await executeCypher('doctor_result.cyp', {skip:10, limit:20}),
+    body: async (params) => {
+        params.skip = parseInt(params.skip);
+        params.limit = parseInt(params.limit);
+        return await executeCypher('doctor_result.cyp', params);
+    },
     // body: async (request) => await sege('sooote'),
     method: 'GET',
     route: '/doctors'

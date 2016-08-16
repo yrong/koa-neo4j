@@ -15,11 +15,11 @@ console.log('eeeeeeeeeeeee');
 
 let executeCypher = (query_file_name, query_params) => new Promise((resolve, reject) => {
     let query = query_dict[query_file_name];
-    console.log(query);
+    console.log('seeeeeeeeeeee' + JSON.stringify(query_params));
     db.query(query, query_params, (err, result) => {
         if (err) {
             console.log('ridiiiiiiiiiiiiiii');
-            console.log(JSON.stringify(result));
+            console.log(JSON.stringify(err));
             reject(err);
         }
         else {
