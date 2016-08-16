@@ -1,7 +1,6 @@
 /**
  * Created by keyvan on 8/16/16.
  */
-console.log('loaaaaaaaaaaaaaaaaa');
 import fs from 'fs';
 
 let paths = fs.readdirSync('./cypher');

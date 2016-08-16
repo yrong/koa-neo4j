@@ -10,33 +10,42 @@ const router = new Router();
 app.use(router.routes());
 
 
+let integer_values = new Set(['skip', 'limit', 'id']);
+
 
 let methods = {
     'POST': router.post,
     'GET': router.get
 };
 
-function* properties(obj) {
+function* key_values(obj) {
     for (let key of Object.keys(obj)) {
-        yield obj[key];
+        yield [key, obj[key]];
     }
 }
 
-for (let model of properties(logic)) {
+for (let [key, model] of key_values(logic)) {
     let handler = async (ctx, next) => {
-        let params = '?' + ctx.url.split('?')[1];
-        params = queryString.parse(params);
-        console.log('skdjfhksdjhgfik ' + JSON.stringify(params));
-        ctx.body = await model.body(params);
+        let params = {};
+        if (ctx.url.indexOf('?') >= 0) {
+            params = '?' + ctx.url.split('?')[1];
+            params = queryString.parse(params);
+        }
+        params = {...params, ...ctx.params, ...ctx.request.body};
+        for (let [key, value] of key_values(params))
+            if (integer_values.has(key))
+                params[key] = parseInt(value);
+
+        try {
+            ctx.body = await model.body(params);
+        } catch (err) {
+            ctx.body = err;
+            ctx.status = 500;
+        }
         await next();
     };
     methods[model.method].apply(router, [model.route, handler])
 }
-
-// router.get('/', async (ctx, next) => {
-// 	ctx.body = '';
-// 	await next();
-// });
 
 app.listen(3000, () => {
 	console.log('App listening on port 3000.');
