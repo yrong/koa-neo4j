@@ -10,10 +10,12 @@ for (let path of paths) {
     query_dict[path] = fs.readFileSync('./cypher/' + path, 'utf8');
 }
 
-var db = seraph({ server: "http://localhost:7474",
+var db = seraph({
+    server: "http://localhost:7474",
     endpoint: "/db/data",
     user: "neo4j",
-    pass: "k" });
+    pass: "k"
+});
 
 let executeCypher = (query_file_name, query_params) => new Promise((resolve, reject) => {
     let query = query_dict[query_file_name];
