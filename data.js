@@ -27,6 +27,17 @@ let executeCypher = (query_file_name, query_params) => new Promise((resolve, rej
     });
 });
 
+class API {
+    constructor(method, route, cypher_query_file_name, then=() => {}) {
+        this.method = method;
+        this.route = route;
+        this.response = (params) => executeCypher(cypher_query_file_name, params).then((response) => {
+            then();
+            return response;
+        });
+    }
+}
+
 console.log('Database successfully connected.');
 
-export default executeCypher;
+export default API;
