@@ -2,13 +2,18 @@
 
 import Koa from 'koa';
 import Router from 'koa-router';
+import logger from 'koa-logger';
+import parser from 'koa-body-parser';
 import apis from './apis';
 import queryString from 'query-string';
 
 
 const app = new Koa();
 const router = new Router();
-app.use(router.routes());
+app
+    .use(logger())
+    .use(parser())
+    .use(router.routes());
 
 
 let integer_values = new Set(['skip', 'limit', 'id']);

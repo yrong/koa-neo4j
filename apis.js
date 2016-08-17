@@ -15,7 +15,9 @@ class API {
 
 let apis = [];
 
-apis.push(new API('GET', '/doctors', 'doctor_result.cyp', () => console.log('/doctors served.')));
+apis.push(new API('GET', '/doctors', 'doctor_result.cyp'));
+
+apis.push(new API('POST', '/doctors', 'doctor_result.cyp', () => console.log('SEGEEEEE served.')));
 
 apis.push(new API('GET', '/doctor/:id', 'doctor_view.cyp'));
 
