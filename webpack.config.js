@@ -1,7 +1,7 @@
 "use strict";
 
 const webpack = require("webpack");
-const fs = require("fs");
+const fs = require("file-system");
 
 let mods = {};
 fs.readdirSync("node_modules")
