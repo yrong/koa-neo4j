@@ -11,7 +11,7 @@ for (let path of paths) {
 }
 
 var db = seraph({
-    server: "http://localhost:7474",
+    server: "http://192.168.10.101:7474",
     endpoint: "/db/data",
     user: "neo4j",
     pass: "k"
