@@ -14,7 +14,7 @@ import 'koa-convert';
 const app = new Koa();
 const router = new Router();
 app
-    .use(cors)
+    .use(cors())
     .use(passport.initialize())
     .use(logger())
     .use(parser())
