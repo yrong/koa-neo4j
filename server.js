@@ -8,8 +8,6 @@ import cors from 'kcors';
 import queryString from 'query-string';
 import apis from './apis';
 import passport from './auth';
-// koa-convert support will be deprecated in koa v3
-import 'koa-convert';
 
 const app = new Koa();
 const router = new Router();
@@ -20,20 +18,17 @@ app
     .use(parser())
     .use(router.routes());
 
+// koa-passport uses generators which will be deprecated in koa v3, below block should be refactored accordingly
 router.post('/auth', async (ctx, next) => {
-    ctx.body = ctx.state.user;
-    // passport.authenticate('local', function(user, info, status) {
-    //     console.log('insideeeeeeeeeee');
-    //     console.log(user);
-    //     if (user === false) {
-    //         ctx.status = 401;
-    //         ctx.body = { success: false };
-    //     } else {
-    //         ctx.login(user);
-    //         ctx.body = { success: true };
-    //     }
-    // });
-    await next();
+    await passport.authenticate('local', (user, info, status) => {
+        if (user === false) {
+            ctx.status = 401;
+            ctx.body = { success: false };
+        } else {
+            ctx.login(user);
+            ctx.body = { success: true };
+        }
+    })(ctx, next);
 });
 
 

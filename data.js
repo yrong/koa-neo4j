@@ -40,4 +40,5 @@ class API {
 
 console.log('Database successfully connected.');
 
+export {executeCypher};
 export default API;

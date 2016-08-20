@@ -4,26 +4,29 @@
 
 import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
+import {executeCypher} from './data'
+
 
 const passport = new KoaPassport();
 
-let user = { id: 1, username: 'test' };
-
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-    done(null, user);
-});
+// let user = { id: 1, username: 'test' };
+//
+// passport.serializeUser(function(user, done) {
+//     done(null, user.id);
+// });
+//
+// passport.deserializeUser(function(id, done) {
+//     done(null, user);
+// });
 
 passport.use(new LocalStrategy(function(username, password, done) {
-    // retrieve user ...
-    if (username === 'test' && password === 'test') {
-        done(null, user);
-    } else {
-        done(null, false);
-    }
+    executeCypher('auth.cyp', {username:username})
+        .then(([result]) => {
+            if (password == result.salt)
+                done(null, result);
+            else
+                done(null, false);
+        }, (err) => done(null, false));
 }));
 
 // var FacebookStrategy = require('passport-facebook').Strategy
