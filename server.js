@@ -7,7 +7,7 @@ import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import apis from './apis';
-import passport from './auth';
+import passport, {jwt_authenticate ,middleware_auth} from './auth';
 
 const app = new Koa();
 const router = new Router();
@@ -18,19 +18,7 @@ app
     .use(parser())
     .use(router.routes());
 
-// koa-passport uses generators which will be deprecated in koa v3, below block should be refactored accordingly
-router.post('/auth', async (ctx, next) => {
-    await passport.authenticate('local', (user, info, status) => {
-        if (user === false) {
-            ctx.status = 401;
-            ctx.body = { success: false };
-        } else {
-            ctx.login(user);
-            ctx.body = { success: true };
-        }
-    })(ctx, next);
-});
-
+router.post('/auth', middleware_auth);
 
 let integer_values = new Set(['skip', 'limit', 'id']);
 
@@ -48,23 +36,27 @@ function* key_values(obj) {
 
 for (let api of apis) {
     let handler = async (ctx, next) => {
-        let params = {};
-        if (ctx.url.indexOf('?') >= 0) {
-            params = '?' + ctx.url.split('?')[1];
-            params = queryString.parse(params);
-        }
-        params = {...params, ...ctx.params, ...ctx.request.body};
-        for (let [key, value] of key_values(params))
-            if (integer_values.has(key))
-                params[key] = parseInt(value);
+        if (api.requires_jwt_token)
+            await jwt_authenticate(ctx, next);
+        if (ctx.status != 401) {
+            let params = {};
+            if (ctx.url.indexOf('?') >= 0) {
+                params = '?' + ctx.url.split('?')[1];
+                params = queryString.parse(params);
+            }
+            params = {...params, ...ctx.params, ...ctx.request.body};
+            for (let [key, value] of key_values(params))
+                if (integer_values.has(key))
+                    params[key] = parseInt(value);
 
-        try {
-            ctx.body = await api.response(params);
-        } catch (err) {
-            ctx.body = err;
-            ctx.status = 500;
+            try {
+                ctx.body = await api.response(params);
+            } catch (err) {
+                ctx.body = err;
+                ctx.status = 400;
+            }
         }
-        await next();
+        // await next();
     };
     methods[api.method].apply(router, [api.route, handler])
 }
