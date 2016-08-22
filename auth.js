@@ -25,24 +25,26 @@ const secret = 'secret';
 passport.use(new LocalStrategy((username, password, done) => {
     executeCypher('auth.cyp', {username:username})
         .then(([result]) => {
-            if (password == result.salt)
-                done(null, result);
+            if (!result || password != result.salt)
+                done(new Error('Invalid username or password'));
             else
-                done(null, false);
-        }, (err) => done(null, false));
+                done(null, result);
+        }, done);
 }));
 
 // koa-passport uses generators which will be deprecated in koa v3, below block should be refactored accordingly
+// The author of koa-passport has not considered the use cases of done(err), hence we need to wrap calls in a promise
 let middleware_auth = async (ctx, next) => {
-    await passport.authenticate('local', (user, info, status) => {
-        if (user === false) {
+    await new Promise((resolve, reject) => passport.authenticate('local', (user) => {
+        ctx.login(user);
+        ctx.body = {token: 'JWT ' + jwt.sign({id: user.id}, secret)};
+        resolve();
+    })(ctx, next)
+        .then(resolve, reject))
+        .catch((error) => {
             ctx.status = 422;
-            ctx.body = {error: info};
-        } else {
-            ctx.login(user);
-            ctx.body = {token: 'JWT' + jwt.sign({id: user.id}, secret)};
-        }
-    })(ctx, next);
+            ctx.body = {error: String(error)};
+        });
 };
 
 passport.use(new JwtStrategy(
@@ -51,28 +53,27 @@ passport.use(new JwtStrategy(
         secretOrKey: secret
     }, (jwt_payload, done) => {
         if (!jwt_payload.id) {
-            done(new Error('Invalid token'), false);
+            done(new Error('Invalid token'));
         }
         else
             executeCypher('jwt.cyp', {id: jwt_payload.id})
                 .then(
                     ([result]) => {
                         if (result.exists)
-                            done(null, {exists: result.exists});
+                            done(null, true);
                         else
-                            done(new Error('User does not exist.'), false);
+                            done(new Error('User provided in the token does not exist'));
                     },
-                    (err) => done(err, false));
+                    done);
     }));
 
-let jwt_authenticate = (ctx, next) => passport.authenticate('jwt', {session: false})(ctx, next)
-    .then(
-        (result) => {
-            console.log(result);
-        }, (error) => {
-        ctx.status = 401;
-        ctx.body = {error: String(error)};
-    });
+let jwt_authenticate = (ctx, next) => new Promise((resolve, reject) => passport.authenticate('jwt',
+    {session: false}, resolve)(ctx, next)
+        .then(resolve, reject))
+        .catch((error) => {
+            ctx.status = 401;
+            ctx.body = {error: String(error)};
+        });
 
 // var FacebookStrategy = require('passport-facebook').Strategy
 // passport.use(new FacebookStrategy({
@@ -110,5 +111,5 @@ let jwt_authenticate = (ctx, next) => passport.authenticate('jwt', {session: fal
 //     }
 // ))
 
-export {secret, middleware_auth, jwt_authenticate};
+export {middleware_auth, jwt_authenticate};
 export default passport;
