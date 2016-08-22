@@ -28,9 +28,10 @@ let executeCypher = (query_file_name, query_params) => new Promise((resolve, rej
 });
 
 class API {
-    constructor(method, route, cypher_query_file_name, then=() => {}) {
+    constructor(method, route, cypher_query_file_name, requires_jwt_token=false, then=() => {}) {
         this.method = method;
         this.route = route;
+        this.requires_jwt_token = requires_jwt_token;
         this.response = (params) => executeCypher(cypher_query_file_name, params).then((response) => {
             then();
             return response;
@@ -40,4 +41,5 @@ class API {
 
 console.log('Database successfully connected.');
 
+export {executeCypher};
 export default API;
