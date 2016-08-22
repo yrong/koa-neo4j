@@ -28,10 +28,12 @@ let executeCypher = (query_file_name, query_params) => new Promise((resolve, rej
 });
 
 class API {
-    constructor(method, route, cypher_query_file_name, requires_jwt_token=false, then=() => {}) {
+    constructor(method, route, cypher_query_file_name, allowed_roles=[], then=() => {}) {
         this.method = method;
         this.route = route;
-        this.requires_jwt_token = requires_jwt_token;
+        this.allowed_roles = allowed_roles;
+        this.requires_jwt_authentication = allowed_roles && Array.isArray(allowed_roles) && allowed_roles.length > 0;
+
         this.response = (params) => executeCypher(cypher_query_file_name, params).then((response) => {
             then();
             return response;
