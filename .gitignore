@@ -1,5 +1,6 @@
 bin/
 !bin/package.json
+!bin/index.js
 
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 

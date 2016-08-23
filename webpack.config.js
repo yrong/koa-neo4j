@@ -12,11 +12,10 @@ fs.readdirSync("node_modules")
 
 module.exports = {
 	entry: [
-		"./prod.js",
 		"./server.js"
 	],
 	output: {
-		filename: "bin/index.js"
+		filename: "bin/main.js"
 	},
 	externals: mods,
 	module: {
