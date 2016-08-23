@@ -34,7 +34,7 @@ for (let api of apis) {
         if (api.requires_jwt_authentication)
             await authenticate_jwt(ctx, next);
         if (ctx.status != 401) {
-            if (!have_intersection(ctx.state.user.roles, api.allowed_roles)) {
+            if (api.requires_jwt_authentication && !have_intersection(ctx.state.user.roles, api.allowed_roles)) {
                 ctx.status = 403;
                 ctx.body = {error: "Error: You don't have permission for this"};
             } else {
