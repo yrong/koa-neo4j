@@ -40,4 +40,4 @@ curl --data "skip=10&limit=1000" localhost:3000/articles
 ```
 
 ### License
-[MIT](github.com/satratech/koa-neo4j/blob/master/LICENSE)
+[MIT](https://github.com/satratech/koa-neo4j/blob/master/LICENSE)
