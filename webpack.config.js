@@ -12,10 +12,14 @@ fs.readdirSync("node_modules")
 
 module.exports = {
 	entry: [
-		"./server.js"
+		"./lib.js"
 	],
 	output: {
-		filename: "bin/main.js"
+		filename: "bin/main.js",
+		library: "koa-neo4j",
+        libraryTarget: 'umd',
+        umdNamedDefine: true
+
 	},
 	externals: mods,
 	module: {

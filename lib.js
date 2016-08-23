@@ -60,4 +60,6 @@ for (let api of apis) {
     methods[api.method].apply(router, [api.route, handler])
 }
 
-export default app;
+let koaNeo4jApp = (opts) => app;
+
+export default koaNeo4jApp;
