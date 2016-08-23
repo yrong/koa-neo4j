@@ -1,6 +1,6 @@
 {
   "name": "koa-neo4j",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "REST for Neo4j made simple",
   "main": "index.js",
   "scripts": {
