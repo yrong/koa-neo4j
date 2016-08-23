@@ -3,19 +3,34 @@
  */
 import seraph from 'seraph';
 import fs from 'file-system';
+import chalk from 'chalk';
 
-let paths = fs.readdirSync('./cypher');
+
 let query_dict = {};
-for (let path of paths) {
-    query_dict[path] = fs.readFileSync('./cypher/' + path, 'utf8');
-}
+let db;
 
-var db = seraph({
-    server: "http://192.168.10.101:7474",
-    endpoint: "/db/data",
-    user: "neo4j",
-    pass: "k"
-});
+let initializeDatabase = (cypherDirectoryPath, server, endpoint, user, password) => {
+    try {
+        let paths = fs.readdirSync(cypherDirectoryPath);
+        for (let path of paths) {
+            query_dict[path] = fs.readFileSync(cypherDirectoryPath + path, 'utf8');
+        }
+
+        db = seraph({
+            server: server,
+            endpoint: endpoint,
+            user: user,
+            pass: password
+        });
+
+        console.log(chalk.green('Database successfully connected.'));
+    }
+    catch (error) {
+        console.error(chalk.red('Invalid database parameters, database is not connected'));
+        throw error;
+    }
+};
+
 
 let executeCypher = (query_file_name, query_params) => new Promise((resolve, reject) => {
     let query = query_dict[query_file_name];
@@ -41,7 +56,5 @@ class API {
     }
 }
 
-console.log('Database successfully connected.');
-
-export {executeCypher};
+export {executeCypher, initializeDatabase};
 export default API;

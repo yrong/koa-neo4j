@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "patch": "webpack && cp README.md bin/ && cd bin && npm version patch && npm publish",
+    "minor": "webpack && cp README.md bin/ && cd bin && npm version minor && npm publish",
+    "major": "webpack && cp README.md bin/ && cd bin && npm version minor && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
