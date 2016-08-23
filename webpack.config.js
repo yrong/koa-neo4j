@@ -12,7 +12,7 @@ fs.readdirSync("node_modules")
 
 module.exports = {
 	entry: [
-		"babel-polyfill",
+		"./prod.js",
 		"./server.js"
 	],
 	output: {

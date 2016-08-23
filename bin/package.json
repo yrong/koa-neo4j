@@ -1,6 +1,6 @@
 {
   "name": "koa-neo4j",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "REST for Neo4j made simple -- batteries included with built-in integrations for passportjs, JWT and role based authentication",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "url": "https://github.com/satratech/koa-neo4j/issues"
   },
   "dependencies": {
+    "babel-polyfill": "^6.7.4",
     "jsonwebtoken": "^7.1.9",
     "kcors": "^2.1.1",
     "koa": "^2.0.0",
