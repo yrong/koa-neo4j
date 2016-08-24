@@ -6,11 +6,11 @@ import logger from 'koa-logger';
 import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
-import passport, {authenticate_jwt ,authenticate_local} from './auth';
+import passport, {authenticate_jwt, authenticate_local} from './auth';
 import {initializeDatabase} from './data';
 import {key_values, have_intersection} from './util';
 
-let koaNeo4jApp = (options) => {
+const koaNeo4jApp = (options) => {
     initializeDatabase(options.database.cypherDirectoryPath, options.database.server,
         options.database.endpoint, options.database.user, options.database.password);
 
@@ -25,16 +25,16 @@ let koaNeo4jApp = (options) => {
 
     router.post('/auth', authenticate_local);
 
-    let integer_values = new Set(['skip', 'limit', 'id']);
+    const integer_values = new Set(['skip', 'limit', 'id']);
 
 
-    let methods = {
+    const methods = {
         'POST': router.post,
         'GET': router.get
     };
 
-    for (let api of options.apis) {
-        let handler = async (ctx, next) => {
+    for (const api of options.apis) {
+        const handler = async (ctx, next) => {
             if (api.requires_jwt_authentication)
                 await authenticate_jwt(ctx, next);
             if (ctx.status != 401) {
@@ -61,7 +61,7 @@ let koaNeo4jApp = (options) => {
                 }
             }
         };
-        methods[api.method].apply(router, [api.route, handler])
+        methods[api.method].apply(router, [api.route, handler]);
     }
     return app;
 };

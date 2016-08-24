@@ -1,6 +1,4 @@
-bin/
-!bin/package.json
-!bin/index.js
+lib/
 
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 
