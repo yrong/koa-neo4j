@@ -2,13 +2,11 @@
   "name": "koa-neo4j",
   "version": "0.1.2",
   "description": "REST for Neo4j made simple",
-  "main": "index.js",
+  "main": "lib/koa-neo4j.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
     "dev": "webpack --progress --colors --watch",
-    "patch": "webpack && cp README.md bin/ && cd bin && npm version patch && npm publish",
-    "minor": "webpack && cp README.md bin/ && cd bin && npm version minor && npm publish",
-    "major": "webpack && cp README.md bin/ && cd bin && npm version minor && npm publish",
+    "patch": "./ver.sh patch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

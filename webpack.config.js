@@ -14,7 +14,7 @@ var libraryName = 'koa-neo4j';
 var plugins = [];
 
 var config = {
-    entry: ['babel-polyfill', './src/entry.js'],
+    entry: './src/entry.js',
     devtool: 'source-map',
     output: {
         filename: 'lib/' + libraryName + '.js',
