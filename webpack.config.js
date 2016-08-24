@@ -14,7 +14,7 @@ var libraryName = 'koa-neo4j';
 var plugins = [];
 
 var config = {
-    entry: './src/entry.js',
+    entry: './src/main.js',
     devtool: 'source-map',
     output: {
         filename: 'lib/' + libraryName + '.js',
@@ -31,7 +31,13 @@ var config = {
                 exclude: /(node_modules)/,
                 loader: "babel",
                 query: {
-                    presets: ["es2015", "stage-0"]
+                    presets: ["es2015", "stage-0"],
+                    plugins: [
+                        ["transform-runtime", {
+                            "polyfill": false,
+                            "regenerator": true
+                        }]
+                    ]
                 }
             }
         ]
