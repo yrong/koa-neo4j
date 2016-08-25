@@ -25,7 +25,7 @@ const koaNeo4jApp = (options) => {
 
     router.post('/auth', authenticate_local);
 
-    const integer_values = new Set(['skip', 'limit', 'id']);
+    const integerValues = new Set(['skip', 'limit', 'id']);
 
 
     const methods = {
@@ -37,19 +37,20 @@ const koaNeo4jApp = (options) => {
         const handler = async (ctx, next) => {
             if (api.requires_jwt_authentication)
                 await authenticate_jwt(ctx, next);
-            if (ctx.status != 401) {
-                if (api.requires_jwt_authentication && !have_intersection(ctx.state.user.roles, api.allowed_roles)) {
+            if (ctx.status !== 401) {
+                if (api.requires_jwt_authentication &&
+                    !have_intersection(ctx.state.user.roles, api.allowed_roles)) {
                     ctx.status = 403;
                     ctx.body = {error: "Error: You don't have permission for this"};
                 } else {
                     let params = {};
                     if (ctx.url.indexOf('?') >= 0) {
-                        params = '?' + ctx.url.split('?')[1];
+                        params = '?${ctx.url.split("?")[1]}';
                         params = queryString.parse(params);
                     }
                     params = {...params, ...ctx.params, ...ctx.request.body};
                     for (let [key, value] of key_values(params))
-                        if (integer_values.has(key))
+                        if (integerValues.has(key))
                             params[key] = parseInt(value);
 
                     try {

@@ -27,7 +27,7 @@ passport.use(new LocalStrategy((username, password, done) => {
             else {
                 delete user.salt;
                 done(null, user);
-          }
+            }
         }, done);
 }));
 

@@ -81,7 +81,7 @@
      * Best practices
      */
     "no-extra-boolean-cast": 2,
-    "curly": [2, "multi-line"],
+    "curly": [2, "multi"],
     "default-case": 2,
     "dot-notation": [2, {
       "allowKeywords": true
@@ -121,6 +121,7 @@
      * Style
      */
     "no-mixed-spaces-and-tabs": 2,
+    "no-lonely-if": 2,
     "no-array-constructor": 2,
     "no-new-object": 2,
     "new-parens": 2,
