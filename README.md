@@ -16,7 +16,7 @@ var app = koaNeo4jApp({
     cypher_directory: './cypher',
     apis: [
         new API('GET', '/articles', 'articles.cyp'),
-        new API('POST', '/articles', 'articles.cyp', ['admin'], () => console.log('/doctors POST served.')),
+        new API('POST', '/articles', 'articles.cyp', ['admin'], () => console.log('/articles POST served.')),
     ],
     database: {
         cypherDirectoryPath: './cypher/',
