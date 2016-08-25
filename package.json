@@ -18,7 +18,6 @@
     "url": "https://github.com/satratech/koa-neo4j/issues"
   },
   "devDependencies": {
-    "@earnest/eslint-config-es7": "^3.0.0",
     "babel": "^6.5.2",
     "babel-cli": "^6.11.4",
     "babel-core": "^6.13.2",

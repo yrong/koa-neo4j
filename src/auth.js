@@ -15,18 +15,18 @@ const secret = 'secret';
 passport.serializeUser((user, done) => done(null, user.username));
 
 passport.deserializeUser((username, done) => {
-  console.log('Deserializing user ${JSON.stringify(username)}');
-  executeCypher('auth.cyp', {username:username}).then((user) => done(null, user), done);
+    console.log('Deserializing user ${JSON.stringify(username)}');
+    executeCypher('auth.cyp', {username:username}).then((user) => done(null, user), done);
 });
 
 passport.use(new LocalStrategy((username, password, done) => {
-  executeCypher('auth.cyp', {username:username})
+    executeCypher('auth.cyp', {username:username})
         .then(([user]) => {
-          if (!user || password !== user.salt)
-            done(new Error('Invalid username or password'));
-          else {
-            delete user.salt;
-            done(null, user);
+            if (!user || password !== user.password_hash)
+                done(new Error('Invalid username or password'));
+            else {
+                delete user.salt;
+                done(null, user);
           }
         }, done);
 }));
