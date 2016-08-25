@@ -1,1 +1,6 @@
-{ "extends": "@earnest/eslint-config-es7" }
+{
+  "extends": "@earnest/eslint-config-es7",
+  "rules": {
+    "indent": [2, 4]
+  }
+}
