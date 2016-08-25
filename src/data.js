@@ -5,55 +5,53 @@ import seraph from 'seraph';
 import fs from 'file-system';
 import chalk from 'chalk';
 
-
-const query_dict = {};
+const queryDict = {};
 let db;
 
-const initializeDatabase = (cypherDirectoryPath, server, endpoint, user, password) => {
-  try {
-    const paths = fs.readdirSync(cypherDirectoryPath);
-    for (const path of paths) {
-      query_dict[path] = fs.readFileSync(cypherDirectoryPath + path, 'utf8');
-    }
+const addCypherQueryFile = (cypherQueryFilePath) => {
+    queryDict[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
+};
 
-    db = seraph({
-      server: server,
-      endpoint: endpoint,
-      user: user,
-      pass: password
-    });
-
-    console.log(chalk.green('Database successfully connected.'));
-  }
-    catch (error) {
-      console.error(chalk.red('Invalid database parameters, database is not connected'));
-      throw error;
+const initializeDatabase = (server, endpoint, user, password) => {
+    try {
+        db = seraph({
+            server: server,
+            endpoint: endpoint,
+            user: user,
+            pass: password
+        });
+        console.log(chalk.green('Database successfully connected.'));
+    } catch (error) {
+        console.error(chalk.red('Invalid database parameters, database is not connected'));
+        throw error;
     }
 };
 
 
-const executeCypher = (query_file_name, query_params) => new Promise((resolve, reject) => {
-  const query = query_dict[query_file_name];
-  db.query(query, query_params, (err, result) => {
-    if (err)
-      reject(err);
-    else
+const executeCypher = (cypherQueryFilePath, queryParams) => new Promise((resolve, reject) => {
+    if (!queryDict[cypherQueryFilePath])
+        addCypherQueryFile(cypherQueryFilePath);
+
+    const query = queryDict[cypherQueryFilePath];
+    db.query(query, queryParams, (err, result) => {
+        if (err)
+            reject(err);
+        else
             resolve(result);
-  });
+    });
 });
 
 class API {
-  constructor(method, route, cypher_query_file_name, allowed_roles = [], then = () => {}) {
-    this.method = method;
-    this.route = route;
-    this.allowed_roles = allowed_roles;
-    this.requires_jwt_authentication = allowed_roles && Array.isArray(allowed_roles) && allowed_roles.length > 0;
+    constructor(method, route, cypherQueryFilePath, allowedRoles = [],
+                postProcess = (result) => result) {
+        this.method = method;
+        this.route = route;
+        this.allowedRoles = allowedRoles;
+        this.requiresJwtAuthentication = allowedRoles &&
+            Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-    this.response = (params) => executeCypher(cypher_query_file_name, params).then((response) => {
-      then();
-      return response;
-    });
-  }
+        this.response = (params) => executeCypher(cypherQueryFilePath, params).then(postProcess);
+    }
 }
 
 export {executeCypher, initializeDatabase};

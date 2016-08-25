@@ -6,24 +6,47 @@ import logger from 'koa-logger';
 import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
-import passport, {authenticate_jwt, authenticate_local} from './auth';
+import passport, {authenticateJwt, authenticateLocal,
+    setSecret, setuserQueryCypherFile, useAuthentication} from './auth';
 import {initializeDatabase} from './data';
-import {key_values, have_intersection} from './util';
+import {keyValues, haveIntersection, readMissingFromDefault} from './util';
+
+const defaultOptions = {
+    apis: [],
+    database: {
+        server: 'http://localhost:7474',
+        endpoint: '/db/data',
+        user: 'neo4j',
+        password: 'neo4j'
+    },
+    authentication: {
+        userQueryCypherFile: './cypher/auth.cyp',
+        route: '/auth',
+        secret: 'secret'
+    }
+};
 
 const koaNeo4jApp = (options) => {
-    initializeDatabase(options.database.cypherDirectoryPath, options.database.server,
-        options.database.endpoint, options.database.user, options.database.password);
+    options = readMissingFromDefault(options, defaultOptions);
+    initializeDatabase(options.database.server, options.database.endpoint,
+        options.database.user, options.database.password);
 
     const app = new Koa();
     const router = new Router();
+
+    if (options.authentication) {
+        setSecret(options.authentication.secret);
+        setuserQueryCypherFile(options.authentication.userQueryCypherFile);
+        useAuthentication();
+        router.post(options.authentication.route, authenticateLocal);
+    }
+
     app
         .use(cors())
         .use(passport.initialize())
         .use(logger())
         .use(parser())
         .use(router.routes());
-
-    router.post('/auth', authenticate_local);
 
     const integerValues = new Set(['skip', 'limit', 'id']);
 
@@ -35,11 +58,11 @@ const koaNeo4jApp = (options) => {
 
     for (const api of options.apis) {
         const handler = async (ctx, next) => {
-            if (api.requires_jwt_authentication)
-                await authenticate_jwt(ctx, next);
+            if (api.requiresJwtAuthentication)
+                await authenticateJwt(ctx, next);
             if (ctx.status !== 401) {
-                if (api.requires_jwt_authentication &&
-                    !have_intersection(ctx.state.user.roles, api.allowed_roles)) {
+                if (api.requiresJwtAuthentication &&
+                    !haveIntersection(ctx.state.user.roles, api.allowedRoles)) {
                     ctx.status = 403;
                     ctx.body = {error: "Error: You don't have permission for this"};
                 } else {
@@ -49,7 +72,7 @@ const koaNeo4jApp = (options) => {
                         params = queryString.parse(params);
                     }
                     params = {...params, ...ctx.params, ...ctx.request.body};
-                    for (let [key, value] of key_values(params))
+                    for (const [key, value] of keyValues(params))
                         if (integerValues.has(key))
                             params[key] = parseInt(value);
 

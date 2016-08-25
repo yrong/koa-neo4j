@@ -10,63 +10,70 @@ import {executeCypher} from './data';
 
 
 const passport = new KoaPassport();
-const secret = 'secret';
+let secret;
+let userQueryCypherFile;
+
+const setuserQueryCypherFile = (value) => { userQueryCypherFile = value; };
+const setSecret = (value) => { secret = value; console.log('segeeeeeeeeeee ' + value);};
+
+const useAuthentication = () => {
+    passport.use(new LocalStrategy((username, password, done) => {
+        executeCypher(userQueryCypherFile, {username:username})
+            .then(([user]) => {
+                if (!user || password !== user.password_hash)
+                    done(new Error('Invalid username or password'));
+                else {
+                    delete user.salt;
+                    done(null, user);
+                }
+            }, done);
+    }));
+    console.log('sooooteeeeee      ' + secret);
+
+    passport.use(new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeader(),
+            secretOrKey: secret
+        }, (user, done) => {
+            // Check whether payload is user
+            if (!user.id)
+                done(new Error('Invalid token'));
+            else
+                done(null, user);
+        }));
+};
 
 passport.serializeUser((user, done) => done(null, user.username));
 
 passport.deserializeUser((username, done) => {
     console.log('Deserializing user ${JSON.stringify(username)}');
-    executeCypher('auth.cyp', {username:username}).then((user) => done(null, user), done);
+    executeCypher(userQueryCypherFile, {username:username}).then((user) => done(null, user), done);
 });
 
-passport.use(new LocalStrategy((username, password, done) => {
-    executeCypher('auth.cyp', {username:username})
-        .then(([user]) => {
-            if (!user || password !== user.password_hash)
-                done(new Error('Invalid username or password'));
-            else {
-                delete user.salt;
-                done(null, user);
-            }
-        }, done);
-}));
 
 // koa-passport uses generators which will be deprecated in koa v3, below block should be refactored
 // accordingly
 // The author of koa-passport has not considered the use cases of done(err), hence we need to wrap
 // calls in a promise
-const authenticate_local = async (ctx, next) => await new Promise(
+const authenticateLocal = async (ctx, next) => await new Promise(
     (resolve, reject) => passport.authenticate('local', resolve)(ctx, next)
         .catch(reject))
     .then((user) => {
-      ctx.login(user);
-      ctx.body = {token: 'JWT ' + jwt.sign(user, secret)};
+        ctx.login(user);
+        ctx.body = {token: 'JWT ' + jwt.sign(user, secret)};
     })
     .catch((error) => {
-      ctx.status = 422;
-      ctx.body = {error: String(error)};
+        ctx.status = 422;
+        ctx.body = {error: String(error)};
     });
 
-passport.use(new JwtStrategy(
-  {
-    jwtFromRequest: ExtractJwt.fromAuthHeader(),
-    secretOrKey: secret
-  }, (user, done) => {
-        // Check whether payload is user
-    if (!user.id) {
-      done(new Error('Invalid token'));
-    }
-    else
-            done(null, user);
-  }));
-
-const authenticate_jwt = async (ctx, next) => await new Promise(
+const authenticateJwt = async (ctx, next) => await new Promise(
     (resolve, reject) => passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
         .catch(reject))
     .then((user) => ctx.login(user))
     .catch((error) => {
-      ctx.status = 401;
-      ctx.body = {error: String(error)};
+        ctx.status = 401;
+        ctx.body = {error: String(error)};
     });
 
 // var FacebookStrategy = require('passport-facebook').Strategy
@@ -105,5 +112,5 @@ const authenticate_jwt = async (ctx, next) => await new Promise(
 //     }
 // ))
 
-export {authenticate_local, authenticate_jwt};
+export {setSecret, setuserQueryCypherFile, useAuthentication, authenticateLocal, authenticateJwt};
 export default passport;

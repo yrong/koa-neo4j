@@ -2,21 +2,29 @@
  * Created by keyvan on 8/22/16.
  */
 
-function* key_values(obj) {
-  for (const key of Object.keys(obj)) {
-    yield [key, obj[key]];
-  }
+function* keyValues(obj) {
+    for (const key of Object.keys(obj))
+        yield [key, obj[key]];
 }
 
-const have_intersection = (arrayFirst, arraySecond) => {
-  if (!arrayFirst || !arraySecond)
+const haveIntersection = (arrayFirst, arraySecond) => {
+    if (!arrayFirst || !arraySecond)
+        return false;
+    const first = new Set(arrayFirst);
+    const second = new Set(arraySecond);
+    for (const element of first)
+        if (second.has(element))
+            return true;
     return false;
-  const first = new Set(arrayFirst);
-  const second = new Set(arraySecond);
-  for (const element of first)
-    if (second.has(element))
-      return true;
-  return false;
 };
 
-export {key_values, have_intersection};
+const readMissingFromDefault = (obj, defaultValues) => {
+    if (!obj)
+        return Object.assign({}, defaultValues);
+    const result = {};
+    for (const [key, value] of keyValues(defaultValues))
+        result[key] = obj[key] ? obj[key] : value;
+    return result;
+};
+
+export {keyValues, haveIntersection, readMissingFromDefault};
