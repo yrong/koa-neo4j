@@ -9,27 +9,32 @@ npm install koa-neo4j --save
 ### Usage
 You can find a comprehensive example at [koa-neo4j-example](https://github.com/satratech/koa-neo4j-example) 
 ```javascript
-var koaNeo4jApp = require("koa-neo4j").default;
-var API = require("koa-neo4j").API;
+var koaNeo4jApp = require('koa-neo4j').default;
+var API = require('koa-neo4j').API;
 
 var app = koaNeo4jApp({
-    cypher_directory: './cypher',
     apis: [
-        new API('GET', '/articles', 'articles.cyp'),
-        new API('POST', '/articles', 'articles.cyp', ['admin'], () => console.log('/articles POST served.')),
+        new API('GET', '/articles', './cypher/articles.cyp'),
+        new API('POST', '/articles', './cypher/articles.cyp', ['admin'], function (result) {
+            // Perform postprocessing on 'result' returned by executing the cypher query
+            // ...
+            return result;
+        })
     ],
     database: {
-        cypherDirectoryPath: './cypher/',
-        server: "http://192.168.10.101:7474",
-        endpoint: "/db/data",
-        user: "neo4j",
-        password: "<NEO4J_PASSWORD>"
-    }
+        server: 'http://192.168.10.101:7474',
+        endpoint: '/db/data',
+        user: 'neo4j',
+        password: '<NEO4J_PASSWORD>'
+    },
+    userQueryCypherFile: './cypher/auth.cyp',
+    authenticationRoute: '/auth'
 });
+
 app.listen(3000, function () {
     console.log('App listening on port 3000.');
 });
-});
+
 ```
 
 API takes 5 arguments:
