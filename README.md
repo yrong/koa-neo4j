@@ -7,21 +7,40 @@ npm install koa-neo4j --save
 ```
 
 ### Usage
+You can find a comprehensive example at [koa-neo4j-example](https://github.com/satratech/koa-neo4j-example) 
 ```javascript
-var koaNeo4jApp = require("koa-neo4j");
-var app = koaNeo4jApp(opts);
+var koaNeo4jApp = require("koa-neo4j").default;
+var API = require("koa-neo4j").API;
+
+var app = koaNeo4jApp({
+    cypher_directory: './cypher',
+    apis: [
+        new API('GET', '/articles', 'articles.cyp'),
+        new API('POST', '/articles', 'articles.cyp', ['admin'], () => console.log('/doctors POST served.')),
+    ],
+    database: {
+        cypherDirectoryPath: './cypher/',
+        server: "http://192.168.10.101:7474",
+        endpoint: "/db/data",
+        user: "neo4j",
+        password: "k"
+    }
+});
 app.listen(3000, function () {
-	console.log('App listening on port 3000.');
+    console.log('App listening on port 3000.');
+});
 });
 ```
 
-First argument, `method`, specifies the request types (GET|POST|DEL)
+API takes 5 arguments:
 
-Second argument, `route`, denotes the route
+`method`, specifies the request types (GET|POST|DEL)
 
-`cypher_query_file_name` corresponds to a `.cyp` file located in `./cypher`
+`route`, denotes the route
 
-Last argument, `then`, takes a function which is invoked after each successful cypher execution for this route.
+`cypher_query_file_name` corresponds to a `.cyp` file located in `cypherDirectoryPath`
+
+`then`, takes a function which is invoked after each successful cypher execution for this route.
 
 Cypher files accept parameters via curly brace syntax:
 ```cypher
