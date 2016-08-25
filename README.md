@@ -22,13 +22,16 @@ var app = koaNeo4jApp({
         })
     ],
     database: {
-        server: 'http://192.168.10.101:7474',
+        server: 'http://localhost:7474',
         endpoint: '/db/data',
         user: 'neo4j',
         password: '<NEO4J_PASSWORD>'
     },
-    userQueryCypherFile: './cypher/auth.cyp',
-    authenticationRoute: '/auth'
+    authentication: {
+        userQueryCypherFile: './cypher/auth.cyp',
+        route: '/auth',
+        secret: 'secret'
+    }
 });
 
 app.listen(3000, function () {
