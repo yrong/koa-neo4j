@@ -23,7 +23,7 @@ var app = koaNeo4jApp({
         server: "http://192.168.10.101:7474",
         endpoint: "/db/data",
         user: "neo4j",
-        password: "k"
+        password: "<NEO4J_PASSWORD>"
     }
 });
 app.listen(3000, function () {
