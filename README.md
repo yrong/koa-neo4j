@@ -10,22 +10,24 @@ npm install koa-neo4j --save
 You can find a comprehensive example at [koa-neo4j-example](https://github.com/satratech/koa-neo4j-example) 
 ```javascript
 var koaNeo4jApp = require('koa-neo4j').default;
-var API = require('koa-neo4j').API;
 
 var app = koaNeo4jApp({
     apis: [
-        new API('GET', '/articles', './cypher/articles.cyp'),
-        new API('POST', '/articles', './cypher/articles.cyp', ['admin'], function (result) {
-            // Perform postprocessing on 'result' returned by executing the cypher query
-            // ...
-            return result;
-        })
+        {
+            method: 'GET',
+            route: '/articles',
+            cypherQueryFile: './cypher/articles.cyp'
+        },
+        {
+            method: 'POST',
+            route: '/articles',
+            cypherQueryFile: './cypher/articles.cyp'
+        }
     ],
     database: {
-        server: 'http://localhost:7474',
-        endpoint: '/db/data',
+        boltUrl: 'bolt://localhost',
         user: 'neo4j',
-        password: '<NEO4J_PASSWORD>'
+        password: 'k'
     },
     authentication: {
         userQueryCypherFile: './cypher/auth.cyp',
@@ -40,15 +42,17 @@ app.listen(3000, function () {
 
 ```
 
-API takes 5 arguments:
+An API is defined by five keys:
 
 `method`, specifies the request types (GET|POST|DEL)
 
 `route`, denotes the route
 
-`cypher_query_file_name` corresponds to a `.cyp` file located in `cypherDirectoryPath`
+`cypherQueryFile` path to the the `.cyp` corresponding to this route
 
-`then`, takes a function which is invoked after each successful cypher execution for this route.
+`postProcess` a function for performing post-processing on the result
+
+`allowedRoles` an array specifying the roles permitted to access the route
 
 Cypher files accept parameters via curly brace syntax:
 ```cypher
@@ -65,6 +69,9 @@ In addition, any data accompanied by the request will also be passed to the Cyph
 ```bash
 curl --data "skip=10&limit=1000" localhost:3000/articles
 ```
+
+### Authentication
+Needs docs
 
 ### License
 [MIT](https://github.com/satratech/koa-neo4j/blob/master/LICENSE)

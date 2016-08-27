@@ -13,10 +13,12 @@ const passport = new KoaPassport();
 let secret;
 let userQueryCypherFile;
 
-const setuserQueryCypherFile = (value) => { userQueryCypherFile = value; };
-const setSecret = (value) => { secret = value; console.log('segeeeeeeeeeee ' + value);};
+const setUserQueryCypherFile = (value) => { userQueryCypherFile = value; };
+const setSecret = (value) => { secret = value; };
 
-const useAuthentication = () => {
+const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
+    setSecret(secret);
+    setUserQueryCypherFile(userQueryCypherFile);
     passport.use(new LocalStrategy((username, password, done) => {
         executeCypher(userQueryCypherFile, {username:username})
             .then(([user]) => {
@@ -28,7 +30,6 @@ const useAuthentication = () => {
                 }
             }, done);
     }));
-    console.log('sooooteeeeee      ' + secret);
 
     passport.use(new JwtStrategy(
         {
@@ -112,5 +113,5 @@ const authenticateJwt = async (ctx, next) => await new Promise(
 //     }
 // ))
 
-export {setSecret, setuserQueryCypherFile, useAuthentication, authenticateLocal, authenticateJwt};
+export {useAuthentication, authenticateLocal, authenticateJwt};
 export default passport;

@@ -8,7 +8,7 @@ const parseField = field => {
     const properties = hasProperties ? field.properties : field;
     const result = {};
     for (let [key, value] of keyValues(properties)) {
-        if (value && value.low && value.high)
+        if (value && value.low && value.high === 0)
             value = value.low;
         result[key] = value;
     }
