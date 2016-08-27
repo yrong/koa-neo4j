@@ -15,7 +15,7 @@ var app = koaNeo4jApp({
     apis: [
         {
             method: 'GET',
-            route: '/articles',
+            route: '/articles/:skip/:limit',
             cypherQueryFile: './cypher/articles.cyp'
         },
         {
@@ -27,7 +27,7 @@ var app = koaNeo4jApp({
     database: {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
-        password: 'k'
+        password: 'YOUR_NEO4j_PASSWORD>'
     },
     authentication: {
         userQueryCypherFile: './cypher/auth.cyp',

@@ -10,17 +10,14 @@ import {executeCypher} from './data';
 
 
 const passport = new KoaPassport();
-let secret;
-let userQueryCypherFile;
-
-const setUserQueryCypherFile = (value) => { userQueryCypherFile = value; };
-const setSecret = (value) => { secret = value; };
+let secretPhrase;
+let userQuery;
 
 const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
-    setSecret(secret);
-    setUserQueryCypherFile(userQueryCypherFile);
+    secretPhrase = secret;
+    userQuery = userQueryCypherFile;
     passport.use(new LocalStrategy((username, password, done) => {
-        executeCypher(userQueryCypherFile, {username:username})
+        executeCypher(userQuery, {username:username})
             .then(([user]) => {
                 if (!user || password !== user.password_hash)
                     done(new Error('Invalid username or password'));
@@ -47,8 +44,8 @@ const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
 passport.serializeUser((user, done) => done(null, user.username));
 
 passport.deserializeUser((username, done) => {
-    console.log('Deserializing user ${JSON.stringify(username)}');
-    executeCypher(userQueryCypherFile, {username:username}).then((user) => done(null, user), done);
+    console.log(`Deserializing user ${JSON.stringify(username)}`);
+    executeCypher(userQuery, {username:username}).then((user) => done(null, user), done);
 });
 
 
@@ -61,7 +58,7 @@ const authenticateLocal = async (ctx, next) => await new Promise(
         .catch(reject))
     .then((user) => {
         ctx.login(user);
-        ctx.body = {token: 'JWT ' + jwt.sign(user, secret)};
+        ctx.body = {token: `JWT ${jwt.sign(user, secretPhrase)}`};
     })
     .catch((error) => {
         ctx.status = 422;

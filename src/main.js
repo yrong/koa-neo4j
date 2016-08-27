@@ -48,7 +48,7 @@ const defineAPI = apiObject => {
             } else {
                 let params = {};
                 if (ctx.url.indexOf('?') >= 0) {
-                    params = '?${ctx.url.split("?")[1]}';
+                    params = `?${ctx.url.split('?')[1]}`;
                     params = queryString.parse(params);
                 }
                 params = {...params, ...ctx.params, ...ctx.request.body};
@@ -69,7 +69,7 @@ const defineAPI = apiObject => {
 
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
-    initializeDatabase(options.database);
+    initializeDatabase(options.database).catch((err) => { setTimeout(() => { throw err; }); });
 
     if (options.authentication) {
         useAuthentication(options.authentication);
