@@ -31,8 +31,13 @@ const executeCypher = (cypherQueryFilePath, queryParams) => new Promise((resolve
     const session = driver.session();
 
     session.run(query, queryParams)
-        .then(result => { resolve(parseNeo4jResponse(result)); session.close(); }, reject);
-});
+        .then(result => {
+            resolve(result);
+            session.close();
+        })
+        .catch(reject);
+})
+    .then(parseNeo4jResponse);
 
 class API {
     constructor({method, route, cypherQueryFile, allowedRoles = [],

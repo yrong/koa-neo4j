@@ -17,16 +17,15 @@ const parseField = field => {
 
 const parseNeo4jResponse = response => {
     const result = [];
-    for (const record of response.records) {
-        if (record.length == 1) {
+    for (const record of response.records)
+        if (record.length == 1)
             result.push(parseField(record._fields[0]));
-        } else {
+        else {
             const parsedRecord = {};
             for (const [index, key] of enumerate(record.keys))
                 parsedRecord[key] = parseField(record._fields[index]);
             result.push(parsedRecord);
         }
-    }
     return result;
 };
 
