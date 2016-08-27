@@ -4,15 +4,20 @@
 import {enumerate, keyValues} from './util';
 
 const parseField = field => {
-    const hasProperties = field.properties && field.identity && field.identity.low;
-    const properties = hasProperties ? field.properties : field;
-    const result = {};
-    for (let [key, value] of keyValues(properties)) {
-        if (value && value.low && value.high === 0)
-            value = value.low;
-        result[key] = value;
-    }
-    return result;
+    if (!Array.isArray(field))
+        return field;
+    else if (typeof field === 'object') {
+        const hasProperties = field.properties && field.identity && field.identity.low;
+        const properties = hasProperties ? field.properties : field;
+        const result = {};
+        for (let [key, value] of keyValues(properties)) {
+            if (value && value.low && value.high === 0)
+                value = value.low;
+            result[key] = value;
+        }
+        return result;
+    } else
+        return parseField(field[0]);
 };
 
 const parseNeo4jResponse = response => {
