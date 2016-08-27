@@ -45,10 +45,11 @@
     "koa-logger": "^2.0.0",
     "koa-passport": "^2.2.2",
     "koa-router": "^7.0.1",
+    "neo4j-driver": "^1.1.0-M01",
+    "neo4j-parser": "^2.0.4",
     "passport-jwt": "^2.1.0",
     "passport-local": "^1.0.0",
     "query-string": "^4.2.3",
-    "regenerator-runtime": "^0.9.5",
-    "seraph": "^0.15.2"
+    "regenerator-runtime": "^0.9.5"
   }
 }

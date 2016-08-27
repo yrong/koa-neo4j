@@ -8,14 +8,13 @@ import cors from 'kcors';
 import queryString from 'query-string';
 import passport, {authenticateJwt, authenticateLocal,
     setSecret, setuserQueryCypherFile, useAuthentication} from './auth';
-import {initializeDatabase} from './data';
+import API, {initializeDatabase} from './data';
 import {keyValues, haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
     apis: [],
     database: {
-        server: 'http://localhost:7474',
-        endpoint: '/db/data',
+        boltUrl: 'bolt://localhost',
         user: 'neo4j',
         password: 'neo4j'
     },
@@ -28,8 +27,7 @@ const defaultOptions = {
 
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
-    initializeDatabase(options.database.server, options.database.endpoint,
-        options.database.user, options.database.password);
+    initializeDatabase(options.database);
 
     const app = new Koa();
     const router = new Router();
@@ -56,7 +54,8 @@ const koaNeo4jApp = (options) => {
         'GET': router.get
     };
 
-    for (const api of options.apis) {
+    for (let api of options.apis) {
+        api = new API(api);
         const handler = async (ctx, next) => {
             if (api.requiresJwtAuthentication)
                 await authenticateJwt(ctx, next);
@@ -90,5 +89,4 @@ const koaNeo4jApp = (options) => {
     return app;
 };
 
-export API from './data';
 export default koaNeo4jApp;

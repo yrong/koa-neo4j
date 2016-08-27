@@ -27,4 +27,12 @@ const readMissingFromDefault = (obj, defaultValues) => {
     return result;
 };
 
-export {keyValues, haveIntersection, readMissingFromDefault};
+function* enumerate(array) {
+    let index = 0;
+    for (const element of array) {
+        yield [index, element];
+        index++;
+    }
+}
+
+export {keyValues, haveIntersection, readMissingFromDefault, enumerate};
