@@ -23,7 +23,7 @@ const initializeDatabase = ({boltUrl, user, password} = {}) => {
         })
         .catch(error => {
             console.error(
-                chalk.red('Error connecting to theNeo4j instance, check database arguments'));
+                chalk.red('Error connecting to the Neo4j instance, check database parameters'));
             throw error.fields ? new Error(JSON.stringify(error.fields[0])) : error;
         });
 };

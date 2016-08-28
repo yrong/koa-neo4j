@@ -71,6 +71,7 @@ const defineAPI = apiObject => {
 const configureAuthentication = authentication => {
     useAuthentication(authentication);
     router.post(authentication.route, authenticateLocal);
+    app.use(passport.initialize());
 };
 
 
@@ -78,15 +79,14 @@ const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
     initializeDatabase(options.database).catch((err) => { setTimeout(() => { throw err; }); });
 
-    if (options.authentication)
-        configureAuthentication(options.authentication);
-
     if (options.log)
         app.use(logger());
 
+    if (options.authentication)
+        configureAuthentication(options.authentication);
+
     app
         .use(cors())
-        .use(passport.initialize())
         .use(parser())
         .use(router.routes());
 

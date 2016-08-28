@@ -17,7 +17,7 @@ const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
     secretPhrase = secret;
     userQuery = userQueryCypherFile;
     passport.use(new LocalStrategy((username, password, done) => {
-        executeCypher(userQuery, {username:username})
+        executeCypher(userQuery, {username: username})
             .then(([user]) => {
                 if (!user || password !== user.password_hash)
                     done(new Error('Invalid username or password'));
