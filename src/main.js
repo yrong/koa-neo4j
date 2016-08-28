@@ -67,14 +67,19 @@ const defineAPI = apiObject => {
     methods[api.method].apply(router, [api.route, handler]);
 };
 
+
+const configureAuthentication = authentication => {
+    useAuthentication(authentication);
+    router.post(authentication.route, authenticateLocal);
+};
+
+
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
     initializeDatabase(options.database).catch((err) => { setTimeout(() => { throw err; }); });
 
-    if (options.authentication) {
-        useAuthentication(options.authentication);
-        router.post(options.authentication.route, authenticateLocal);
-    }
+    if (options.authentication)
+        configureAuthentication(options.authentication);
 
     if (options.log)
         app.use(logger());
@@ -90,5 +95,5 @@ const koaNeo4jApp = (options) => {
     return app;
 };
 
-export {defineAPI, router, passport};
+export {defineAPI, configureAuthentication, router, passport};
 export default koaNeo4jApp;

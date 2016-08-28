@@ -6,9 +6,12 @@ import {enumerate, keyValues} from './util';
 const hasProperties = obj => obj.properties && obj.identity && obj.identity.low;
 
 const parseField = field => {
-    if (typeof field === 'object')
+    // If null or value
+    if (!field || typeof field !== 'object')
+        return field;
+    else
         // If it's a number
-        if (field.high === 0)
+        if ((field.low || field.low === 0) && field.high === 0)
             return field.low;
         // If it's an array
         else if (field['0']) {
@@ -25,16 +28,11 @@ const parseField = field => {
             const properties = hasProperties(field) ? field.properties : field;
             const result = {};
             for (let [key, value] of keyValues(properties)) {
-                if (value && value.low && value.high === 0)
-                    value = value.low;
-                if (hasProperties(value))
-                    value = parseField(value);
+                value = parseField(value);
                 result[key] = value;
             }
             return result;
         }
-    else
-        return field;
 };
 
 const parseNeo4jResponse = response => {
