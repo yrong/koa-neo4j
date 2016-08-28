@@ -46,14 +46,16 @@ const executeCypher = (cypherQueryFilePath, queryParams) => new Promise((resolve
 
 class API {
     constructor({method, route, cypherQueryFile, allowedRoles = [],
-                postProcess = result => result} = {}) {
+        preProcess = params => params, postProcess = result => result} = {}) {
         this.method = method;
         this.route = route;
         this.allowedRoles = allowedRoles;
         this.requiresJwtAuthentication = allowedRoles &&
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-        this.response = params => executeCypher(cypherQueryFile, params).then(postProcess);
+        this.response = params => Promise.resolve(preProcess(params))
+            .then(params => executeCypher(cypherQueryFile, params))
+            .then(postProcess);
     }
 }
 
