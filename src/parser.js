@@ -33,16 +33,8 @@ const parseField = field => {
             }
             return result;
         }
-    else if (field.length == 1)
-        return parseField(field[0]);
-    else if (!Array.isArray(field))
+    else
         return field;
-    else {
-        const result = [];
-        for (const current of field)
-            result.push(parseField(current));
-        return result;
-    }
 };
 
 const parseNeo4jResponse = response => {
