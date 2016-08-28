@@ -3,21 +3,46 @@
  */
 import {enumerate, keyValues} from './util';
 
+const hasProperties = obj => obj.properties && obj.identity && obj.identity.low;
+
 const parseField = field => {
-    if (!Array.isArray(field))
-        return field;
-    else if (typeof field === 'object') {
-        const hasProperties = field.properties && field.identity && field.identity.low;
-        const properties = hasProperties ? field.properties : field;
-        const result = {};
-        for (let [key, value] of keyValues(properties)) {
-            if (value && value.low && value.high === 0)
-                value = value.low;
-            result[key] = value;
+    if (typeof field === 'object')
+        // If it's a number
+        if (field.high === 0)
+            return field.low;
+        // If it's an array
+        else if (field['0']) {
+            const result = [];
+            let index = 0;
+            let current = field['0'];
+            while (current) {
+                result.push(parseField(current));
+                index++;
+                current = field[String(index)];
+            }
+            return result;
+        } else { // It's an object by this point
+            const properties = hasProperties(field) ? field.properties : field;
+            const result = {};
+            for (let [key, value] of keyValues(properties)) {
+                if (value && value.low && value.high === 0)
+                    value = value.low;
+                if (hasProperties(value))
+                    value = parseField(value);
+                result[key] = value;
+            }
+            return result;
         }
-        return result;
-    } else
+    else if (field.length == 1)
         return parseField(field[0]);
+    else if (!Array.isArray(field))
+        return field;
+    else {
+        const result = [];
+        for (const current of field)
+            result.push(parseField(current));
+        return result;
+    }
 };
 
 const parseNeo4jResponse = response => {

@@ -16,13 +16,13 @@ const addCypherQueryFile = (cypherQueryFilePath) => {
 const initializeDatabase = ({boltUrl, user, password} = {}) => {
     driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
     const session = driver.session();
-    return session.run('RETURN "Working"')
-        .then(result => {
-            console.log(chalk.green('Neo4j instance successfully connected.'));
+    return session.run('RETURN "Neo4j instance successfully connected."')
+        .then((result) => {
+            console.log(chalk.green(parseNeo4jResponse(result)));
             session.close();
         })
         .catch(error => {
-            console.log(
+            console.error(
                 chalk.red('Error connecting to theNeo4j instance, check database arguments'));
             throw error.fields ? new Error(JSON.stringify(error.fields[0])) : error;
         });
