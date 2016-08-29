@@ -64,7 +64,7 @@ const authenticateJwt = async (ctx, next) => await new Promise(
         .catch(reject))
     .then(user => executeCypher(rolesQuery, {id: neo4jInt(user.id)}))
     // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
-    .then(([user]) => { console.log(user);ctx.user = user; })
+    .then(([user]) => { ctx.user = user; })
     .catch((error) => {
         ctx.status = 401;
         ctx.body = {error: error.fields ? String(error.fields[0]) : String(error)};
