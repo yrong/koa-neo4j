@@ -1,2 +1,2 @@
-!lib/koa-neo4j.js
-!lib/koa-neo4j.js.map
+*
+!lib/*
