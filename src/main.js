@@ -13,13 +13,14 @@ import {keyValues, haveIntersection, readMissingFromDefault} from './util';
 const defaultOptions = {
     apis: [],
     log: true,
-    database: {
+    neo4j: {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
         password: 'neo4j'
     },
     authentication: {
-        userQueryCypherFile: './cypher/auth.cyp',
+        userCypherQueryFile: './cypher/user.cyp',
+        rolesCypherQueryFile: './cypher/roles.cyp',
         route: '/auth',
         secret: 'secret'
     }
@@ -42,7 +43,7 @@ const defineAPI = apiObject => {
             await authenticateJwt(ctx, next);
         if (ctx.status !== 401)
             if (api.requiresJwtAuthentication &&
-                !haveIntersection(ctx.state.user.roles, api.allowedRoles)) {
+                !haveIntersection(ctx.user.roles, api.allowedRoles)) {
                 ctx.status = 403;
                 ctx.body = {error: "Error: You don't have permission for this"};
             } else {
@@ -68,16 +69,19 @@ const defineAPI = apiObject => {
 };
 
 
-const configureAuthentication = authentication => {
-    useAuthentication(authentication);
-    router.post(authentication.route, authenticateLocal);
+const configureAuthentication = options => {
+    useAuthentication(options);
     app.use(passport.initialize());
+    router.post(options.route, authenticateLocal);
 };
+
+
+const configureCors = options => app.use(cors(options));
 
 
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
-    initializeDatabase(options.database).catch((err) => { setTimeout(() => { throw err; }); });
+    initializeDatabase(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
 
     if (options.log)
         app.use(logger());
@@ -85,8 +89,9 @@ const koaNeo4jApp = (options) => {
     if (options.authentication)
         configureAuthentication(options.authentication);
 
+    configureCors(options.cors);
+
     app
-        .use(cors())
         .use(parser())
         .use(router.routes());
 
@@ -95,5 +100,6 @@ const koaNeo4jApp = (options) => {
     return app;
 };
 
-export {defineAPI, configureAuthentication, router, passport};
+export {executeCypher, neo4jInt} from './data';
+export {defineAPI, configureAuthentication, router};
 export default koaNeo4jApp;

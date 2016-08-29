@@ -24,7 +24,7 @@ const initializeDatabase = ({boltUrl, user, password} = {}) => {
         .catch(error => {
             console.error(
                 chalk.red('Error connecting to the Neo4j instance, check database parameters'));
-            throw error.fields ? new Error(JSON.stringify(error.fields[0])) : error;
+            throw error.fields ? new Error(String(error.fields[0])) : error;
         });
 };
 
@@ -59,5 +59,7 @@ class API {
     }
 }
 
-export {executeCypher, initializeDatabase};
+const neo4jInt = neo4j.int;
+
+export {executeCypher, initializeDatabase, neo4jInt};
 export default API;

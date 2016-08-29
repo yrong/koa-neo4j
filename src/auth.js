@@ -6,23 +6,25 @@ import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import {executeCypher} from './data';
+import {executeCypher, neo4jInt} from './data';
 
 
 const passport = new KoaPassport();
 let secretPhrase;
 let userQuery;
+let rolesQuery;
 
-const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
+const useAuthentication = ({secret, userCypherQueryFile, rolesCypherQueryFile} = {}) => {
     secretPhrase = secret;
-    userQuery = userQueryCypherFile;
+    userQuery = userCypherQueryFile;
+    rolesQuery = rolesCypherQueryFile;
     passport.use(new LocalStrategy((username, password, done) => {
         executeCypher(userQuery, {username: username})
             .then(([user]) => {
                 if (!user || password !== user.password_hash)
                     done(new Error('Invalid username or password'));
                 else {
-                    delete user.salt;
+                    delete user.password_hash;
                     done(null, user);
                 }
             }, done);
@@ -41,13 +43,6 @@ const useAuthentication = ({secret, userQueryCypherFile} = {}) => {
         }));
 };
 
-passport.serializeUser((user, done) => done(null, user.username));
-
-passport.deserializeUser((username, done) => {
-    console.log(`Deserializing user ${JSON.stringify(username)}`);
-    executeCypher(userQuery, {username:username}).then((user) => done(null, user), done);
-});
-
 
 // koa-passport uses generators which will be deprecated in koa v3, below block should be refactored
 // accordingly
@@ -57,7 +52,6 @@ const authenticateLocal = async (ctx, next) => await new Promise(
     (resolve, reject) => passport.authenticate('local', resolve)(ctx, next)
         .catch(reject))
     .then((user) => {
-        ctx.login(user);
         ctx.body = {token: `JWT ${jwt.sign(user, secretPhrase)}`};
     })
     .catch((error) => {
@@ -68,10 +62,12 @@ const authenticateLocal = async (ctx, next) => await new Promise(
 const authenticateJwt = async (ctx, next) => await new Promise(
     (resolve, reject) => passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
         .catch(reject))
-    .then((user) => ctx.login(user))
+    .then(user => executeCypher(rolesQuery, {id: neo4jInt(user.id)}))
+    // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
+    .then(([user]) => { console.log(user);ctx.user = user; })
     .catch((error) => {
         ctx.status = 401;
-        ctx.body = {error: String(error)};
+        ctx.body = {error: error.fields ? String(error.fields[0]) : String(error)};
     });
 
 // var FacebookStrategy = require('passport-facebook').Strategy
