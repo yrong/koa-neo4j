@@ -35,4 +35,13 @@ function* enumerate(array) {
     }
 }
 
-export {keyValues, haveIntersection, readMissingFromDefault, enumerate};
+const pipe = (...functions) => (...args) => {
+    for (const func of functions)
+        if (Array.isArray(args))
+            args = func.apply(this, args);
+        else
+            args = func.apply(this, [args]);
+    return args;
+};
+
+export {keyValues, haveIntersection, readMissingFromDefault, enumerate, pipe};

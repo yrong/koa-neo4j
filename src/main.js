@@ -8,7 +8,7 @@ import cors from 'kcors';
 import queryString from 'query-string';
 import passport, {authenticateJwt, authenticateLocal, useAuthentication} from './auth';
 import API, {initializeDatabase} from './data';
-import {keyValues, haveIntersection, readMissingFromDefault} from './util';
+import {haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
     apis: [],
@@ -29,11 +29,10 @@ const defaultOptions = {
 const app = new Koa();
 const router = new Router();
 
-const integerValues = new Set(['skip', 'limit', 'id']);
-
 const methods = {
     'POST': router.post,
-    'GET': router.get
+    'GET': router.get,
+    'DEL': router.del
 };
 
 const defineAPI = apiObject => {
@@ -53,10 +52,6 @@ const defineAPI = apiObject => {
                     params = queryString.parse(params);
                 }
                 params = {...params, ...ctx.params, ...ctx.request.body};
-                for (const [key, value] of keyValues(params))
-                    if (integerValues.has(key))
-                        params[key] = parseInt(value);
-
                 try {
                     ctx.body = await api.response(params);
                 } catch (err) {
@@ -101,5 +96,7 @@ const koaNeo4jApp = (options) => {
 };
 
 export {executeCypher, neo4jInt} from './data';
+export {pipe} from './util';
+export {preProcessors} from './preprocessors';
 export {defineAPI, configureAuthentication, router};
 export default koaNeo4jApp;
