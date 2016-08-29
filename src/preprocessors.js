@@ -3,17 +3,17 @@
  */
 import {neo4jInt} from './data';
 
-const parseId = params => {
+const parseId = () => params => {
     params.id = neo4jInt(params.id);
     return params;
 };
 
-const parseSkipAndLimit = params => {
-    params.skip = parseInt(params.skip);
-    params.limit = parseInt(params.limit);
+const parseIntegers = (...keys) => params => {
+    for (const key of keys)
+        params[key] = parseInt(params[key]);
     return params;
 };
 
-const preProcessors = {parseId, parseSkipAndLimit};
+const preProcessors = {parseId, parseIntegers};
 
 export {preProcessors};
