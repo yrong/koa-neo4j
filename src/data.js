@@ -54,6 +54,7 @@ class API {
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
         this.response = params => Promise.resolve(preProcess(params))
+            .then(params => {console.log(params); return params;})
             .then(params => executeCypher(cypherQueryFile, params))
             .then(postProcess);
     }

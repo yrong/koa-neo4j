@@ -97,6 +97,6 @@ const koaNeo4jApp = (options) => {
 
 export {executeCypher, neo4jInt} from './data';
 export {pipe} from './util';
-export {preProcessors} from './preprocessors';
+export * from './preprocessors';
 export {defineAPI, configureAuthentication, router};
 export default koaNeo4jApp;
