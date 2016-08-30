@@ -9,16 +9,18 @@ fs.readdirSync("node_modules")
         mods[mod] = "commonjs " + mod;
     });
 
-var libraryName = 'koa-neo4j';
-
 var plugins = [];
 
 var config = {
-    entry: './src/main.js',
+    entry: {
+        './index': './src/index',
+        './preprocess': './src/preprocess'
+    },
     devtool: 'source-map',
     output: {
-        filename: 'lib/' + libraryName + '.js',
-        library: libraryName,
+        path: './',
+        filename: '[name].js',
+        library: '[name]',
         libraryTarget: 'umd',
         umdNamedDefine: true
     },
