@@ -60,7 +60,6 @@ class API {
             pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess) : preProcess;
 
         this.response = params => Promise.resolve(preProcess.apply(this, [params]))
-            .then(params => {console.log(params);return params;})
             .then(params => executeCypher(cypherQueryFile, params))
             .then(postProcess);
     }

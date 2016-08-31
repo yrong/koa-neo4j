@@ -7,9 +7,6 @@ import {v1 as neo4j} from 'neo4j-driver';
 const neo4jInt = neo4j.int;
 
 const parseWith = (func) => (...keys) => params => {
-    console.log(func);
-    console.log(keys);
-    console.log(params);
     for (const key of keys)
         if (params[key])
             params[key] = func.apply(this, [params[key]]);
