@@ -15,8 +15,7 @@ var config = {
     entry: {
         './index': './src/index',
         './preprocess': ['./src/preprocess'],
-        './util': ['./src/util'],
-        './jasmineSpec': ['./spec']
+        './util': ['./src/util']
     },
     devtool: 'source-map',
     output: {
