@@ -56,12 +56,20 @@ class API {
         this.requiresJwtAuthentication = allowedRoles &&
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-        preProcess = parseIdSkipLimit ?
-            pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess) : preProcess;
-
-        this.response = params => Promise.resolve(preProcess.apply(this, [params]))
-            .then(params => executeCypher(cypherQueryFile, params))
-            .then(postProcess);
+        this.response = params => {
+            let preProcessToUse = preProcess;
+            if (parseIdSkipLimit) {
+                const keys = [];
+                for (const key of ['id', 'skip', 'limit'])
+                    if (params[key])
+                        keys.push(key);
+                if (keys.length > 0)
+                    preProcessToUse = pipe(parseNeo4jInts(...keys), preProcess);
+            }
+            return Promise.resolve(preProcessToUse.apply(this, [params]))
+                .then(params => executeCypher(cypherQueryFile, params))
+                .then(postProcess);
+        };
     }
 }
 
