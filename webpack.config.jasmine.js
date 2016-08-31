@@ -1,3 +1,7 @@
+/**
+ * Created by keyvan on 8/31/16.
+ */
+
 var webpack = require('webpack');
 var path = require('path');
 var fs = require("file-system");
@@ -12,19 +16,11 @@ fs.readdirSync("node_modules")
 var plugins = [];
 
 var config = {
-    entry: {
-        './index': './src/index',
-        './preprocess': ['./src/preprocess'],
-        './util': ['./src/util'],
-        './jasmineSpec': ['./spec']
-    },
+    entry: './src/spec/index.js',
     devtool: 'source-map',
     output: {
-        path: './',
-        filename: '[name].js',
-        library: '[name]',
-        libraryTarget: 'umd',
-        umdNamedDefine: true
+        path: './spec',
+        filename: 'all.spec.js'
     },
     externals: mods,
     module: {
@@ -45,7 +41,7 @@ var config = {
                 }
             }
         ]
-},
+    },
     resolveLoader: {
         root: path.join(__dirname, 'node_modules')
     },

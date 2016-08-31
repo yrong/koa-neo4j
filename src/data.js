@@ -16,7 +16,7 @@ const addCypherQueryFile = (cypherQueryFilePath) => {
     queryDict[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
 };
 
-const initializeDatabase = ({boltUrl, user, password} = {}) => {
+const initializeNeo4j = ({boltUrl, user, password} = {}) => {
     driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
     const session = driver.session();
     return session.run('RETURN "Neo4j instance successfully connected."')
@@ -73,5 +73,5 @@ class API {
     }
 }
 
-export {executeCypher, initializeDatabase};
+export {executeCypher, initializeNeo4j};
 export default API;

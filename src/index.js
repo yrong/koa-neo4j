@@ -7,7 +7,7 @@ import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import passport, {authenticateJwt, authenticateLocal, useAuthentication} from './auth';
-import API, {initializeDatabase} from './data';
+import API, {initializeNeo4j} from './data';
 import {haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
@@ -86,8 +86,8 @@ const configureCors = options => {
 
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
-    // initializeDatabase(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
-    initializeDatabase(options.neo4j);
+    // initializeNeo4j(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
+    app.neo4jInitialized = initializeNeo4j(options.neo4j);
 
     if (options.log)
         app.use(logger());
