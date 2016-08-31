@@ -16,6 +16,7 @@ fs.readdirSync("node_modules")
 var plugins = [];
 
 var config = {
+    target: "node",
     entry: './src/spec/index.js',
     devtool: 'source-map',
     output: {

@@ -6,8 +6,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
     "dev": "./node_modules/.bin/webpack --progress --colors --watch",
-    "debug": "./node_modules/.bin/webpack && node $NODE_DEBUG_OPTION test.js",
-    "test": "./node_modules/.bin/webpack --config webpack.config.jasmine.js && node jasmine.runner.js"
+    "test": "./node_modules/.bin/webpack --config webpack.config.jasmine.js && node $NODE_DEBUG_OPTION jasmine.runner.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +33,7 @@
     "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-mocha": "^4.3.0",
     "jasmine": "^2.5.0",
+    "jasmine-given": "^2.6.4",
     "jasmine-spec-reporter": "^2.7.0",
     "webpack": "^1.12.14"
   },
