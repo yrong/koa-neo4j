@@ -28,6 +28,8 @@ const defaultOptions = {
 
 const app = new Koa();
 const router = new Router();
+let configuredAuthentication = false;
+let configuredCors = false;
 
 const methods = {
     'POST': router.post,
@@ -65,13 +67,21 @@ const defineAPI = apiObject => {
 
 
 const configureAuthentication = options => {
+    if (configuredAuthentication)
+        throw new Error('Authentication already configured');
     useAuthentication(options);
     app.use(passport.initialize());
     router.post(options.route, authenticateLocal);
+    configuredAuthentication = true;
 };
 
 
-const configureCors = options => app.use(cors(options));
+const configureCors = options => {
+    if (configuredCors)
+        throw new Error('KCors already configured');
+    app.use(cors(options));
+    configuredCors = true;
+};
 
 
 const koaNeo4jApp = (options) => {
@@ -82,10 +92,11 @@ const koaNeo4jApp = (options) => {
     if (options.log)
         app.use(logger());
 
-    if (options.authentication)
+    if (options.authentication && !configuredAuthentication)
         configureAuthentication(options.authentication);
 
-    configureCors(options.cors);
+    if (!configuredCors)
+        configureCors(options.cors);
 
     app
         .use(parser())
