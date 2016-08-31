@@ -6,7 +6,8 @@ import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import {executeCypher, neo4jInt} from './data';
+import {executeCypher} from './data';
+import {neo4jInt} from './preprocess';
 
 
 const passport = new KoaPassport();

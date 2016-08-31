@@ -115,6 +115,7 @@
       "allowKeywords": true
     }],
     "eqeqeq": 2,
+    "generator-star-spacing": ["error", {"before": true, "after": true}],
     "guard-for-in": 0,
     "no-caller": 2,
     "no-eq-null": 2,

@@ -1,16 +1,25 @@
 /**
  * Created by keyvan on 8/29/16.
  */
-import {neo4jInt} from './data';
+
+import {v1 as neo4j} from 'neo4j-driver';
+
+const neo4jInt = neo4j.int;
 
 const parseWith = (func) => (...keys) => params => {
+    console.log(func);
+    console.log(keys);
+    console.log(params);
     for (const key of keys)
-        params[key] = func.apply(this, [params[key]]);
+        if (params[key])
+            params[key] = func.apply(this, [params[key]]);
     return params;
 };
 
-const parseId = parseWith(neo4jInt);
+const parseNeo4jInts = parseWith(neo4jInt);
 
-const parseIntegers = parseWith(parseInt);
+const parseInts = parseWith(parseInt);
 
-export {parseWith, parseId, parseIntegers};
+const parseFloats = parseWith(parseFloat);
+
+export {parseWith, parseNeo4jInts, parseInts, parseFloats, neo4jInt};

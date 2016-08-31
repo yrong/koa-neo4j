@@ -27,7 +27,7 @@ const readMissingFromDefault = (obj, defaultValues) => {
     return result;
 };
 
-function* enumerate(array) {
+function * enumerate(array) {
     let index = 0;
     for (const element of array) {
         yield [index, element];

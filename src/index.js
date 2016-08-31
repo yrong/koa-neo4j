@@ -76,7 +76,8 @@ const configureCors = options => app.use(cors(options));
 
 const koaNeo4jApp = (options) => {
     options = readMissingFromDefault(options, defaultOptions);
-    initializeDatabase(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
+    // initializeDatabase(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
+    initializeDatabase(options.neo4j);
 
     if (options.log)
         app.use(logger());
@@ -95,7 +96,6 @@ const koaNeo4jApp = (options) => {
     return app;
 };
 
-export {executeCypher, neo4jInt} from './data';
-export {pipe} from './util';
+export {executeCypher} from './data';
 export {defineAPI, configureAuthentication, router};
 export default koaNeo4jApp;

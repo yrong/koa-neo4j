@@ -1,10 +1,13 @@
 /**
  * Created by keyvan on 8/16/16.
  */
+
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'file-system';
 import chalk from 'chalk';
 import parseNeo4jResponse from './parser';
+import {parseNeo4jInts} from './preprocess';
+import {pipe} from './util';
 
 const queryDict = {};
 let driver;
@@ -45,7 +48,7 @@ const executeCypher = (cypherQueryFilePath, queryParams) => new Promise((resolve
     .then(parseNeo4jResponse);
 
 class API {
-    constructor({method, route, cypherQueryFile, allowedRoles = [],
+    constructor({method, route, cypherQueryFile, allowedRoles = [], parseIdSkipLimit = true,
         preProcess = params => params, postProcess = result => result} = {}) {
         this.method = method;
         this.route = route;
@@ -53,18 +56,15 @@ class API {
         this.requiresJwtAuthentication = allowedRoles &&
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-        this.response = params => Promise.resolve(preProcess.apply(null, [params]))
+        preProcess = parseIdSkipLimit ?
+            pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess) : preProcess;
+
+        this.response = params => Promise.resolve(preProcess.apply(this, [params]))
+            .then(params => {console.log(params);return params;})
             .then(params => executeCypher(cypherQueryFile, params))
             .then(postProcess);
     }
 }
 
-const neo4jInt = neo4j.int;
-
-const parseId = params => {
-    params.id = neo4jInt(params.id);
-    return params;
-};
-
-export {executeCypher, initializeDatabase, parseId, neo4jInt};
+export {executeCypher, initializeDatabase};
 export default API;

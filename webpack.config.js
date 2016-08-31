@@ -14,7 +14,8 @@ var plugins = [];
 var config = {
     entry: {
         './index': './src/index',
-        './preprocess': './src/preprocess'
+        './preprocess': ['./src/preprocess'],
+        './util': ['./src/util']
     },
     devtool: 'source-map',
     output: {
