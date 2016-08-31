@@ -5,3 +5,4 @@ webpack.config.js
 webpack.config.jasmine.js
 jasmine.runner.js
 !src/*
+src/spec/
