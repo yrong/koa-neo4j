@@ -45,6 +45,9 @@ class KoaNeo4jApp extends Application {
         if (options.log)
             this.use(logger());
 
+        this.neo4jConnection = new Neo4jConnection(options.neo4j);
+        this.neo4jInitialized = this.neo4jConnection.initialized;
+
         if (options.authentication && !this.configuredAuthentication)
             this.configureAuthentication(options.authentication);
 
@@ -55,11 +58,7 @@ class KoaNeo4jApp extends Application {
             .use(parser())
             .use(this.router.routes());
 
-        this.neo4jConnection = new Neo4jConnection(options.neo4j);
-
         this.executeCypher = this.neo4jConnection.executeCypher;
-
-        this.neo4jInitialized = this.neo4jConnection.initialized;
 
         for (const api of options.apis)
             this.defineAPI(api);
