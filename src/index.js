@@ -6,7 +6,7 @@ import logger from 'koa-logger';
 import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
-import passport, {authenticateJwt, authenticateLocal, useAuthentication} from './auth';
+import {Authentication} from './auth';
 import {API, Neo4jConnection} from './data';
 import {haveIntersection, readMissingFromDefault} from './util';
 
@@ -68,27 +68,39 @@ class KoaNeo4jApp extends Application {
     defineAPI(apiObject) {
         const api = new API(this.neo4jConnection, apiObject);
         const handler = async(ctx, next) => {
-            if (api.requiresJwtAuthentication)
-                await authenticateJwt(ctx, next);
-            if (ctx.status !== 401)
+            try {
+                if (api.requiresJwtAuthentication)
+                    try {
+                        await this.authentication.authenticateJwt(ctx, next);
+                    } catch (error) {
+                        ctx.status = 401;
+                        ctx.body = {error: error.fields ? String(error.fields[0]) : String(error)};
+                        return;
+                    }
+
                 if (api.requiresJwtAuthentication &&
                     !haveIntersection(ctx.user.roles, api.allowedRoles)) {
                     ctx.status = 403;
                     ctx.body = {error: "Error: You don't have permission for this"};
-                } else {
-                    let params = {};
-                    if (ctx.url.indexOf('?') >= 0) {
-                        params = `?${ctx.url.split('?')[1]}`;
-                        params = queryString.parse(params);
-                    }
-                    params = {...params, ...ctx.params, ...ctx.request.body};
-                    try {
-                        ctx.body = await api.response(params);
-                    } catch (err) {
-                        ctx.body = err;
-                        ctx.status = 400;
-                    }
+                    return;
                 }
+
+                let params = {};
+                if (ctx.url.indexOf('?') >= 0) {
+                    params = `?${ctx.url.split('?')[1]}`;
+                    params = queryString.parse(params);
+                }
+                params = {...params, ...ctx.params, ...ctx.request.body};
+                try {
+                    ctx.body = await api.response(params);
+                } catch (error) {
+                    ctx.body = String(error);
+                    ctx.status = 500;
+                }
+            } catch (error) {
+                ctx.status = 400;
+                ctx.body = String(error);
+            }
         };
         this.methods[api.method].apply(this.router, [api.route, handler]);
     }
@@ -96,9 +108,9 @@ class KoaNeo4jApp extends Application {
     configureAuthentication(options) {
         if (this.configuredAuthentication)
             throw new Error('Authentication already configured');
-        useAuthentication(options);
-        this.use(passport.initialize());
-        this.router.post(options.route, authenticateLocal);
+        this.authentication = new Authentication(options);
+        this.use(this.authentication.passport.initialize());
+        this.router.post(options.route, this.authentication.authenticateLocal);
         this.configuredAuthentication = true;
     }
 
