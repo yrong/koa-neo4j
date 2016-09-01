@@ -19,7 +19,7 @@ class Authentication {
 
 
         this.passport.use(new LocalStrategy((username, password, done) => {
-            neo4jConnection.executeCypher(this.userQuery, {username: username})
+            this.neo4jConnection.executeCypher(this.userQuery, {username: username})
                 .then(([user]) => {
                     if (!user || password !== user.password_hash)
                         done(new Error('Invalid username or password'));
