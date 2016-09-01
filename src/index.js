@@ -111,6 +111,4 @@ class KoaNeo4jApp extends Application {
     }
 }
 
-const koaNeo4jApp = options => new KoaNeo4jApp(options);
-
-export default koaNeo4jApp;
+export default KoaNeo4jApp;
