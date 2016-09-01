@@ -4,42 +4,40 @@
 
 import chalk from 'chalk';
 import 'jasmine-given';
-import {cypherQueryFilePathFor} from './util';
-
-const givens = {};
-const whens = {};
-const thens = {};
 
 const context = {};
 
-const getExecutor = (func, before) => {
+const getExecutor = (func, before, executeEachTime) => {
+    let executed = false;
     return func.length > 0 ? (done) => {
         before();
-        func.apply(context, [done]);
+        if (!executed) {
+            func.apply(context, [done]);
+            executed = true;
+        }
+        console.log('   done');
     } : () => {
         before();
-        func.apply(context, []);
+        if (!executed) {
+            func.apply(context, []);
+            executed = true;
+        }
+        console.log('   done');
     };
 };
 
-let given = (description, onGiven) => {
-    if (onGiven)
-        givens[description] = Given(getExecutor(onGiven, () =>
-            console.log(chalk.blue(`\ngiven ${description}`))));
-    return givens[description];
+const given = (description, onGiven, executeEachTime) => {
+    Given(getExecutor(onGiven,
+        () => console.log(chalk.blue(`\ngiven ${description}`)), executeEachTime));
 };
 
-let when = (description, onWhen) => {
-    if (onWhen)
-        whens[description] = When(getExecutor(onWhen, () =>
-            console.log(chalk.magenta(`\nwhen ${description}`))));
-    return whens[description];
+const when = (description, onWhen, executeEachTime) => {
+    When(getExecutor(onWhen,
+        () => console.log(chalk.magenta(`\nwhen ${description}`))), executeEachTime);
 };
 
-let then = (description, onThen) => {
-    if (onThen)
-        thens[description] = Then(description, onThen);
-    return thens[description];
-};
+const then = Then;
 
-export {given, when, then};
+const and = And;
+
+export {given, when, then, and};

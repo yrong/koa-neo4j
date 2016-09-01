@@ -38,6 +38,7 @@
     "jasmine": "^2.5.0",
     "jasmine-given": "^2.6.4",
     "jasmine-spec-reporter": "^2.7.0",
+    "wait-promise": "^0.4.1",
     "webpack": "^1.12.14"
   },
   "dependencies": {
