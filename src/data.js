@@ -9,47 +9,52 @@ import parseNeo4jResponse from './parser';
 import {parseNeo4jInts} from './preprocess';
 import {pipe} from './util';
 
-const queryDict = {};
-let driver;
+class Neo4jConnection {
+    constructor({boltUrl, user, password} = {}) {
+        this.queryDict = {};
 
-const addCypherQueryFile = (cypherQueryFilePath) => {
-    queryDict[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
-};
+        this.driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
+        const session = this.driver.session();
+        this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
+            .then((result) => {
+                console.log(chalk.green(parseNeo4jResponse(result)));
+                session.close();
+            })
+            .catch(error => {
+                console.error(
+                    chalk.red('Error connecting to the Neo4j instance, check connection options'));
+                throw error.fields ? new Error(String(error.fields[0])) : error;
+            });
+    }
 
-const initializeNeo4j = ({boltUrl, user, password} = {}) => {
-    driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
-    const session = driver.session();
-    return session.run('RETURN "Neo4j instance successfully connected."')
-        .then((result) => {
-            console.log(chalk.green(parseNeo4jResponse(result)));
-            session.close();
+    addCypherQueryFile(cypherQueryFilePath) {
+        this.queryDict[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
+    }
+
+    executeCypher(cypherQueryFilePath, queryParams) {
+        return new Promise((resolve, reject) => {
+            if (!this.queryDict[cypherQueryFilePath])
+                this.addCypherQueryFile(cypherQueryFilePath);
+
+            const query = this.queryDict[cypherQueryFilePath];
+            const session = this.driver.session();
+
+            session.run(query, queryParams)
+                .then(result => {
+                    resolve(result);
+                    session.close();
+                })
+                .catch(reject);
         })
-        .catch(error => {
-            console.error(
-                chalk.red('Error connecting to the Neo4j instance, check connection options'));
-            throw error.fields ? new Error(String(error.fields[0])) : error;
-        });
-};
-
-const executeCypher = (cypherQueryFilePath, queryParams) => new Promise((resolve, reject) => {
-    if (!queryDict[cypherQueryFilePath])
-        addCypherQueryFile(cypherQueryFilePath);
-
-    const query = queryDict[cypherQueryFilePath];
-    const session = driver.session();
-
-    session.run(query, queryParams)
-        .then(result => {
-            resolve(result);
-            session.close();
-        })
-        .catch(reject);
-})
-    .then(parseNeo4jResponse);
+            .then(parseNeo4jResponse);
+    }
+}
 
 class API {
-    constructor({method, route, cypherQueryFile, allowedRoles = [], parseIdSkipLimit = true,
+    constructor(neo4jConnection, {method, route, cypherQueryFile,
+        allowedRoles = [], parseIdSkipLimit = true,
         preProcess = params => params, postProcess = result => result} = {}) {
+        this.neo4jConnection = neo4jConnection;
         this.method = method;
         this.route = route;
         this.allowedRoles = allowedRoles;
@@ -67,11 +72,10 @@ class API {
                     preProcessToUse = pipe(parseNeo4jInts(...keys), preProcess);
             }
             return Promise.resolve(preProcessToUse.apply(this, [params]))
-                .then(params => executeCypher(cypherQueryFile, params))
+                .then(params => neo4jConnection.executeCypher(cypherQueryFile, params))
                 .then(postProcess);
         };
     }
 }
 
-export {executeCypher, initializeNeo4j};
-export default API;
+export {API, Neo4jConnection};

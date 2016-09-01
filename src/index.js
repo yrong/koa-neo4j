@@ -1,13 +1,13 @@
 // Start using koa2 as normal
 
-import Koa from 'koa';
+import Application from 'koa';
 import Router from 'koa-router';
 import logger from 'koa-logger';
 import parser from 'koa-body-parser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import passport, {authenticateJwt, authenticateLocal, useAuthentication} from './auth';
-import API, {initializeNeo4j} from './data';
+import {API, Neo4jConnection} from './data';
 import {haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
@@ -27,24 +27,47 @@ const defaultOptions = {
 };
 
 
-const koaNeo4jApp = (options) => {
-    options = readMissingFromDefault(options, defaultOptions);
-    // initializeNeo4j(options.neo4j).catch((err) => { setTimeout(() => { throw err; }); });
+class KoaNeo4jApp extends Application {
+    constructor(options) {
+        super();
+        options = readMissingFromDefault(options, defaultOptions);
 
-    const app = new Koa();
-    const router = new Router();
-    app.configuredAuthentication = false;
-    app.configuredCors = false;
+        this.router = new Router();
+        this.configuredAuthentication = false;
+        this.configuredCors = false;
 
-    app.methods = {
-        'POST': router.post,
-        'GET': router.get,
-        'DEL': router.del
-    };
+        this.methods = {
+            'POST': this.router.post,
+            'GET': this.router.get,
+            'DEL': this.router.del
+        };
 
-    app.defineAPI = apiObject => {
-        const api = new API(apiObject);
-        const handler = async (ctx, next) => {
+        if (options.log)
+            this.use(logger());
+
+        if (options.authentication && !this.configuredAuthentication)
+            this.configureAuthentication(options.authentication);
+
+        if (!this.configuredCors)
+            this.configureCors(options.cors);
+
+        this
+            .use(parser())
+            .use(this.router.routes());
+
+        for (const api of options.apis)
+            this.defineAPI(api);
+
+        this.neo4jConnection = new Neo4jConnection(options.neo4j);
+
+        this.executeCypher = this.neo4jConnection.executeCypher;
+
+        this.neo4jInitialized = this.neo4jConnection.initialized;
+    }
+
+    defineAPI(apiObject) {
+        const api = new API(this.neo4jConnection, apiObject);
+        const handler = async(ctx, next) => {
             if (api.requiresJwtAuthentication)
                 await authenticateJwt(ctx, next);
             if (ctx.status !== 401)
@@ -67,46 +90,25 @@ const koaNeo4jApp = (options) => {
                     }
                 }
         };
-        app.methods[api.method].apply(router, [api.route, handler]);
-    };
+        this.methods[api.method].apply(this.router, [api.route, handler]);
+    }
 
-
-    app.configureAuthentication = options => {
-        if (app.configuredAuthentication)
+    configureAuthentication(options) {
+        if (this.configuredAuthentication)
             throw new Error('Authentication already configured');
         useAuthentication(options);
-        app.use(passport.initialize());
-        router.post(options.route, authenticateLocal);
-        app.configuredAuthentication = true;
-    };
+        this.use(passport.initialize());
+        this.router.post(options.route, authenticateLocal);
+        this.configuredAuthentication = true;
+    }
 
 
-    app.configureCors = options => {
-        if (app.configuredCors)
+    configureCors(options) {
+        if (this.configuredCors)
             throw new Error('KCors already configured');
-        app.use(cors(options));
-        app.configuredCors = true;
-    };
+        this.use(cors(options));
+        this.configuredCors = true;
+    }
+}
 
-    app.neo4jInitialized = initializeNeo4j(options.neo4j);
-
-    if (options.log)
-        app.use(logger());
-
-    if (options.authentication && !app.configuredAuthentication)
-        app.configureAuthentication(options.authentication);
-
-    if (!app.configuredCors)
-        app.configureCors(options.cors);
-
-    app
-        .use(parser())
-        .use(router.routes());
-
-    for (const api of options.apis)
-        app.defineAPI(api);
-    return app;
-};
-
-export {executeCypher} from './data';
-export default koaNeo4jApp;
+export default KoaNeo4jApp;

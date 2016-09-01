@@ -4,13 +4,13 @@
 
 import {given, when, then} from './bdd';
 import {cypherQueryFilePathFor, httpGet} from './util';
-import koaNeo4jApp from './../index';
-
-const context = {};
+import KoaNeo4jApp from './../index';
 
 describe('A GET request', () => {
+    const context = {};
+
     given('app is initialized on 4949', () => {
-        context.app = koaNeo4jApp({
+        context.app = new KoaNeo4jApp({
             neo4j: {
                 // boltUrl: 'bolt://192.168.10.101',
                 boltUrl: 'bolt://localhost',
