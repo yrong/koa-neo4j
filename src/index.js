@@ -94,7 +94,7 @@ class KoaNeo4jApp extends Application {
                     ctx.body = await api.response(params);
                 } catch (error) {
                     ctx.body = String(error);
-                    ctx.status = 500;
+                    ctx.body = {error: error.fields ? String(error.fields[0]) : String(error)};
                 }
             } catch (error) {
                 ctx.status = 400;
