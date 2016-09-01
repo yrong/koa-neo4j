@@ -108,7 +108,7 @@ class KoaNeo4jApp extends Application {
     configureAuthentication(options) {
         if (this.configuredAuthentication)
             throw new Error('Authentication already configured');
-        this.authentication = new Authentication(options);
+        this.authentication = new Authentication(this.neo4jConnection, options);
         this.use(this.authentication.passport.initialize());
         this.router.post(options.route, this.authentication.authenticateLocal);
         this.configuredAuthentication = true;

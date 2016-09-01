@@ -6,11 +6,11 @@ import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import {executeCypher} from './data';
 import {neo4jInt} from './preprocess';
 
 class Authentication {
-    constructor({secret, userCypherQueryFile, rolesCypherQueryFile} = {}) {
+    constructor(neo4jConnection, {secret, userCypherQueryFile, rolesCypherQueryFile} = {}) {
+        this.neo4jConnection = neo4jConnection;
         this.passport = new KoaPassport();
 
         this.secret = secret;
@@ -19,7 +19,7 @@ class Authentication {
 
 
         this.passport.use(new LocalStrategy((username, password, done) => {
-            executeCypher(this.userQuery, {username: username})
+            neo4jConnection.executeCypher(this.userQuery, {username: username})
                 .then(([user]) => {
                     if (!user || password !== user.password_hash)
                         done(new Error('Invalid username or password'));
@@ -60,9 +60,10 @@ class Authentication {
         this.authenticateJwt = async (ctx, next) => await new Promise((resolve, reject) =>
             this.passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
                 .catch(reject))
-            .then(user => executeCypher(this.rolesQuery, {id: neo4jInt(user.id)}))
+            .then(user =>
+                this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)}))
             // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
-            .then(([user]) => { ctx.user = user; })
+            .then(([user]) => { ctx.user = user; });
     }
 }
 
