@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
     "dev": "./node_modules/.bin/webpack --progress --colors --watch",
-    "test": "./node_modules/.bin/webpack --config webpack.config.jasmine.js && node $NODE_DEBUG_OPTION jasmine.runner.js"
+    "build": "./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.jasmine.js",
+    "test": "npm run build && node $NODE_DEBUG_OPTION jasmine.runner.js"
   },
   "repository": {
     "type": "git",

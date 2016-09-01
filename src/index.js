@@ -55,14 +55,14 @@ class KoaNeo4jApp extends Application {
             .use(parser())
             .use(this.router.routes());
 
-        for (const api of options.apis)
-            this.defineAPI(api);
-
         this.neo4jConnection = new Neo4jConnection(options.neo4j);
 
         this.executeCypher = this.neo4jConnection.executeCypher;
 
         this.neo4jInitialized = this.neo4jConnection.initialized;
+
+        for (const api of options.apis)
+            this.defineAPI(api);
     }
 
     defineAPI(apiObject) {
