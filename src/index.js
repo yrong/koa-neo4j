@@ -17,12 +17,6 @@ const defaultOptions = {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
         password: 'neo4j'
-    },
-    authentication: {
-        userCypherQueryFile: './cypher/user.cyp',
-        rolesCypherQueryFile: './cypher/roles.cyp',
-        route: '/auth',
-        secret: 'secret'
     }
 };
 

@@ -3,9 +3,10 @@
  * Created by keyvan on 8/31/16.
  */
 
-import {given, when, then} from './bdd';
+import {given, when, then} from './../bdd';
 import {cypherQueryFilePathFor, httpGet, httpPost} from './util';
 import KoaNeo4jApp from './../index';
+
 
 describe('End-to-end tests', () => {
     const context = {};
@@ -18,12 +19,6 @@ describe('End-to-end tests', () => {
                 boltUrl: 'bolt://localhost',
                 user: 'neo4j',
                 password: 'k'
-            },
-            authentication: {
-                userCypherQueryFile: './cypher/tests/user.cyp',
-                rolesCypherQueryFile: './cypher/tests/roles.cyp',
-                route: '/auth',
-                secret: 'secret'
             }
         });
     });
@@ -58,21 +53,22 @@ describe('End-to-end tests', () => {
 
     // 2.2 //
 
-    describe('authentication is configured', () => {
-        // when('authentication is configured', () =>
-        //     context.app.configureAuthentication({
-        //         userCypherQueryFile: './cypher/user.cyp',
-        //         rolesCypherQueryFile: './cypher/roles.cyp',
-        //         route: '/auth',
-        //         secret: 'secret'
-        //     }));
+    describe('authentication', () => {
+        given('authentication is configured', () => context.app.configureAuthentication({
+            userCypherQueryFile: './cypher/tests/user.cyp',
+            rolesCypherQueryFile: './cypher/tests/roles.cyp',
+            route: '/auth',
+            secret: 'secret'
+        }));
 
         then('an authentication token should be served for valid username and password on /auth', (done) => {
-            httpPost('/auth?username=admin&password=test', 4949).then((response) => {
-                response = JSON.parse(response);
-                console.log(response);
-                done();
-            });
+            httpPost('/auth', 4949, { username:'admin', password:'test' })
+                .then((response) => {
+                    response = JSON.parse([response]);
+                    console.log(response);
+                    expect(response.token).toBeDefined();
+                    done();
+                }).catch(err => console.log(err));
         });
     });
 });

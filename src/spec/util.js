@@ -13,22 +13,28 @@ const httpGet = (route, port) => (new Promise((resolve, reject) =>
     .then(response => new Promise((resolve, reject) => response.on('data', resolve)))
     .then(chunk => chunk.toString('utf8'));
 
-const httpPost = (route, port, data) => {
+const httpCall = (method) => (route, port, data) => {
     let request;
-    (new Promise((resolve, reject) => {
+    return (new Promise((resolve, reject) => {
+        data = data || {};
+        data = JSON.stringify(data);
         request = http.request({
-            hotname: 'localhost',
+            hostname: 'localhost',
             port: port,
             path: route,
-            method: 'POST',
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             }
-        }, resolve).on('error', reject);
+        }, resolve);
+        request.on('error', reject);
+        request.end(data);
     }))
-        .then(response => new Promise((resolve, reject) => response.on('data', resolve)))
-        .then(chunk => chunk.toString('utf8'))
-        .then(() => request.end());
-}
+        .then(response => { response.setEncoding('utf8'); return response; })
+        .then(response => new Promise(resolve => response.on('data', resolve)))
+        .then(chunk => chunk.toString('utf8'));
+};
+
+const httpPost = httpCall('POST');
 
 export {cypherQueryFilePathFor, httpGet, httpPost};
