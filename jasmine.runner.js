@@ -7,6 +7,6 @@ var noop = function() {};
 
 var runner = new Jasmine();
 jasmine.getEnv().addReporter(new SpecReporter());
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000;
 runner.loadConfigFile();
 runner.execute();

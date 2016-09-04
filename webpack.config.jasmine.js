@@ -17,7 +17,7 @@ var plugins = [];
 
 var config = {
     target: "node",
-    entry: './src/spec/index.js',
+    entry: './src/spec/index.coffee',
     devtool: 'source-map',
     output: {
         path: './spec',
@@ -26,12 +26,7 @@ var config = {
     externals: mods,
     module: {
         loaders: [
-            // Support for ES6 modules and the latest ES syntax.
-            {
-                test: /\.jsx?$/,
-                exclude: /(node_modules)/,
-                loader: "babel"
-            }
+            { test: /\.coffee$/, loader: "coffee" }
         ]
     },
     resolveLoader: {
@@ -39,7 +34,7 @@ var config = {
     },
     resolve: {
         root: path.resolve('./src'),
-        extensions: ['', '.js']
+        extensions: ['', '.coffee']
     },
     plugins: plugins
 };

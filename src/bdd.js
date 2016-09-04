@@ -4,7 +4,6 @@
 
 import chalk from 'chalk';
 import 'jasmine-given';
-import {keyValues} from './util';
 
 const context = {};
 
@@ -42,8 +41,33 @@ const then = Then;
 
 const and = And;
 
-const parse = (description) => {
+// const mapping = {
+//     given: (description) => given(description.given, description.onGiven, true),
+//     givenOnce: (description) => given(description.givenOnce, description.onGiven),
+//     when: (description) => when(description.when, description.onWhen, true),
+//     whenOnce: (description) => when(description.whenOnce, description.onWhen),
+//     then: (description) => then(description.then, description.onThen),
+//     onGiven: true,
+//     onWhen: true,
+//     onThen: true
+// };
+//
+// const executeRecursive = (description, parent) => {
+//     if (parent)
+//         describe(parent, () => {
+//             for (const func of executeRecursive(description))
+//                 func(description);
+//         });
+//
+//     const children = [];
+//     for (const key of Object.keys(description))
+//         if (!mapping[key])
+//             executeRecursive(description[key], key);
+//         else if (mapping[key] !== true)
+//             children.push(mapping[key]);
+//     return children;
+// };
+//
+// const execute = (description) => executeRecursive(description);
 
-};
-
-export {given, when, then, and};
+export {given as Given, when as When, then as Then, and as And};

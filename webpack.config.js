@@ -12,10 +12,12 @@ fs.readdirSync("node_modules")
 var plugins = [];
 
 var config = {
+    target: 'node',
     entry: {
         './index': './src/index',
         './preprocess': ['./src/preprocess'],
-        './util': ['./src/util']
+        './util': ['./src/util'],
+        './bdd': ['./src/bdd']
     },
     devtool: 'source-map',
     output: {
