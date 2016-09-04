@@ -52,19 +52,20 @@ const httpGet = (route, port) => (new Promise((resolve, reject) =>
     .then(response => new Promise((resolve, reject) => response.on('data', resolve)))
     .then(chunk => chunk.toString('utf8'));
 
-const httpCall = (method, host, route, port, data) => {
-    let request;
+const httpCall = (method, host, route, port, data, headers) => {
     return (new Promise((resolve, reject) => {
         data = data || {};
-        data = JSON.stringify(data);
-        request = http.request({
+        headers = headers || {};
+        if (!headers['Content-Type']) {
+            data = JSON.stringify(data);
+            headers = {...headers, ...{'Content-Type': 'application/json'}};
+        }
+        const request = http.request({
             hostname: host,
             port: port,
             path: route,
             method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         }, resolve);
         request.on('error', reject);
         request.end(data);
@@ -74,7 +75,8 @@ const httpCall = (method, host, route, port, data) => {
         .then(chunk => chunk.toString('utf8'));
 };
 
-const httpPost = (route, port) => httpCall('POST', 'localhost', route, port);
+const httpPost = (route, port, data, headers) =>
+    httpCall('POST', 'localhost', route, port, data, headers);
 
 
 export {keyValues, haveIntersection, readMissingFromDefault,

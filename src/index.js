@@ -66,13 +66,15 @@ class KoaNeo4jApp extends Application {
                     try {
                         await this.authentication.authenticateJwt(ctx, next);
                     } catch (error) {
+                        // No Authorization header
                         ctx.status = 401;
-                        ctx.body = {error: error.fields ? String(error.fields[0]) : String(error)};
+                        ctx.body = {error: 'Error: Authorization required'};
                         return;
                     }
 
                 if (api.requiresJwtAuthentication &&
                     !haveIntersection(ctx.user.roles, api.allowedRoles)) {
+                    // Incorrect roles
                     ctx.status = 403;
                     ctx.body = {error: "Error: You don't have permission for this"};
                     return;

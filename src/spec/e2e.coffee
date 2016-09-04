@@ -13,24 +13,31 @@ describe 'End-to-end tests', ->
                 password: 'k'
 
     bdd.whenOnce 'app is initialized on 4949', (done) ->
-        Promise.resolve @app.listen 4949, ->
-            console.log 'App listening on port 4949.'
-        @app.neo4jInitialized.then done
-            .catch (error) -> setTimeout -> throw error
+        app = @app
+        Promise.all [
+            new Promise (resolve) ->
+                app.listen 4949, ->
+                    resolve()
+                    console.log 'App listening on port 4949.'
+            ,
+            app.neo4jInitialized
+            ]
+        .then done
+        .catch (error) -> setTimeout -> throw error
 
     describe 'a simple GET request with a `parameter` in cypher side', ->
 
         bdd.givenOnce 'a GET API is defined on /param', -> @app.defineAPI
             method: 'GET',
             route: '/param',
-            cypherQueryFile: './cypher/tests/param.cyp'
+            cypherQueryFile: './cypher/tests/it.cyp'
 
         bdd.then 'passed parameter should be received from /param', (done) ->
-            httpGet '/param?parameter=yoohoo', 4949
+            httpGet '/param?it=resolves!', 4949
                 .then (response) ->
                     response = JSON.parse response
                     console.log response
-                    expect(response).toEqual [{parameter: 'yoohoo'}]
+                    expect(response).toEqual [{ it: 'resolves!' }]
                     done()
 
     describe 'authentication', ->
@@ -41,11 +48,61 @@ describe 'End-to-end tests', ->
             route: '/auth',
             secret: 'secret'
 
-        bdd.then 'an authentication token should be served for valid username and password on /auth', (done) ->
+        bdd.then 'a refresh token should be served for valid username and password on /auth', (done) ->
             httpPost '/auth', 4949, { username:'admin', password:'test' }
                 .then (response) ->
-                    response = JSON.parse [response];
+                    response = JSON.parse response;
                     console.log response
-                    expect(response.token).toBeDefined
+                    token = response.token
+                    expect(token).toBeDefined
+                    bdd.appendToContext 'token', token
                     done()
                 .catch (err) -> console.log err
+
+        describe 'restricted route with incorrect rights', ->
+
+            bdd.givenOnce 'a POST API is defined on /restricted_unless_user with `user` role', ->
+                @app.defineAPI
+                    method: 'POST'
+                    route: '/restricted_unless_user'
+                    allowedRoles: ['user']
+                    cypherQueryFile: './cypher/tests/it.cyp'
+
+            bdd.then '`admin` should **not** be able to access /restricted_unless_user without `Authorization` header', (done) ->
+                console.log @token
+                httpPost '/restricted_unless_user', 4949, { it: 'works!' }
+                    .then (response) ->
+                        response = JSON.parse response;
+                        console.log response
+                        expect(response).toEqual({ error: 'Error: Authorization required' })
+                        done()
+                    .catch (error) -> console.log error
+
+            bdd.then '`admin` should **not** be able to access /restricted_unless_user even with the refresh token', (done) ->
+                console.log @token
+                httpPost '/restricted_unless_user', 4949, { it: 'works!' }, { Authorization: @token }
+                    .then (response) ->
+                        response = JSON.parse response;
+                        console.log response
+                        expect(response).toEqual({ error: 'Error: You don\'t have permission for this' })
+                        done()
+                    .catch (error) -> console.log error
+
+        describe 'restricted route with correct rights', ->
+
+            bdd.givenOnce 'a POST API is defined on /restricted with `admin` role', ->
+                @app.defineAPI
+                    method: 'POST'
+                    route: '/restricted'
+                    allowedRoles: ['admin']
+                    cypherQueryFile: './cypher/tests/it.cyp'
+
+            bdd.then '`admin` should not be able to access /restricted with the refresh token', (done) ->
+                console.log @token
+                httpPost '/restricted', 4949, { it: 'works!' }, { Authorization: @token }
+                    .then (response) ->
+                        response = JSON.parse response;
+                        console.log response
+                        expect(response).toEqual([{ it: 'works!' }])
+                        done()
+                    .catch (error) -> console.log error

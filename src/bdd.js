@@ -37,14 +37,20 @@ const when = (description, onWhen, executeEachTime) => {
         () => console.log(chalk.magenta(`\nwhen ${description}`)), description, executeEachTime));
 };
 
+const then = (description, onThen) =>
+    Then(description, getExecutor(onThen, () => {}, description, true));
+
+const invariant = (description, onInvariant) =>
+    Invariant(description, getExecutor(onInvariant, () => {}, description, true));
+
 const bdd = {
     given: (description, onGiven) => given(description, onGiven, true),
     givenOnce: given,
     when: (description, onWhen) => when(description, onWhen, true),
     whenOnce: when,
-    then: Then,
-    and: And,
-    invariant: Invariant
+    then: then,
+    invariant: invariant,
+    appendToContext(key, value) { context[key] = value; }
 };
 
 export default bdd;
