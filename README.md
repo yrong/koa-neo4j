@@ -1,5 +1,22 @@
 # koa-neo4j
-> Easily map cypher queries to REST routes
+`koa-neo4j` is a server-side framework that embodies application logic, powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
+
+In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
+
+- Database is exposed to the client, unless some explicit security mechanism is in place; one can know your server's logic by `view source`
+- There is no **one server to rule them all**, queries are `string`s, scattered around different clients (web, mobile, etc.)
+- Third-party developers might not be familiar with Cypher
+
+`koa-neo4j` addresses all of the above issues:
+
+- Stands as a middle layer between clients and database 
+- Gives your server's logic structure, in form of a file-based project; finally a home for Cypher! 
+- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely adapted [**koa**](http://koajs.com/) server
+ 
+ In addition it comes with *goodies*:
+ 
+ - Lifecycle hooks, allowing one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem
+ - None-Opinionated user management, you define how your users and roles are defined, the framework provides authentication and role-based access management
 
 ### Install
 ```bash
@@ -9,9 +26,9 @@ npm install koa-neo4j --save
 ### Usage
 You can find a comprehensive example at [koa-neo4j-example](https://github.com/satratech/koa-neo4j-example) 
 ```javascript
-var koaNeo4jApp = require('koa-neo4j').default;
+var KoaNeo4jApp = require('koa-neo4j');
 
-var app = koaNeo4jApp({
+var app = new KoaNeo4jApp({
     apis: [
         {
             method: 'GET',
@@ -20,19 +37,14 @@ var app = koaNeo4jApp({
         },
         {
             method: 'POST',
-            route: '/articles',
-            cypherQueryFile: './cypher/articles.cyp'
+            route: '/article',
+            cypherQueryFile: './cypher/create_article.cyp'
         }
     ],
-    database: {
+    neo4j: {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
-        password: 'YOUR_NEO4j_PASSWORD>'
-    },
-    authentication: {
-        userQueryCypherFile: './cypher/auth.cyp',
-        route: '/auth',
-        secret: 'secret'
+        password: '<YOUR_NEO4j_PASSWORD>'
     }
 });
 
@@ -42,19 +54,15 @@ app.listen(3000, function () {
 
 ```
 
-An API is defined by five keys:
+An API is defined by at least three keys:
 
 `method`, specifies the request types (GET|POST|DEL)
 
-`route`, denotes the route
+`route`, the path to this API (e.g. your.server.com/)
 
-`cypherQueryFile` path to the the `.cyp` corresponding to this route
+`cypherQueryFile` path to the the `.cyp` file corresponding to this route
 
-`postProcess` a function for performing post-processing on the result
-
-`allowedRoles` an array specifying the roles permitted to access the route
-
-Cypher files accept parameters via curly brace syntax:
+Cypher queries, accept parameters via the curly brace syntax:
 ```cypher
 MATCH (a:Article)
 MATCH (a)-[:AUTHOR]->(au)
@@ -70,8 +78,11 @@ In addition, any data accompanied by the request will also be passed to the Cyph
 curl --data "skip=10&limit=1000" localhost:3000/articles
 ```
 
+### Lifecycle hooks
+TODO: docs
+
 ### Authentication
-Needs docs
+TODO: docs
 
 ### License
 [MIT](https://github.com/satratech/koa-neo4j/blob/master/LICENSE)

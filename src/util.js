@@ -49,10 +49,8 @@ const pipe = (...functions) => (...args) => {
 
 const httpCall = (method, host, route, port, data, headers) => {
     return (new Promise((resolve, reject) => {
-        const passedData = data;
-        data = data || {};
         headers = headers || {};
-        if (passedData && !headers['Content-Type']) {
+        if (typeof data === 'object') {
             data = JSON.stringify(data);
             headers = {...headers, ...{'Content-Type': 'application/json'}};
         }
@@ -64,7 +62,7 @@ const httpCall = (method, host, route, port, data, headers) => {
             headers: headers
         }, resolve);
         request.on('error', reject);
-        request.end(passedData ? data : undefined);
+        request.end(data);
     }))
         .then(response => { response.setEncoding('utf8'); return response; })
         .then(response => new Promise(resolve => response.on('data', resolve)))
