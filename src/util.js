@@ -47,13 +47,9 @@ const pipe = (...functions) => (...args) => {
     return args;
 };
 
-const httpGet = (route, port) => (new Promise((resolve, reject) =>
-    http.get(`http://localhost:${port}${route}`, resolve).on('error', reject)))
-    .then(response => new Promise((resolve, reject) => response.on('data', resolve)))
-    .then(chunk => chunk.toString('utf8'));
-
 const httpCall = (method, host, route, port, data, headers) => {
     return (new Promise((resolve, reject) => {
+        const end = data;
         data = data || {};
         headers = headers || {};
         if (!headers['Content-Type']) {
@@ -68,12 +64,14 @@ const httpCall = (method, host, route, port, data, headers) => {
             headers: headers
         }, resolve);
         request.on('error', reject);
-        request.end(data);
+        request.end(end ? data : undefined);
     }))
         .then(response => { response.setEncoding('utf8'); return response; })
         .then(response => new Promise(resolve => response.on('data', resolve)))
         .then(chunk => chunk.toString('utf8'));
 };
+
+const httpGet = (route, port) => httpCall('GET', 'localhost', route, port);
 
 const httpPost = (route, port, data, headers) =>
     httpCall('POST', 'localhost', route, port, data, headers);
