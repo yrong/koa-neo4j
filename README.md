@@ -14,10 +14,10 @@ In a Neo4j enabled application, conducting queries directly from client side mig
 - Gives your server's logic structure, in form of a file-based project; finally a home for Cypher! 
 - Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely-adapted [**koa**](http://koajs.com/) server
  
- In addition it comes with *goodies*:
+In addition it comes with *goodies*:
  
- - Lifecycle hooks, allowing one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem
- - None-Opinionated user management, you describe (in Cypher) how your users and roles are stored, the framework provides authentication and role-based access management
+- Lifecycle hooks, allowing one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem
+- None-Opinionated user management, you describe (in Cypher) how your users and roles are stored, the framework provides authentication and role-based access management
 
 ### Install
 ```bash
@@ -57,7 +57,7 @@ app.listen(3000, function () {
 
 An API is defined by at least three keys:
 
-`method`, specifies the request types (GET|POST|DEL)
+`method`, specifies the request type (GET|POST|DEL)
 
 `route`, the path to this API (e.g. your.server.com/)
 
