@@ -16,7 +16,7 @@ In a Neo4j enabled application, conducting queries directly from client side mig
  
 In addition it comes with *goodies*:
  
-- Lifecycle hooks, enabling one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem
+- Lifecycle hooks, enabling one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem in the process
 - Non-opinionated user management, you describe (in Cypher) how your users and roles are stored, the framework provides authentication and role-based access management
 
 ### Install
@@ -61,7 +61,7 @@ An API is defined by at least three keys:
 
 `route`, the path to this API (e.g. your.server.com/)
 
-`cypherQueryFile` path to the the `.cyp` file corresponding to this route
+`cypherQueryFile`, path to the the `.cyp` file corresponding to this route
 
 Cypher queries, accept parameters via the curly brace syntax:
 ```cypher
