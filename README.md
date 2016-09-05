@@ -11,7 +11,7 @@ In a Neo4j enabled application, conducting queries directly from client side mig
 
 - Stands as a middle layer between clients and database 
 - Gives your server's logic structure, in form of a file-based project; finally a home for Cypher! 
-- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely adapted [**koa**](http://koajs.com/) server
+- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely-adapted [**koa**](http://koajs.com/) server
  
  In addition it comes with *goodies*:
  
