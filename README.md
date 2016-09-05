@@ -75,7 +75,7 @@ These parameters are matched with url parameters `/articles?skip=10&limit=10` or
 
 In addition, any data accompanied by the request will also be passed to the Cypher query, retaining it's name:
 ```bash
-curl --data "skip=10&limit=1000" localhost:3000/articles
+curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/article
 ```
 
 ### Lifecycle hooks
