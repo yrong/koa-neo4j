@@ -1,5 +1,5 @@
 # koa-neo4j
-`koa-neo4j` is a server-side framework that embodies application logic, powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
+`koa-neo4j` is a framework for creating web servers that embody application's logic powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
 
 In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
 
