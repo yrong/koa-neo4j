@@ -3,7 +3,7 @@
 
 In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
 
-- Database is exposed to the client, unless some explicit security mechanism is in place; one can *see* the innards of the database by `view source`
+- Database is exposed to the client, unless some explicit security mechanism is in place; one can *see* the innards of the database by `View page source`
 - There is no **one server to rule them all**, queries are `string`s, scattered around different clients (web, mobile, etc.)
 - Third-party developers might not be familiar with Cypher
 
