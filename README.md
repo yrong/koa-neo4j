@@ -11,8 +11,8 @@ In a Neo4j enabled application, conducting queries directly from client side mig
 `koa-neo4j` addresses all of the above issues:
 
 - Stands as a middle layer between clients and database 
-- Gives your server's logic structure, in form of a file-based project; finally a home for Cypher! 
-- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely-adapted [**koa**](http://koajs.com/) server
+- Gives structure to your server's logic in form of a file-based project; finally a home for Cypher! All of the clients can then talk to an instance of this server
+- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely-adapted [**koa**](http://koajs.com/) server, ripe for further customization
  
 In addition it comes with *goodies*:
  
