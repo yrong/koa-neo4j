@@ -13,6 +13,15 @@
     "type": "git",
     "url": "git+ssh://git@github.com:satratech/koa-neo4j.git"
   },
+  "keywords": [
+    "koa",
+    "neo4j",
+    "graph",
+    "database",
+    "REST",
+    "API",
+    "webservice"
+  ],
   "author": "Keyvan Mir Mohammad Sadeghi <keyvan.m.sadeghi@gmail.com>",
   "license": "MIT",
   "bugs": {

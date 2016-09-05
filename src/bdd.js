@@ -50,7 +50,7 @@ const bdd = {
     whenOnce: when,
     then: then,
     invariant: invariant,
-    appendToContext(key, value) { context[key] = value; }
+    context: context
 };
 
 export default bdd;

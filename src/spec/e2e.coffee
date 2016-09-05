@@ -55,7 +55,7 @@ describe 'End-to-end tests', ->
                     console.log response
                     token = response.token
                     expect(token).toBeDefined
-                    bdd.appendToContext 'token', token
+                    bdd.context.token = token
                     done()
                 .catch (err) -> console.log err
 
@@ -68,7 +68,7 @@ describe 'End-to-end tests', ->
                     allowedRoles: ['user']
                     cypherQueryFile: './cypher/tests/it.cyp'
 
-            bdd.then '`admin` should **not** be able to access /restricted_unless_user without `Authorization` header', (done) ->
+            bdd.then '`admin` should **not** be able to access /restricted_unless_user with her refresh token', (done) ->
                 console.log @token
                 httpPost '/restricted_unless_user', 4949, { it: 'works!' }
                     .then (response) ->
@@ -97,7 +97,7 @@ describe 'End-to-end tests', ->
                     allowedRoles: ['admin']
                     cypherQueryFile: './cypher/tests/it.cyp'
 
-            bdd.then '`admin` should not be able to access /restricted with the refresh token', (done) ->
+            bdd.then '`admin` should be able to access /restricted with the refresh token', (done) ->
                 console.log @token
                 httpPost '/restricted', 4949, { it: 'works!' }, { Authorization: @token }
                     .then (response) ->
