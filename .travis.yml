@@ -1,6 +1,6 @@
+services:
+  - neo4j
 language: node_js
 node_js:
   - "6"
   - "4"
-services:
-  - neo4j
