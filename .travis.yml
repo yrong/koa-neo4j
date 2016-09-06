@@ -1,3 +1,5 @@
+sudo: required
+dist: trusty
 services:
   - neo4j
 language: node_js
