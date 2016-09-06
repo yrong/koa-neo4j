@@ -10,7 +10,7 @@ describe 'End-to-end tests', ->
             neo4j:
                 boltUrl: 'bolt://localhost',
                 user: 'neo4j',
-                password: 'k'
+                password: 'neo4j'
 
     bdd.whenOnce 'app is initialized on 4949', (done) ->
         app = @app
