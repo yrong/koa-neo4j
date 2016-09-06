@@ -23,6 +23,7 @@ class Neo4jConnection {
             .catch(error => {
                 console.error(
                     chalk.red('Error connecting to the Neo4j instance, check connection options'));
+                console.log(error);
                 throw error;
             });
     }
