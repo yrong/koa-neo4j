@@ -1,6 +1,6 @@
-bdd = require './../../bdd.js'
-KoaNeo4jApp = require './../../index.js'
-{httpGet, httpPost} = require './../../util.js'
+bdd = require './../../bdd'
+KoaNeo4jApp = require './../../index'
+{httpGet, httpPost} = require './../../util'
 
 
 describe 'End-to-end tests', ->

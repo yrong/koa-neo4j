@@ -34,7 +34,7 @@ var config = {
     },
     resolve: {
         root: path.resolve('./src'),
-        extensions: ['', '.coffee']
+        extensions: ['', '.js', '.coffee']
     },
     plugins: plugins
 };
