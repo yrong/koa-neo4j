@@ -32,8 +32,23 @@ describe 'End-to-end tests', ->
             route: '/param',
             cypherQueryFile: './cypher/tests/it.cyp'
 
-        bdd.then 'passed parameter should be received from /param', (done) ->
+        bdd.then 'parameter passed in the query string should be received from /param', (done) ->
             httpGet '/param?it=resolves!', 4949
+                .then (response) ->
+                    response = JSON.parse response
+                    console.log response
+                    expect(response).toEqual [{ it: 'resolves!' }]
+                    done()
+
+    describe 'a simple GET request with a `parameter` in cypher side', ->
+
+        bdd.givenOnce 'a GET API is defined on /param/:it', -> @app.defineAPI
+            method: 'GET',
+            route: '/param/:it',
+            cypherQueryFile: './cypher/tests/it.cyp'
+
+        bdd.then 'parameter passed in the route should be received from /param', (done) ->
+            httpGet '/param/resolves!', 4949
                 .then (response) ->
                     response = JSON.parse response
                     console.log response
