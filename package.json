@@ -75,7 +75,7 @@
     "koa-passport": "^2.2.2",
     "koa-router": "^7.0.1",
     "neo4j-driver": "^1.1.0-M01",
-    "parse-neo4j": "^0.5.4",
+    "parse-neo4j": "^0.5.5",
     "passport-jwt": "^2.1.0",
     "passport-local": "^1.0.0",
     "query-string": "^4.2.3",

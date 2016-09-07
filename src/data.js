@@ -17,7 +17,7 @@ class Neo4jConnection {
         const session = this.driver.session();
         this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
             .then((result) => {
-                console.log(chalk.green(parse(result)));
+                console.log(chalk.green(parser.parse(result)));
                 session.close();
             })
             .catch(error => {
