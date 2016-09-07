@@ -5,7 +5,7 @@
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'file-system';
 import chalk from 'chalk';
-import parseNeo4jResponse from './parser';
+import parse from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
 import {pipe} from './util';
 
@@ -17,7 +17,7 @@ class Neo4jConnection {
         const session = this.driver.session();
         this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
             .then((result) => {
-                console.log(chalk.green(parseNeo4jResponse(result)));
+                console.log(chalk.green(parse(result)));
                 session.close();
             })
             .catch(error => {
@@ -47,7 +47,7 @@ class Neo4jConnection {
                 })
                 .catch(reject);
         })
-            .then(parseNeo4jResponse);
+            .then(parse);
     }
 }
 
