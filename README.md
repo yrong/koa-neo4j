@@ -78,7 +78,7 @@ In addition, any data accompanied by the request will also be passed to the Cyph
 ```bash
 curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/article
 ```
-becomes {title} and {author} passed to `./cypher/create_article.cyp`
+becomes a POST request, {"title": "The Capital T Truth", "author": "David Foster Wallace"} will be passed to `./cypher/create_article.cyp` which can refer to these parameters by {title} and {author} 
 
 ### Lifecycle hooks
 TODO: docs
