@@ -59,7 +59,7 @@ An API is defined by at least three keys:
 
 `method`, specifies the request type (GET|POST|DEL)
 
-`route`, the path to this API (e.g. your.server.com/)
+`route`, the path to this API (e.g. the first becomes http://localhost:3000/articles)
 
 `cypherQueryFile`, path to the the `.cyp` file corresponding to this route
 
