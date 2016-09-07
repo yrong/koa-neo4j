@@ -5,7 +5,7 @@
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'file-system';
 import chalk from 'chalk';
-import parse from 'parse-neo4j';
+import parser from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
 import {pipe} from './util';
 
@@ -47,7 +47,7 @@ class Neo4jConnection {
                 })
                 .catch(reject);
         })
-            .then(parse);
+            .then(parser.parse);
     }
 }
 
