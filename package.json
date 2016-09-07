@@ -3,7 +3,7 @@
   "version": "0.4.27",
   "description": "REST for Neo4j made simple -- batteries included with built-in integrations for passportjs, JWT and role based authentication",
   "main": "index.js",
-  "jsnext:main": "src/index.js",
+  "jsnext:main": "./src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
     "dev": "./node_modules/.bin/webpack --progress --colors --watch",
@@ -58,11 +58,9 @@
     "eslint": "^3.3.1",
     "eslint-loader": "^1.5.0",
     "eslint-plugin-babel": "^3.3.0",
-    "eslint-plugin-mocha": "^4.3.0",
     "jasmine": "^2.5.0",
     "jasmine-given": "^2.6.4",
     "jasmine-spec-reporter": "^2.7.0",
-    "wait-promise": "^0.4.1",
     "webpack": "^1.12.14"
   },
   "dependencies": {
