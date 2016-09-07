@@ -42,7 +42,8 @@ class KoaNeo4jApp extends Application {
         this.neo4jConnection = new Neo4jConnection(options.neo4j);
         this.neo4jInitialized = this.neo4jConnection.initialized;
 
-        if (options.authentication && !this.configuredAuthentication)
+
+        if (options.authentication)
             this.configureAuthentication(options.authentication);
 
         if (!this.configuredCors)
@@ -58,8 +59,8 @@ class KoaNeo4jApp extends Application {
             this.defineAPI(api);
     }
 
-    defineAPI(apiObject) {
-        const api = new API(this.neo4jConnection, apiObject);
+    defineAPI(options) {
+        const api = new API(this.neo4jConnection, options);
         const handler = async(ctx, next) => {
             try {
                 if (api.requiresJwtAuthentication)

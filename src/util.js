@@ -24,10 +24,7 @@ const haveIntersection = (arrayFirst, arraySecond) => {
 const readMissingFromDefault = (obj, defaultValues) => {
     if (!obj)
         return Object.assign({}, defaultValues);
-    const result = {};
-    for (const [key, value] of keyValues(defaultValues))
-        result[key] = obj[key] ? obj[key] : value;
-    return result;
+    return {...defaultValues, ...obj};
 };
 
 function * enumerate(array) {
