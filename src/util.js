@@ -21,10 +21,10 @@ const haveIntersection = (arrayFirst, arraySecond) => {
     return false;
 };
 
-const readMissingFromDefault = (obj, defaultValues) => {
-    if (!obj)
+const readMissingFromDefault = (object, defaultValues) => {
+    if (!object)
         return Object.assign({}, defaultValues);
-    return {...defaultValues, ...obj};
+    return {...defaultValues, ...object};
 };
 
 function * enumerate(array) {
