@@ -50,13 +50,12 @@ class Authentication {
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
                 .catch(reject))
             .then((user) => {
-                if (!user)
+                // koa-passport returns false if object is not formatted as {username, password}
+                if (!user) {
+                    ctx.status = 400;
                     throw new Error('Invalid POST data, expected {username, password}');
+                }
                 return Promise.all([Promise.resolve(user), this.getRoles(user)]);
-            })
-            .catch((error) => {
-                ctx.status = 400;
-                ctx.body = {error: String(error)};
             })
             .then(([user, [roles]]) => {
                 user.roles = roles.roles;
@@ -66,7 +65,7 @@ class Authentication {
                 };
             })
             .catch((error) => {
-                ctx.status = 422;
+                ctx.status = ctx.status === 404 ? 422 : ctx.status;
                 ctx.body = {error: String(error)};
             });
 

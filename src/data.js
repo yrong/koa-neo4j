@@ -66,7 +66,7 @@ class API {
             return Promise.resolve(check(params, user))
                 .then(checkPassed => {
                     if (!checkPassed)
-                        throw new Error('Check lifecycle hook not passed');
+                        throw new Error('Check lifecycle hook did not pass');
                 })
                 .then(() => {
                     let preProcessToUse = preProcess;
