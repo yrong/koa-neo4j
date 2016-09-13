@@ -51,8 +51,12 @@ class Authentication {
                 .catch(reject))
             .then((user) => {
                 if (!user)
-                    throw new Error('invalid object, expected {username, password}');
+                    throw new Error('Invalid POST data, expected {username, password}');
                 return Promise.all([Promise.resolve(user), this.getRoles(user)]);
+            })
+            .catch((error) => {
+                ctx.status = 400;
+                ctx.body = {error: String(error)};
             })
             .then(([user, [roles]]) => {
                 user.roles = roles.roles;
