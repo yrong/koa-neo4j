@@ -50,11 +50,11 @@ class Authentication {
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
                 .catch(reject))
             .then((user) => Promise.all([Promise.resolve(user), this.getRoles(user)]))
-            .then(([user, roles]) => {
+            .then(([user, [roles]]) => {
                 ctx.body = {
                     token: `JWT ${jwt.sign(user, this.secret)}`,
                     user: user,
-                    roles: roles
+                    roles: roles.roles
                 };
             })
             .catch((error) => {
@@ -71,7 +71,7 @@ class Authentication {
     }
 
     getRoles(user) {
-        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)})
+        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)});
     }
 }
 

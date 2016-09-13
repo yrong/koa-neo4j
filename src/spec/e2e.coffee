@@ -69,7 +69,7 @@ describe 'End-to-end tests', ->
                     response = JSON.parse response;
                     console.log response
                     token = response.token
-                    expect(token).toBeDefined
+                    expect(token).toBeDefined()
                     bdd.context.token = token
                     done()
                 .catch (err) -> console.log err
