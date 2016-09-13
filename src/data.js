@@ -53,7 +53,7 @@ class Neo4jConnection {
 
 class API {
     constructor(neo4jConnection, {method, route, cypherQueryFile,
-        allowedRoles = [], parseIdSkipLimit = true, check = (user, params) => true,
+        allowedRoles = [], parseIdSkipLimit = true, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.method = method;
@@ -62,8 +62,8 @@ class API {
         this.requiresJwtAuthentication = allowedRoles &&
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-        this.response = (user, params) => {
-            return Promise.resolve(check(user, params))
+        this.response = (params, user) => {
+            return Promise.resolve(check(params, user))
                 .then(checkPassed => {
                     if (!checkPassed)
                         throw new Error('Check lifecycle hook not passed');
