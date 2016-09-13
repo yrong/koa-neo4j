@@ -3,7 +3,7 @@
 import Application from 'koa';
 import Router from 'koa-router';
 import logger from 'koa-logger';
-import parser from 'koa-body-parser';
+import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import {Authentication} from './auth';
@@ -50,7 +50,19 @@ class KoaNeo4jApp extends Application {
             this.configureCors(options.cors);
 
         this
-            .use(parser())
+            .use(async (ctx, next) => {
+                try {
+                    await next();
+                } catch (error) {
+                    ctx.body = { error: String(error) };
+                    ctx.status = error.status;
+                }
+            })
+            .use(bodyParser({
+                onerror(err, ctx) {
+                    ctx.throw('Cannot parse request body', 400);
+                }
+            }))
             .use(this.router.routes());
 
         this.executeCypher = this.neo4jConnection.executeCypher;
