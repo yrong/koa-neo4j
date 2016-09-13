@@ -49,8 +49,13 @@ class Authentication {
         this.authenticateLocal = async (ctx, next) => await new Promise(
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
                 .catch(reject))
-            .then((user) => {
-                ctx.body = {token: `JWT ${jwt.sign(user, this.secret)}`, user: user};
+            .then((user) => Promise.all([Promise.resolve(user), this.getRoles(user)]))
+            .then(([user, roles]) => {
+                ctx.body = {
+                    token: `JWT ${jwt.sign(user, this.secret)}`,
+                    user: user,
+                    roles: roles
+                };
             })
             .catch((error) => {
                 ctx.status = 422;
@@ -60,10 +65,13 @@ class Authentication {
         this.authenticateJwt = async (ctx, next) => await new Promise((resolve, reject) =>
             this.passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
                 .catch(reject))
-            .then(user =>
-                this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)}))
+            .then(user => this.getRoles(user))
             // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
             .then(([user]) => { ctx.user = user; });
+    }
+
+    getRoles(user) {
+        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)})
     }
 }
 
