@@ -55,10 +55,10 @@ class Authentication {
                 return Promise.all([Promise.resolve(user), this.getRoles(user)]);
             })
             .then(([user, [roles]]) => {
+                user.roles = roles.roles;
                 ctx.body = {
                     token: `JWT ${jwt.sign(user, this.secret)}`,
-                    user: user,
-                    roles: roles.roles
+                    user: user
                 };
             })
             .catch((error) => {
