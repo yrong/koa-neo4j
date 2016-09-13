@@ -50,7 +50,7 @@ class Authentication {
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
                 .catch(reject))
             .then((user) => {
-                ctx.body = {token: `JWT ${jwt.sign(user, this.secret)}`};
+                ctx.body = {token: `JWT ${jwt.sign(user, this.secret)}`, user: user};
             })
             .catch((error) => {
                 ctx.status = 422;

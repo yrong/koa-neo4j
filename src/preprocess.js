@@ -19,4 +19,5 @@ const parseInts = parseWith(parseInt);
 
 const parseFloats = parseWith(parseFloat);
 
+export {Integer} from 'neo4j-driver/lib/v1/integer';
 export {parseWith, parseNeo4jInts, parseInts, parseFloats, neo4jInt};
