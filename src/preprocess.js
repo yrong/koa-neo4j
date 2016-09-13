@@ -15,9 +15,13 @@ const parseWith = (func) => (...keys) => params => {
 
 const parseNeo4jInts = parseWith(neo4jInt);
 
+const parseIds = parseNeo4jInts;
+
 const parseInts = parseWith(parseInt);
 
 const parseFloats = parseWith(parseFloat);
 
+const parseDates = parseWith(stringOrUnixTimeMilli => new Date(stringOrUnixTimeMilli));
+
 export {Integer} from 'neo4j-driver/lib/v1/integer';
-export {parseWith, parseNeo4jInts, parseInts, parseFloats, neo4jInt};
+export {neo4jInt, parseWith, parseNeo4jInts, parseIds, parseInts, parseFloats, parseDates};

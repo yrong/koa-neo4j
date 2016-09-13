@@ -80,8 +80,11 @@ class API {
                     }
                     return preProcessToUse.apply(this, [params]);
                 })
-                .then(params => neo4jConnection.executeCypher(cypherQueryFile, params))
-                .then(postProcess);
+                .then(params => Promise.all([
+                    neo4jConnection.executeCypher(cypherQueryFile, params),
+                    Promise.resolve(params)
+                ]))
+                .then(([result, params]) => postProcess(result, params));
         };
     }
 }
