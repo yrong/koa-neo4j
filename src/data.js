@@ -53,7 +53,7 @@ class Neo4jConnection {
 
 class API {
     constructor(neo4jConnection, {method, route, cypherQueryFile,
-        allowedRoles = [], parseIdSkipLimit = true,
+        allowedRoles = [], parseIdSkipLimit = true, check = (user, params) => true,
         preProcess = params => params, postProcess = result => result} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.method = method;
@@ -62,17 +62,24 @@ class API {
         this.requiresJwtAuthentication = allowedRoles &&
             Array.isArray(allowedRoles) && allowedRoles.length > 0;
 
-        this.response = params => {
-            let preProcessToUse = preProcess;
-            if (parseIdSkipLimit) {
-                const keys = [];
-                for (const key of ['id', 'skip', 'limit'])
-                    if (params[key])
-                        keys.push(key);
-                if (keys.length > 0)
-                    preProcessToUse = pipe(parseNeo4jInts(...keys), preProcess);
-            }
-            return Promise.resolve(preProcessToUse.apply(this, [params]))
+        this.response = (user, params) => {
+            return Promise.resolve(check(user, params))
+                .then(checkPassed => {
+                    if (!checkPassed)
+                        throw new Error('Check lifecycle hook not passed');
+                })
+                .then(() => {
+                    let preProcessToUse = preProcess;
+                    if (parseIdSkipLimit) {
+                        const keys = [];
+                        for (const key of ['id', 'skip', 'limit'])
+                            if (params[key])
+                                keys.push(key);
+                        if (keys.length > 0)
+                            preProcessToUse = pipe(parseNeo4jInts(...keys), preProcess);
+                    }
+                    return preProcessToUse.apply(this, [params]);
+                })
                 .then(params => neo4jConnection.executeCypher(cypherQueryFile, params))
                 .then(postProcess);
         };

@@ -73,6 +73,8 @@ class Authentication {
         this.authenticateJwt = async (ctx, next) => await new Promise((resolve, reject) =>
             this.passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
                 .catch(reject))
+            // TODO next line connects to DB, token already embodies roles,
+            // remove when access token is implemented
             .then(user => this.getRoles(user))
             // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
             .then(([user]) => { ctx.user = user; });
