@@ -21,10 +21,10 @@ class Authentication {
         this.passport.use(new LocalStrategy((username, password, done) => {
             this.neo4jConnection.executeCypher(this.userQuery, {username: username})
                 .then(([user]) => {
-                    if (!user || password !== user.password_hash)
+                    if (!user || password !== user.password)
                         done(new Error('Invalid username or password'));
                     else {
-                        delete user.password_hash;
+                        delete user.password;
                         done(null, user);
                     }
                 }, done);
@@ -49,7 +49,11 @@ class Authentication {
         this.authenticateLocal = async (ctx, next) => await new Promise(
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
                 .catch(reject))
-            .then((user) => Promise.all([Promise.resolve(user), this.getRoles(user)]))
+            .then((user) => {
+                if (!user)
+                    throw new Error('invalid object, expected {username, password}');
+                return Promise.all([Promise.resolve(user), this.getRoles(user)]);
+            })
             .then(([user, [roles]]) => {
                 ctx.body = {
                     token: `JWT ${jwt.sign(user, this.secret)}`,
