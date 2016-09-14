@@ -7,7 +7,7 @@ import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import {Authentication} from './auth';
-import {API, Neo4jConnection} from './data';
+import {Neo4jConnection, Procedure, API} from './data';
 import {haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
@@ -129,6 +129,10 @@ class KoaNeo4jApp extends Application {
             throw new Error('KCors already configured');
         this.use(cors(options));
         this.configuredCors = true;
+    }
+
+    createProcedure(options) {
+        return (new Procedure(this.neo4jConnection, options)).response;
     }
 }
 

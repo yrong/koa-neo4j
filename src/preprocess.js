@@ -21,7 +21,11 @@ const parseInts = parseWith(parseInt);
 
 const parseFloats = parseWith(parseFloat);
 
-const parseDates = parseWith(stringOrUnixTimeMilli => new Date(stringOrUnixTimeMilli));
+const parseDates = parseWith(stringOrUnixTime => {
+    const parsedInt = parseInt(stringOrUnixTime);
+    stringOrUnixTime = isNaN(parsedInt) ? stringOrUnixTime : parsedInt;
+    return new Date(stringOrUnixTime);
+});
 
 export {Integer} from 'neo4j-driver/lib/v1/integer';
 export {neo4jInt, parseWith, parseNeo4jInts, parseIds, parseInts, parseFloats, parseDates};

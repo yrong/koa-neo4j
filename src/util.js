@@ -64,6 +64,15 @@ const httpCall = (method, host, route, port, data, headers) => {
         .then(response => { response.setEncoding('utf8'); return response; })
         .then(response => new Promise(resolve => response.on('data', resolve)))
         .then(chunk => chunk.toString('utf8'));
+        // TODO below causes tests to fail!
+        // .then(str => {
+        //     try {
+        //         console.log(str)
+        //         return JSON.parse(str);
+        //     } catch (error) {
+        //         return str;
+        //     }
+        // });
 };
 
 const httpGet = (route, port) => httpCall('GET', 'localhost', route, port);

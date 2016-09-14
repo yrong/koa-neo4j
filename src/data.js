@@ -51,17 +51,11 @@ class Neo4jConnection {
     }
 }
 
-class API {
-    constructor(neo4jConnection, {method, route, cypherQueryFile,
-        allowedRoles = [], parseIdSkipLimit = true, check = (params, user) => true,
-        preProcess = params => params, postProcess = result => result} = {}) {
-        this.neo4jConnection = neo4jConnection;
-        this.method = method;
-        this.route = route;
-        this.allowedRoles = allowedRoles;
-        this.requiresJwtAuthentication = allowedRoles &&
-            Array.isArray(allowedRoles) && allowedRoles.length > 0;
-
+class Procedure {
+    constructor(neo4jConnection, {cypherQueryFile,  parseIdSkipLimit = true,
+        check = (params, user) => true, preProcess = params => params,
+        postProcess = result => result} = {}) {
+        console.log({cypherQueryFile, parseIdSkipLimit, check, preProcess, postProcess});
         this.response = (params, user) => {
             return Promise.resolve(check(params, user))
                 .then(checkPassed => {
@@ -89,4 +83,19 @@ class API {
     }
 }
 
-export {API, Neo4jConnection};
+class API extends Procedure {
+    constructor(neo4jConnection, {method, route, cypherQueryFile,
+        allowedRoles = [], parseIdSkipLimit = true, check = (params, user) => true,
+        preProcess = params => params, postProcess = result => result} = {}) {
+        super(neo4jConnection, {cypherQueryFile, parseIdSkipLimit, check, preProcess, postProcess});
+
+        this.neo4jConnection = neo4jConnection;
+        this.method = method;
+        this.route = route;
+        this.allowedRoles = allowedRoles;
+        this.requiresJwtAuthentication = allowedRoles &&
+            Array.isArray(allowedRoles) && allowedRoles.length > 0;
+    }
+}
+
+export {Neo4jConnection, Procedure, API};
