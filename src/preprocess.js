@@ -6,10 +6,17 @@ import {v1 as neo4j} from 'neo4j-driver';
 
 const neo4jInt = neo4j.int;
 
+const deepParse = (params, key, func) => {
+    if (params[key])
+        params[key] = func.apply(params, [params[key]]);
+    for (const innerKey of Object.keys(params))
+        if (typeof params[innerKey] === 'object')
+            deepParse(params[innerKey], key, func);
+};
+
 const parseWith = (func) => (...keys) => params => {
     for (const key of keys)
-        if (params[key])
-            params[key] = func.apply(this, [params[key]]);
+        deepParse(params, key, func);
     return params;
 };
 

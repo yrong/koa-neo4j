@@ -52,28 +52,17 @@ class Neo4jConnection {
 }
 
 class Procedure {
-    constructor(neo4jConnection, {cypherQueryFile,  parseIdSkipLimit = true,
-        check = (params, user) => true, preProcess = params => params,
-        postProcess = result => result} = {}) {
-        console.log({cypherQueryFile, parseIdSkipLimit, check, preProcess, postProcess});
+    constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
+        preProcess = params => params, postProcess = result => result} = {}) {
         this.response = (params, user) => {
             return Promise.resolve(check(params, user))
                 .then(checkPassed => {
                     if (!checkPassed)
                         throw new Error('Check lifecycle hook did not pass');
+                    return params;
                 })
-                .then(() => {
-                    let preProcessToUse = preProcess;
-                    if (parseIdSkipLimit) {
-                        const keys = [];
-                        for (const key of ['id', 'skip', 'limit'])
-                            if (params[key])
-                                keys.push(key);
-                        if (keys.length > 0)
-                            preProcessToUse = pipe(parseNeo4jInts(...keys), preProcess);
-                    }
-                    return preProcessToUse.apply(this, [params]);
-                })
+                .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess))
+                .then(params => {console.log(params);return params;})
                 .then(params => Promise.all([
                     neo4jConnection.executeCypher(cypherQueryFile, params),
                     Promise.resolve(params)
