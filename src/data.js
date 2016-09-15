@@ -11,7 +11,7 @@ import {pipe} from './util';
 
 class Neo4jConnection {
     constructor({boltUrl, user, password} = {}) {
-        this.queryDict = {};
+        this.queries = {};
 
         this.driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
         const session = this.driver.session();
@@ -29,15 +29,15 @@ class Neo4jConnection {
     }
 
     addCypherQueryFile(cypherQueryFilePath) {
-        this.queryDict[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
+        this.queries[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
     }
 
     executeCypher(cypherQueryFilePath, queryParams) {
         return new Promise((resolve, reject) => {
-            if (!this.queryDict[cypherQueryFilePath])
+            if (!this.queries[cypherQueryFilePath])
                 this.addCypherQueryFile(cypherQueryFilePath);
 
-            const query = this.queryDict[cypherQueryFilePath];
+            const query = this.queries[cypherQueryFilePath];
             const session = this.driver.session();
 
             session.run(query, queryParams)
@@ -54,6 +54,8 @@ class Neo4jConnection {
 class Procedure {
     constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result} = {}) {
+        this.neo4jConnection = neo4jConnection;
+
         this.response = (params, user) => {
             return Promise.resolve(check(params, user))
                 .then(checkPassed => {
@@ -76,7 +78,6 @@ class API extends Procedure {
         cypherQueryFile, check, preProcess, postProcess} = {}) {
         super(neo4jConnection, {cypherQueryFile, check, preProcess, postProcess});
 
-        this.neo4jConnection = neo4jConnection;
         this.method = method;
         this.route = route;
         this.allowedRoles = allowedRoles;
