@@ -62,7 +62,6 @@ class Procedure {
                     return params;
                 })
                 .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess))
-                .then(params => {console.log(params);return params;})
                 .then(params => Promise.all([
                     neo4jConnection.executeCypher(cypherQueryFile, params),
                     Promise.resolve(params)
@@ -73,10 +72,9 @@ class Procedure {
 }
 
 class API extends Procedure {
-    constructor(neo4jConnection, {method, route, cypherQueryFile,
-        allowedRoles = [], parseIdSkipLimit = true, check = (params, user) => true,
-        preProcess = params => params, postProcess = result => result} = {}) {
-        super(neo4jConnection, {cypherQueryFile, parseIdSkipLimit, check, preProcess, postProcess});
+    constructor(neo4jConnection, {method, route, allowedRoles = [],
+        cypherQueryFile, check, preProcess, postProcess} = {}) {
+        super(neo4jConnection, {cypherQueryFile, check, preProcess, postProcess});
 
         this.neo4jConnection = neo4jConnection;
         this.method = method;
