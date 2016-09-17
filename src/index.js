@@ -112,6 +112,7 @@ class KoaNeo4jApp extends Application {
             }
         };
         this.methods[api.method].apply(this.router, [api.route, handler]);
+        return api;
     }
 
     configureAuthentication(options) {

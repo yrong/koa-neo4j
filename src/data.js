@@ -7,7 +7,7 @@ import fs from 'file-system';
 import chalk from 'chalk';
 import parser from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
-import {pipe} from './util';
+import {pipe, getArgs} from './util';
 
 class Neo4jConnection {
     constructor({boltUrl, user, password} = {}) {
@@ -51,10 +51,32 @@ class Neo4jConnection {
     }
 }
 
+class Hook {
+    constructor(func, context) {
+        if (getArgs(func).slice(-1)[0] === 'done')
+            this.constructAsync(func);
+        else
+            this.constructSync(func);
+        this.context = context;
+    }
+
+    constructAsync(func) {
+        this.execute = (...args) => new Promise(resolve => {
+            args.push(resolve);
+            func.apply(this.context, args);
+        });
+    }
+
+    constructSync(func) {
+        this.execute = (...args) => Promise.resolve(func.apply(this.context, args));
+    }
+}
+
 class Procedure {
     constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result} = {}) {
         this.neo4jConnection = neo4jConnection;
+        this.context = {cypherQueryFile, check, preProcess, postProcess};
 
         this.response = (params, user) => {
             return Promise.resolve(check(params, user))

@@ -44,6 +44,20 @@ const pipe = (...functions) => (...args) => {
     return args;
 };
 
+const getArgs = (func) => {
+    // First match everything inside the function argument parens.
+    const args = func.toString().match(/function\s.*?\(([^)]*)\)/)[1];
+
+    // Split the arguments string into an array comma delimited.
+    return args.split(',').map((arg) => {
+        // Ensure no inline comments are parsed and trim the whitespace.
+        return arg.replace(/\/\*.*\*\//, '').trim();
+    }).filter((arg) => {
+        // Ensure no undefined values are added.
+        return arg;
+    });
+};
+
 const httpCall = (method, host, route, port, data, headers) => {
     return (new Promise((resolve, reject) => {
         headers = headers || {};
@@ -82,4 +96,4 @@ const httpPost = (route, port, data, headers) =>
 
 
 export {keyValues, haveIntersection, readMissingFromDefault,
-    enumerate, pipe, httpGet, httpPost, httpCall};
+    enumerate, pipe, getArgs, httpGet, httpPost, httpCall};
