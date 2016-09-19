@@ -35,7 +35,6 @@ describe 'End-to-end tests', ->
         bdd.then 'parameter passed in the query string should be received from /param', (done) ->
             httpGet '/param?it=resolves!', 4949
                 .then (response) ->
-                    response = JSON.parse response
                     console.log response
                     expect(response).toEqual [{ it: 'resolves!' }]
                     done()
@@ -50,7 +49,6 @@ describe 'End-to-end tests', ->
         bdd.then 'parameter passed in the route should be received from /param', (done) ->
             httpGet '/param/resolves!', 4949
                 .then (response) ->
-                    response = JSON.parse response
                     console.log response
                     expect(response).toEqual [{ it: 'resolves!' }]
                     done()
@@ -68,7 +66,6 @@ describe 'End-to-end tests', ->
         bdd.then 'postProcess should change the result', (done) ->
             httpGet '/sync-hook/hooks!', 4949
             .then (response) ->
-                response = JSON.parse response
                 console.log response
                 expect(response).toEqual [{ it: 'hooks!', really: 'hooks!' }]
                 done()
@@ -88,7 +85,6 @@ describe 'End-to-end tests', ->
         bdd.then 'postProcess should change the result', (done) ->
             httpGet '/async-timeout-hook-success/hooks!', 4949
             .then (response) ->
-                response = JSON.parse response
                 console.log response
                 expect(response).toEqual [{ it: 'hooks!', really: 'hooks!' }]
                 done()
@@ -108,7 +104,6 @@ describe 'End-to-end tests', ->
         bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
             httpGet '/async-timeout-hook-failure/hooks!', 4949
             .then (response) ->
-                response = JSON.parse response
                 console.log response
                 expect(response).toEqual
                     error: 'Error: postProcess lifecycle timed out, no response after 4 seconds'
@@ -126,7 +121,6 @@ describe 'End-to-end tests', ->
         bdd.then 'postProcess should fail because it has been rejected', (done) ->
             httpGet '/async-timeout-hook-reject/hooks!', 4949
             .then (response) ->
-                response = JSON.parse response
                 console.log response
                 expect(response).toEqual
                     error: 'operation not successful'
@@ -143,7 +137,6 @@ describe 'End-to-end tests', ->
         bdd.then 'a refresh token should be served for valid username and password on /auth', (done) ->
             httpPost '/auth', 4949, { username:'admin', password:'test' }
                 .then (response) ->
-                    response = JSON.parse response;
                     console.log response
                     token = response.token
                     expect(token).toBeDefined()
@@ -164,7 +157,6 @@ describe 'End-to-end tests', ->
                 console.log @token
                 httpPost '/restricted_unless_user', 4949, { it: 'works!' }
                     .then (response) ->
-                        response = JSON.parse response;
                         console.log response
                         expect(response).toEqual({ error: 'Error: Authorization required' })
                         done()
@@ -174,7 +166,6 @@ describe 'End-to-end tests', ->
                 console.log @token
                 httpPost '/restricted_unless_user', 4949, { it: 'works!' }, { Authorization: @token }
                     .then (response) ->
-                        response = JSON.parse response;
                         console.log response
                         expect(response).toEqual({ error: 'Error: You don\'t have permission for this' })
                         done()
@@ -193,7 +184,6 @@ describe 'End-to-end tests', ->
                 console.log @token
                 httpPost '/restricted', 4949, { it: 'works!' }, { Authorization: @token }
                     .then (response) ->
-                        response = JSON.parse response;
                         console.log response
                         expect(response).toEqual([{ it: 'works!' }])
                         done()
