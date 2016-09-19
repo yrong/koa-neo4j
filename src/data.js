@@ -52,12 +52,11 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(func, context) {
+    constructor(func) {
         if (getArgs(func).slice(-1)[0] === 'done')
             this.constructAsync(func);
         else
             this.constructSync(func);
-        this.context = context;
     }
 
     constructAsync(func) {
@@ -76,21 +75,24 @@ class Procedure {
     constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result} = {}) {
         this.neo4jConnection = neo4jConnection;
-        this.context = {cypherQueryFile, check, preProcess, postProcess};
+
+        const checkHook = new Hook(check);
+        const preProcessHooh = new Hook(preProcess);
+        const postProcessHook = new Hook(postProcess);
 
         this.response = (params, user) => {
-            return Promise.resolve(check(params, user))
+            return checkHook.execute(params, user)
                 .then(checkPassed => {
                     if (!checkPassed)
                         throw new Error('Check lifecycle hook did not pass');
                     return params;
                 })
-                .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcess))
+                .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcessHooh.execute))
                 .then(params => Promise.all([
                     neo4jConnection.executeCypher(cypherQueryFile, params),
                     Promise.resolve(params)
                 ]))
-                .then(([result, params]) => postProcess(result, params));
+                .then(([result, params]) => postProcessHook.execute(result, params));
         };
     }
 }
