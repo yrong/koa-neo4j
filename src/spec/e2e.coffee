@@ -55,6 +55,83 @@ describe 'End-to-end tests', ->
                     expect(response).toEqual [{ it: 'resolves!' }]
                     done()
 
+    describe 'sync hooks', ->
+
+        bdd.givenOnce 'a GET API with postProcess hook', -> @app.defineAPI
+            method: 'GET',
+            route: '/sync-hook/:it',
+            cypherQueryFile: './cypher/tests/it.cyp',
+            postProcess: (result, params) ->
+                result[0].really = params.it
+                result
+
+        bdd.then 'postProcess should change the result', (done) ->
+            httpGet '/sync-hook/hooks!', 4949
+            .then (response) ->
+                response = JSON.parse response
+                console.log response
+                expect(response).toEqual [{ it: 'hooks!', really: 'hooks!' }]
+                done()
+
+    describe 'async timeout hook success', ->
+
+        bdd.givenOnce 'a GET API with async postProcess hook responds within 4 seconds', -> @app.defineAPI
+            method: 'GET',
+            route: '/async-timeout-hook-success/:it',
+            cypherQueryFile: './cypher/tests/it.cyp',
+            postProcess: (result, params, resolve) ->
+                result[0].really = params.it
+                setTimeout ->
+                    resolve(result)
+                , 2000
+
+        bdd.then 'postProcess should change the result', (done) ->
+            httpGet '/async-timeout-hook-success/hooks!', 4949
+            .then (response) ->
+                response = JSON.parse response
+                console.log response
+                expect(response).toEqual [{ it: 'hooks!', really: 'hooks!' }]
+                done()
+
+    describe 'async timeout hook failure', ->
+
+        bdd.givenOnce 'a GET API with async postProcess hook **no response** within 4 seconds', -> @app.defineAPI
+            method: 'GET',
+            route: '/async-timeout-hook-failure/:it',
+            cypherQueryFile: './cypher/tests/it.cyp',
+            postProcess: (result, params, resolve) ->
+                result[0].really = params.it
+                setTimeout ->
+                    resolve(result)
+                , 4500
+
+        bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
+            httpGet '/async-timeout-hook-failure/hooks!', 4949
+            .then (response) ->
+                response = JSON.parse response
+                console.log response
+                expect(response).toEqual
+                    error: 'Error: postProcess lifecycle timed out, no response after 4 seconds'
+                done()
+
+    describe 'async hook with reject failure', ->
+
+        bdd.givenOnce 'a GET API rejects request in async postProcess hook', -> @app.defineAPI
+            method: 'GET',
+            route: '/async-timeout-hook-reject/:it',
+            cypherQueryFile: './cypher/tests/it.cyp',
+            postProcess: (result, params, resolve, reject) ->
+                reject 'operation not successful'
+
+        bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
+            httpGet '/async-timeout-hook-reject/hooks!', 4949
+            .then (response) ->
+                response = JSON.parse response
+                console.log response
+                expect(response).toEqual
+                    error: 'operation not successful'
+                done()
+
     describe 'authentication', ->
 
         bdd.givenOnce 'authentication is configured', -> @app.configureAuthentication

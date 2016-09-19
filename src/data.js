@@ -52,16 +52,36 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(func) {
-        if (getArgs(func).slice(-1)[0] === 'done')
-            this.constructAsync(func);
+    constructor(func, hookName) {
+        this.name = hookName;
+        if (getArgs(func).slice(-1)[0] === 'resolve')
+            this.constructAsyncWithTimeout(func);
+        else if (getArgs(func).slice(-1)[0] === 'reject')
+            this.constructAsyncWithReject(func);
         else
             this.constructSync(func);
     }
 
-    constructAsync(func) {
-        this.execute = (...args) => new Promise(resolve => {
+    constructAsyncWithTimeout(func) {
+        this.execute = (...args) => Promise.race([
+            new Promise(resolve => {
+                args.push(resolve);
+                func.apply(this.context, args);
+            }),
+            new Promise(resolve => setTimeout(resolve, 4000))
+                .then(() => 'no response after 4 seconds')
+        ])
+            .then(result => {
+                if (result === 'no response after 4 seconds')
+                    throw new Error(`${this.name} lifecycle timed out, ${result}`);
+                return result;
+            });
+    }
+
+    constructAsyncWithReject(func) {
+        this.execute = (...args) => new Promise((resolve, reject) => {
             args.push(resolve);
+            args.push(reject);
             func.apply(this.context, args);
         });
     }
@@ -76,9 +96,9 @@ class Procedure {
         preProcess = params => params, postProcess = result => result} = {}) {
         this.neo4jConnection = neo4jConnection;
 
-        const checkHook = new Hook(check);
-        const preProcessHooh = new Hook(preProcess);
-        const postProcessHook = new Hook(postProcess);
+        const checkHook = new Hook(check, 'check');
+        const preProcessHooh = new Hook(preProcess, 'preProcess');
+        const postProcessHook = new Hook(postProcess, 'postProcess');
 
         this.response = (params, user) => {
             return checkHook.execute(params, user)
