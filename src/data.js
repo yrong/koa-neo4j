@@ -52,20 +52,22 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(func, hookName) {
+    constructor(func, route, hookName) {
         this.name = hookName;
-        if (getArgs(func).slice(-1)[0] === 'resolve')
-            this.constructAsyncWithTimeout(func);
-        else if (getArgs(func).slice(-1)[0] === 'reject')
-            this.constructAsyncWithReject(func);
+        this.route = route;
+        const lastTwoArgs = getArgs(func).slice(-2);
+        if (lastTwoArgs[0] === 'resolve' || lastTwoArgs[1] === 'resolve')
+            this.constructAsync(func, lastTwoArgs[1] === 'reject');
         else
             this.constructSync(func);
     }
 
-    constructAsyncWithTimeout(func) {
+    constructAsync(func, rejectPresent) {
         this.execute = (...args) => Promise.race([
-            new Promise(resolve => {
+            new Promise((resolve, reject) => {
                 args.push(resolve);
+                if (rejectPresent)
+                    args.push(reject);
                 func.apply(this.context, args);
             }),
             new Promise(resolve => setTimeout(resolve, 4000))
@@ -73,17 +75,9 @@ class Hook {
         ])
             .then(result => {
                 if (result === 'no response after 4 seconds')
-                    throw new Error(`${this.name} lifecycle timed out, ${result}`);
+                    throw new Error(`${this.name} lifecycle of ${this.route} timed out, ${result}`);
                 return result;
             });
-    }
-
-    constructAsyncWithReject(func) {
-        this.execute = (...args) => new Promise((resolve, reject) => {
-            args.push(resolve);
-            args.push(reject);
-            func.apply(this.context, args);
-        });
     }
 
     constructSync(func) {
@@ -93,12 +87,12 @@ class Hook {
 
 class Procedure {
     constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
-        preProcess = params => params, postProcess = result => result} = {}) {
+        preProcess = params => params, postProcess = result => result, route = 'procedure'} = {}) {
         this.neo4jConnection = neo4jConnection;
 
-        const checkHook = new Hook(check, 'check');
-        const preProcessHooh = new Hook(preProcess, 'preProcess');
-        const postProcessHook = new Hook(postProcess, 'postProcess');
+        const checkHook = new Hook(check, route, 'check');
+        const preProcessHooh = new Hook(preProcess, route, 'preProcess');
+        const postProcessHook = new Hook(postProcess, route, 'postProcess');
 
         this.response = (params, user) => {
             return checkHook.execute(params, user)
@@ -120,7 +114,7 @@ class Procedure {
 class API extends Procedure {
     constructor(neo4jConnection, {method, route, allowedRoles = [],
         cypherQueryFile, check, preProcess, postProcess} = {}) {
-        super(neo4jConnection, {cypherQueryFile, check, preProcess, postProcess});
+        super(neo4jConnection, {cypherQueryFile, check, preProcess, postProcess, route});
 
         this.method = method;
         this.route = route;

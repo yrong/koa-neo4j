@@ -106,7 +106,7 @@ describe 'End-to-end tests', ->
             .then (response) ->
                 console.log response
                 expect(response).toEqual
-                    error: 'Error: postProcess lifecycle timed out, no response after 4 seconds'
+                    error: 'Error: postProcess lifecycle of /async-timeout-hook-failure/:it timed out, no response after 4 seconds'
                 done()
 
     describe 'async hook with reject failure', ->
