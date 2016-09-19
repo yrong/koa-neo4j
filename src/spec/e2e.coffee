@@ -123,7 +123,7 @@ describe 'End-to-end tests', ->
             postProcess: (result, params, resolve, reject) ->
                 reject 'operation not successful'
 
-        bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
+        bdd.then 'postProcess should fail because it has been rejected', (done) ->
             httpGet '/async-timeout-hook-reject/hooks!', 4949
             .then (response) ->
                 response = JSON.parse response
