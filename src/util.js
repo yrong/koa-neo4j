@@ -47,6 +47,7 @@ const pipe = (...functions) => (...args) => {
 const getArgs = (func) => {
     const name = func.name === '' ? 'function' : func.name;
     const regexp = new RegExp(`${name}\\s*.*?\\(([^)]*)\\)`);
+    console.log(regexp)
     console.log(func.toString())
     // First match everything inside the function argument parens.
     const args = func.toString().match(regexp)[1];
