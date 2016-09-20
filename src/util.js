@@ -45,8 +45,10 @@ const pipe = (...functions) => (...args) => {
 };
 
 const getArgs = (func) => {
+    const name = func.name === '' ? 'function' : func.name;
+    const regexp = new RegExp(`${name}\\s*.*?\\(([^)]*)\\)`);
     // First match everything inside the function argument parens.
-    const args = func.toString().match(/function\s.*?\(([^)]*)\)/)[1];
+    const args = func.toString().match(regexp)[1];
 
     // Split the arguments string into an array comma delimited.
     return args.split(',').map((arg) => {
