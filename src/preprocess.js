@@ -30,7 +30,7 @@ const parseFloats = parseWith(parseFloat);
 
 const parseDates = parseWith(stringOrUnixTime => {
     const parsedInt = parseInt(stringOrUnixTime);
-    stringOrUnixTime = isNaN(parsedInt) ? stringOrUnixTime : parsedInt;
+    stringOrUnixTime = isNaN(parsedInt) || parsedInt < 99999 ? stringOrUnixTime : parsedInt;
     return new Date(stringOrUnixTime);
 });
 
