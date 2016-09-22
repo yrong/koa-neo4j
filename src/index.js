@@ -110,6 +110,7 @@ class KoaNeo4jApp extends Application {
                 ctx.status = 400;
                 ctx.body = String(error);
             }
+            await next();
         };
         this.methods[api.method].apply(this.router, [api.route, handler]);
         return api;
