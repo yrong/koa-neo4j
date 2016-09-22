@@ -30,9 +30,18 @@ const parseFloats = parseWith(parseFloat);
 
 const parseDates = parseWith(stringOrUnixTime => {
     const parsedInt = parseInt(stringOrUnixTime);
-    stringOrUnixTime = isNaN(parsedInt) || parsedInt < 99999 ? stringOrUnixTime : parsedInt;
+    stringOrUnixTime = parsedInt.toString() !== stringOrUnixTime.toString() || isNaN(parsedInt) ?
+        stringOrUnixTime : parsedInt;
     return new Date(stringOrUnixTime);
 });
 
+const parseUnixTimes = parseWith(stringOrUnixTime => {
+    const parsedInt = parseInt(stringOrUnixTime);
+    if (parsedInt.toString() === stringOrUnixTime.toString())
+        return neo4jInt(parsedInt);
+    return neo4jInt(new Date(stringOrUnixTime).getTime());
+});
+
 export {Integer} from 'neo4j-driver/lib/v1/integer';
-export {neo4jInt, parseWith, parseNeo4jInts, parseIds, parseInts, parseFloats, parseDates};
+export {neo4jInt, parseWith, parseNeo4jInts, parseIds,
+    parseInts, parseFloats, parseDates, parseUnixTimes};
