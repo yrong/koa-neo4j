@@ -105,7 +105,19 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
                 neo4jConnection.executeCypher(cypherQueryFile, params),
                 Promise.resolve(params)
             ]))
-            .then(([result, params]) => postProcessHook.execute(result, params));
+            .then(([result, params]) => {
+                const args = getArgs(postProcess);
+                let lastArg = args.slice(-1)[0];
+                if (lastArg === 'reject') {
+                    args.pop();
+                    lastArg = args.slice(-1)[0];
+                }
+                if (lastArg === 'resolve')
+                    args.pop();
+                if (args.length === 1)
+                    return postProcessHook.execute(result);
+                return postProcessHook.execute(result, params);
+            });
     };
 };
 
