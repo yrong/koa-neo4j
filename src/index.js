@@ -7,7 +7,7 @@ import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import {Authentication} from './auth';
-import {Neo4jConnection, Procedure, API} from './data';
+import {Neo4jConnection, createProcedure, API} from './data';
 import {haveIntersection, readMissingFromDefault} from './util';
 
 const defaultOptions = {
@@ -134,7 +134,7 @@ class KoaNeo4jApp extends Application {
     }
 
     createProcedure(options) {
-        return (new Procedure(this.neo4jConnection, options)).response;
+        return createProcedure(this.neo4jConnection, options);
     }
 }
 

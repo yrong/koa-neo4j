@@ -85,36 +85,38 @@ class Hook {
     }
 }
 
-class Procedure {
-    constructor(neo4jConnection, {cypherQueryFile, check = (params, user) => true,
-        preProcess = params => params, postProcess = result => result, route = 'procedure'} = {}) {
-        this.neo4jConnection = neo4jConnection;
 
-        const checkHook = new Hook(check, route, 'check');
-        const preProcessHooh = new Hook(preProcess, route, 'preProcess');
-        const postProcessHook = new Hook(postProcess, route, 'postProcess');
+const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, user) => true,
+    preProcess = params => params, postProcess = result => result,
+    name = 'createProcedure'} = {}) => {
+    const checkHook = new Hook(check, name, 'check');
+    const preProcessHooh = new Hook(preProcess, name, 'preProcess');
+    const postProcessHook = new Hook(postProcess, name, 'postProcess');
 
-        this.response = (params, user) => {
-            return checkHook.execute(params, user)
-                .then(checkPassed => {
-                    if (!checkPassed)
-                        throw new Error('Check lifecycle hook did not pass');
-                    return params;
-                })
-                .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcessHooh.execute))
-                .then(params => Promise.all([
-                    neo4jConnection.executeCypher(cypherQueryFile, params),
-                    Promise.resolve(params)
-                ]))
-                .then(([result, params]) => postProcessHook.execute(result, params));
-        };
-    }
-}
+    return (params, user) => {
+        return checkHook.execute(params, user)
+            .then(checkPassed => {
+                if (!checkPassed)
+                    throw new Error('Check lifecycle hook did not pass');
+                return params;
+            })
+            .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcessHooh.execute))
+            .then(params => Promise.all([
+                neo4jConnection.executeCypher(cypherQueryFile, params),
+                Promise.resolve(params)
+            ]))
+            .then(([result, params]) => postProcessHook.execute(result, params));
+    };
+};
 
-class API extends Procedure {
-    constructor(neo4jConnection, {method, route, allowedRoles = [],
+class API {
+    constructor(neo4jConnection, {method, route, allowedRoles = [], procedure,
         cypherQueryFile, check, preProcess, postProcess} = {}) {
-        super(neo4jConnection, {cypherQueryFile, check, preProcess, postProcess, route});
+        if (typeof procedure === 'function')
+            this.response = procedure;
+        else
+            this.response = createProcedure(neo4jConnection,
+                {cypherQueryFile, check, preProcess, postProcess, name: route});
 
         this.method = method;
         this.route = route;
@@ -124,4 +126,4 @@ class API extends Procedure {
     }
 }
 
-export {Neo4jConnection, Procedure, API};
+export {Neo4jConnection, createProcedure, API};
