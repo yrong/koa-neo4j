@@ -7,8 +7,16 @@ import {v1 as neo4j} from 'neo4j-driver';
 const neo4jInt = neo4j.int;
 
 const deepParse = (params, key, func) => {
-    if (params[key])
-        params[key] = func.apply(params, [params[key]]);
+    let [keyToFind, keyToReplace] = [key, key];
+    if (typeof key === 'object') {
+        const keys = Object.keys(key);
+        if (keys.length !== 1)
+            throw new Error(`parse error, invalid key ${JSON.stringify(key)}`);
+        keyToFind = keys[0];
+        keyToReplace = key[keyToFind];
+    }
+    if (params[keyToFind])
+        params[keyToReplace] = func.apply(params, [params[keyToFind]]);
     for (const innerKey of Object.keys(params))
         if (typeof params[innerKey] === 'object')
             deepParse(params[innerKey], key, func);
