@@ -58,6 +58,11 @@ const getArgs = (func) => {
     });
 };
 
+const areSameDay = (dateFirst, dateSecond) =>
+    dateFirst.getFullYear() === dateSecond.getFullYear() &&
+    dateFirst.getMonth() === dateSecond.getMonth() &&
+    dateFirst.getDate() === dateSecond.getDate();
+
 const httpCall = (method, host, route, port, data, headers) => {
     return (new Promise((resolve, reject) => {
         headers = headers || {};
@@ -94,4 +99,4 @@ const httpPost = (route, port, data, headers) =>
 
 
 export {keyValues, haveIntersection, readMissingFromDefault,
-    enumerate, pipe, getArgs, httpGet, httpPost, httpCall};
+    enumerate, pipe, getArgs, areSameDay, httpGet, httpPost, httpCall};
