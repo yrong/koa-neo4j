@@ -117,13 +117,17 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             })
             .then(pipe(parseNeo4jInts('id', 'skip', 'limit'),
                 params => [params, user], preProcessHook.execute))
-            .then(params => neo4jConnection.executeCypher(cypherQueryFile, params))
-            .then(result => postProcessHook.execute(result, params));
+            .then(params => Promise.all([
+                neo4jConnection.executeCypher(cypherQueryFile, params),
+                Promise.resolve(params)
+            ]))
+            .then(([result, params]) => Promise.all([
+                postProcessHook.execute(result, params),
+                Promise.resolve(params)
+            ]));
 
-        response
-            .then(result => [result, params])
-            .then(([result, params]) => postServeHook.execute(result, params));
-        return response;
+        response.then(([result, params]) => postServeHook.execute(result, params));
+        return response.then(([result, params]) => result);
     };
 };
 
