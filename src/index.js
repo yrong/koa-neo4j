@@ -46,10 +46,8 @@ class KoaNeo4jApp extends Application {
         if (options.authentication)
             this.configureAuthentication(options.authentication);
 
-        if (!this.configuredCors)
-            this.configureCors(options.cors);
-
         this
+            .use(cors(options.cors))
             .use(async (ctx, next) => {
                 try {
                     await next();
@@ -123,14 +121,6 @@ class KoaNeo4jApp extends Application {
         this.use(this.authentication.passport.initialize());
         this.router.post(options.route, this.authentication.authenticateLocal);
         this.configuredAuthentication = true;
-    }
-
-
-    configureCors(options) {
-        if (this.configuredCors)
-            throw new Error('KCors already configured');
-        this.use(cors(options));
-        this.configuredCors = true;
     }
 
     createProcedure(options) {

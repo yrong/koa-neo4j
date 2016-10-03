@@ -76,11 +76,12 @@ describe 'End-to-end tests', ->
             method: 'GET',
             route: '/async-timeout-hook-success/:it',
             cypherQueryFile: './cypher/tests/it.cyp',
-            postProcess: (result, params, resolve) ->
-                result[0].really = params.it
-                setTimeout ->
-                    resolve(result)
-                , 2000
+            postProcess: (result, params) ->
+                new Promise (resolve) ->
+                    setTimeout resolve, 2000
+                .then () ->
+                    result[0].really = params.it
+                    result
 
         bdd.then 'postProcess should change the result', (done) ->
             httpGet '/async-timeout-hook-success/hooks!', 4949
@@ -95,11 +96,12 @@ describe 'End-to-end tests', ->
             method: 'GET',
             route: '/async-timeout-hook-failure/:it',
             cypherQueryFile: './cypher/tests/it.cyp',
-            postProcess: (result, params, resolve) ->
-                result[0].really = params.it
-                setTimeout ->
-                    resolve(result)
-                , 4500
+            postProcess: (result, params) ->
+                new Promise (resolve) ->
+                    setTimeout resolve, 4500
+                .then () ->
+                    result[0].really = params.it
+                    result
 
         bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
             httpGet '/async-timeout-hook-failure/hooks!', 4949
@@ -115,8 +117,8 @@ describe 'End-to-end tests', ->
             method: 'GET',
             route: '/async-timeout-hook-reject/:it',
             cypherQueryFile: './cypher/tests/it.cyp',
-            postProcess: (result, params, resolve, reject) ->
-                reject 'operation not successful'
+            postProcess: (result, params) ->
+                Promise.reject 'operation not successful'
 
         bdd.then 'postProcess should fail because it has been rejected', (done) ->
             httpGet '/async-timeout-hook-reject/hooks!', 4949

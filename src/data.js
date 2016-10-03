@@ -52,55 +52,71 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(func, route, hookName) {
+    constructor(functionOrArrayOfFunctions, procedureName, hookName) {
+        this.timeout = 4000;
         this.name = hookName;
-        this.route = route;
-        const lastTwoArgs = getArgs(func).slice(-2);
-        if (lastTwoArgs[0] === 'resolve' || lastTwoArgs[1] === 'resolve')
-            this.constructAsync(func, lastTwoArgs[1] === 'reject');
-        else
-            this.constructSync(func);
+        this.procedureName = procedureName;
+        if (!Array.isArray(functionOrArrayOfFunctions))
+            if (typeof functionOrArrayOfFunctions === 'function')
+                functionOrArrayOfFunctions = [functionOrArrayOfFunctions];
+            else
+                throw new Error('hook should be function or array of functions');
+        this.phases = [];
+        this.context = {};
+        for (const func of functionOrArrayOfFunctions)
+            if (typeof func === 'function')
+                this.phases.push(this.asyncify(func));
+            else
+                throw new Error(`element ${func} in array passed as ${this.procedureName} ` +
+                'lifecycle is not a function');
+
+        this.execute = (...args) => {
+            let next = Promise.resolve(args);
+            for (const phase of this.phases)
+                next = next.then(response => {
+                    let args;
+                    if (Array.isArray(response))
+                        args = response;
+                    else
+                        args = [response];
+                    return phase(...args);
+                });
+            return next;
+        };
     }
 
-    constructAsync(func, rejectPresent) {
-        this.execute = (...args) => Promise.race([
-            new Promise((resolve, reject) => {
-                args.push(resolve);
-                if (rejectPresent)
-                    args.push(reject);
-                func.apply(this.context, args);
-            }),
-            new Promise(resolve => setTimeout(resolve, 4000))
-                .then(() => 'no response after 4 seconds')
+    asyncify(func) {
+        return (...args) => Promise.race([
+            Promise.resolve(func.apply(this.context, args)),
+            new Promise((resolve, reject) => setTimeout(() => reject('TimeOutError'), this.timeout))
         ])
-            .then(result => {
-                if (result === 'no response after 4 seconds')
-                    throw new Error(`${this.name} lifecycle of ${this.route} timed out, ${result}`);
-                return result;
+            .catch((error) => {
+                if (error === 'TimeOutError')
+                    throw new Error(`${this.name} lifecycle of ${this.procedureName} timed out, ` +
+                            'no response after 4 seconds');
+                throw error;
             });
-    }
-
-    constructSync(func) {
-        this.execute = (...args) => Promise.resolve(func.apply(this.context, args));
     }
 }
 
 
 const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, user) => true,
-    preProcess = params => params, postProcess = result => result,
+    preProcess = params => params, postProcess = result => result, postServe = result => result,
     name = 'createProcedure'} = {}) => {
     const checkHook = new Hook(check, name, 'check');
-    const preProcessHooh = new Hook(preProcess, name, 'preProcess');
+    const preProcessHook = new Hook(preProcess, name, 'preProcess');
     const postProcessHook = new Hook(postProcess, name, 'postProcess');
+    const postServeHook = new Hook(postServe, name, 'postServe');
 
     return (params, user) => {
-        return checkHook.execute(params, user)
+        const response = checkHook.execute(params, user)
             .then(checkPassed => {
                 if (!checkPassed)
                     throw new Error('Check lifecycle hook did not pass');
                 return params;
             })
-            .then(pipe(parseNeo4jInts('id', 'skip', 'limit'), preProcessHooh.execute))
+            .then(pipe(parseNeo4jInts('id', 'skip', 'limit'),
+                params => [params, user], preProcessHook.execute))
             .then(params => Promise.all([
                 neo4jConnection.executeCypher(cypherQueryFile, params),
                 Promise.resolve(params)
@@ -118,17 +134,21 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
                     return postProcessHook.execute(result);
                 return postProcessHook.execute(result, params);
             });
+        response
+            .then(result => [result, params])
+            .then(([result, params]) => postServeHook.execute(result, params));
+        return response;
     };
 };
 
 class API {
     constructor(neo4jConnection, {method, route, allowedRoles = [], procedure,
-        cypherQueryFile, check, preProcess, postProcess} = {}) {
+        cypherQueryFile, check, preProcess, postProcess, postServe} = {}) {
         if (typeof procedure === 'function')
             this.response = procedure;
         else
             this.response = createProcedure(neo4jConnection,
-                {cypherQueryFile, check, preProcess, postProcess, name: route});
+                {cypherQueryFile, check, preProcess, postProcess, postServe, name: route});
 
         this.method = method;
         this.route = route;
