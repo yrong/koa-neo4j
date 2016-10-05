@@ -9,11 +9,13 @@ import jwt from 'jsonwebtoken';
 import {neo4jInt} from './preprocess';
 
 class Authentication {
-    constructor(neo4jConnection, {secret, userCypherQueryFile, rolesCypherQueryFile} = {}) {
+    constructor(neo4jConnection, {secret, passwordMatches, userCypherQueryFile,
+        rolesCypherQueryFile} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.passport = new KoaPassport();
 
         this.secret = secret;
+        this.passwordMatches = passwordMatches;
         this.userQuery = userCypherQueryFile;
         this.rolesQuery = rolesCypherQueryFile;
 
@@ -21,7 +23,10 @@ class Authentication {
         this.passport.use(new LocalStrategy((username, password, done) => {
             this.neo4jConnection.executeCypher(this.userQuery, {username: username})
                 .then(([user]) => {
-                    if (!user || password !== user.password)
+                    const passwordsMatch = this.passwordMatches ?
+                        this.passwordMatches(password, user.password)
+                        : password === user.password;
+                    if (!user || !passwordsMatch)
                         done(new Error('Invalid username or password'));
                     else {
                         delete user.password;
