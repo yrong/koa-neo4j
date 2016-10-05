@@ -51,23 +51,21 @@ class Authentication {
                 .catch(reject))
             .then((user) => {
                 // koa-passport returns false if object is not formatted as {username, password}
-                if (!user) {
-                    ctx.status = 400;
-                    throw new Error('Invalid POST data, expected {username, password}');
-                }
+                if (!user)
+                    ctx.throw('invalid POST data, expected {username, password[, remember]}', 400);
                 return Promise.all([Promise.resolve(user), this.getRoles(user)]);
             })
-            .then(([user, [roles]]) => {
-                user.roles = roles.roles;
+            .then(([user, [{roles} = {}]]) => {
+                user.roles = roles;
+                const options = {};
+                if (ctx.request.body.remember)
+                    options.expiresIn = 30;
                 ctx.body = {
-                    token: `JWT ${jwt.sign(user, this.secret)}`,
+                    token: `JWT ${jwt.sign(user, this.secret, options)}`,
                     user: user
                 };
             })
-            .catch((error) => {
-                ctx.status = ctx.status === 404 ? 422 : ctx.status;
-                ctx.body = {error: String(error)};
-            });
+            .catch(error => ctx.throw(error.message || String(error), 422));
 
         this.authenticateJwt = async (ctx, next) => await new Promise((resolve, reject) =>
             this.passport.authenticate('jwt', {session: false}, resolve)(ctx, next)

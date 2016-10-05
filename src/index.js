@@ -53,7 +53,7 @@ class KoaNeo4jApp extends Application {
                 try {
                     await next();
                 } catch (error) {
-                    ctx.body = { error: String(error) };
+                    ctx.body = String(error);
                     ctx.status = error.status;
                 }
             })
@@ -73,36 +73,28 @@ class KoaNeo4jApp extends Application {
     defineAPI(options) {
         const api = new API(this.neo4jConnection, options);
         const handler = async(ctx, next) => {
-            try {
-                if (api.requiresJwtAuthentication)
-                    try {
-                        await this.authentication.authenticateJwt(ctx, next);
-                    } catch (error) {
-                        // No Authorization header
-                        ctx.throw('authorization required', 401);
-                        return;
-                    }
-
-                if (api.requiresJwtAuthentication &&
-                    !haveIntersection(ctx.user.roles, api.allowedRoles)) {
-                    ctx.throw('user does not have permission for this resource', 403);
-                    return;
-                }
-
-                let params = {};
-                if (ctx.url.indexOf('?') >= 0) {
-                    params = `?${ctx.url.split('?')[1]}`;
-                    params = queryString.parse(params);
-                }
-                params = {...params, ...ctx.params, ...ctx.request.body};
+            if (api.requiresJwtAuthentication)
                 try {
-                    ctx.body = await api.response(params, ctx.user);
+                    await this.authentication.authenticateJwt(ctx, next);
                 } catch (error) {
-                    ctx.throw(error.message || error, 409);
+                    // No Authorization header
+                    ctx.throw('authorization required', 401);
                 }
+
+            if (api.requiresJwtAuthentication &&
+                !haveIntersection(ctx.user.roles, api.allowedRoles))
+                ctx.throw('user does not have permission for this resource', 403);
+
+            let params = {};
+            if (ctx.url.indexOf('?') >= 0) {
+                params = `?${ctx.url.split('?')[1]}`;
+                params = queryString.parse(params);
+            }
+            params = {...params, ...ctx.params, ...ctx.request.body};
+            try {
+                ctx.body = await api.response(params, ctx.user);
             } catch (error) {
-                ctx.status = 400;
-                ctx.body = String(error);
+                ctx.throw(error.message || error, 409);
             }
             await next();
         };

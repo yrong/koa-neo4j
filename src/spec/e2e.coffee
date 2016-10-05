@@ -23,7 +23,8 @@ describe 'End-to-end tests', ->
             app.neo4jInitialized
             ]
         .then done
-        .catch (error) -> setTimeout -> throw error, 0
+        .catch (error) -> setTimeout ->
+            throw error
 
     describe 'a simple GET request with a `parameter` in cypher side', ->
 
