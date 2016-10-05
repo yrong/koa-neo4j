@@ -57,7 +57,7 @@ app.listen(3000, function () {
 
 An API is defined by at least three keys:
 
-`method`, specifies the request type (GET|POST|DEL)
+`method`, specifies the request type (GET|POST|PUT|DEL)
 
 `route`, the path to this API (e.g. the first becomes http://localhost:3000/articles)
 

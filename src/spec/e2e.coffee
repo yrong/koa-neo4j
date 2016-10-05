@@ -23,7 +23,7 @@ describe 'End-to-end tests', ->
             app.neo4jInitialized
             ]
         .then done
-        .catch (error) -> setTimeout -> throw error
+        .catch (error) -> setTimeout -> throw error, 0
 
     describe 'a simple GET request with a `parameter` in cypher side', ->
 
@@ -107,8 +107,8 @@ describe 'End-to-end tests', ->
             httpGet '/async-timeout-hook-failure/hooks!', 4949
             .then (response) ->
                 console.log response
-                expect(response).toEqual
-                    error: 'Error: postProcess lifecycle of /async-timeout-hook-failure/:it timed out, no response after 4 seconds'
+                expect response
+                    .toEqual 'ConflictError: postProcess lifecycle of /async-timeout-hook-failure/:it timed out, no response after 4 seconds'
                 done()
 
     describe 'async hook with reject failure', ->
@@ -124,8 +124,8 @@ describe 'End-to-end tests', ->
             httpGet '/async-timeout-hook-reject/hooks!', 4949
             .then (response) ->
                 console.log response
-                expect(response).toEqual
-                    error: 'operation not successful'
+                expect response
+                    .toEqual 'ConflictError: operation not successful'
                 done()
 
     describe 'authentication', ->
@@ -160,7 +160,8 @@ describe 'End-to-end tests', ->
                 httpPost '/restricted_unless_user', 4949, { it: 'works!' }
                     .then (response) ->
                         console.log response
-                        expect(response).toEqual({ error: 'Error: Authorization required' })
+                        expect response
+                            .toEqual 'UnauthorizedError: authorization required'
                         done()
                     .catch (error) -> console.log error
 
@@ -169,7 +170,8 @@ describe 'End-to-end tests', ->
                 httpPost '/restricted_unless_user', 4949, { it: 'works!' }, { Authorization: @token }
                     .then (response) ->
                         console.log response
-                        expect(response).toEqual({ error: 'Error: You don\'t have permission for this' })
+                        expect response
+                            .toEqual 'ForbiddenError: user does not have permission for this resource'
                         done()
                     .catch (error) -> console.log error
 

@@ -31,13 +31,11 @@ class KoaNeo4jApp extends Application {
         this.configuredCors = false;
 
         this.methods = {
-            'POST': this.router.post,
             'GET': this.router.get,
+            'POST': this.router.post,
+            'PUT': this.router.put,
             'DEL': this.router.del
         };
-
-        if (options.log)
-            this.use(logger());
 
         this.neo4jConnection = new Neo4jConnection(options.neo4j);
         this.neo4jInitialized = this.neo4jConnection.initialized;
@@ -45,6 +43,9 @@ class KoaNeo4jApp extends Application {
 
         if (options.authentication)
             this.configureAuthentication(options.authentication);
+
+        if (options.log)
+            this.use(logger());
 
         this
             .use(cors(options.cors))
@@ -57,8 +58,8 @@ class KoaNeo4jApp extends Application {
                 }
             })
             .use(bodyParser({
-                onerror(err, ctx) {
-                    ctx.throw('Cannot parse request body', 400);
+                onerror(error, ctx) {
+                    ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
                 }
             }))
             .use(this.router.routes());
@@ -78,16 +79,13 @@ class KoaNeo4jApp extends Application {
                         await this.authentication.authenticateJwt(ctx, next);
                     } catch (error) {
                         // No Authorization header
-                        ctx.status = 401;
-                        ctx.body = {error: 'Error: Authorization required'};
+                        ctx.throw('authorization required', 401);
                         return;
                     }
 
                 if (api.requiresJwtAuthentication &&
                     !haveIntersection(ctx.user.roles, api.allowedRoles)) {
-                    // Incorrect roles
-                    ctx.status = 403;
-                    ctx.body = {error: "Error: You don't have permission for this"};
+                    ctx.throw('user does not have permission for this resource', 403);
                     return;
                 }
 
@@ -100,8 +98,7 @@ class KoaNeo4jApp extends Application {
                 try {
                     ctx.body = await api.response(params, ctx.user);
                 } catch (error) {
-                    ctx.status = 409;
-                    ctx.body = { error: String(error) };
+                    ctx.throw(error.message || error, 409);
                 }
             } catch (error) {
                 ctx.status = 400;
@@ -115,7 +112,7 @@ class KoaNeo4jApp extends Application {
 
     configureAuthentication(options) {
         if (this.configuredAuthentication)
-            throw new Error('Authentication already configured');
+            throw new Error('authentication already configured');
         this.authentication = new Authentication(this.neo4jConnection, options);
         this.use(this.authentication.passport.initialize());
         this.router.post(options.route, this.authentication.authenticateLocal);
