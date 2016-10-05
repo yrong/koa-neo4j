@@ -45,7 +45,10 @@ class Neo4jConnection {
                     resolve(result);
                     session.close();
                 })
-                .catch(reject);
+                .catch(error => {
+                    reject(new Error(error.fields ? JSON.stringify(error.fields[0])
+                        : String(error)));
+                });
         })
             .then(parser.parse);
     }
