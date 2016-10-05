@@ -58,7 +58,7 @@ class Authentication {
             .then(([user, [{roles} = {}]]) => {
                 user.roles = roles;
                 const options = {};
-                if (ctx.request.body.remember)
+                if (!ctx.request.body.remember)
                     options.expiresIn = 30;
                 ctx.body = {
                     token: `JWT ${jwt.sign(user, this.secret, options)}`,
