@@ -27,7 +27,7 @@ class Authentication {
                         this.passwordMatches(password, user.password)
                         : password === user.password;
                     if (!user || !passwordsMatch)
-                        done(new Error('Invalid username or password'));
+                        done(new Error('invalid username or password'));
                     else {
                         delete user.password;
                         done(null, user);
@@ -42,7 +42,7 @@ class Authentication {
             }, (user, done) => {
                 // Check whether payload is user
                 if (!user.id)
-                    done(new Error('Invalid token'));
+                    done(new Error('invalid token'));
                 else
                     done(null, user);
             }));
