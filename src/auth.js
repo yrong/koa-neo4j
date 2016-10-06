@@ -9,13 +9,14 @@ import jwt from 'jsonwebtoken';
 import {neo4jInt} from './preprocess';
 
 class Authentication {
-    constructor(neo4jConnection, {secret, passwordMatches, userCypherQueryFile,
-        rolesCypherQueryFile} = {}) {
+    constructor(neo4jConnection, {secret, passwordMatches, tokenExpirationInterval,
+        userCypherQueryFile, rolesCypherQueryFile} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.passport = new KoaPassport();
 
         this.secret = secret;
         this.passwordMatches = passwordMatches;
+        this.tokenExpirationInterval = tokenExpirationInterval || '1h';
         this.userQuery = userCypherQueryFile;
         this.rolesQuery = rolesCypherQueryFile;
 
@@ -64,7 +65,7 @@ class Authentication {
                 user.roles = roles;
                 const options = {};
                 if (!ctx.request.body.remember)
-                    options.expiresIn = '1h';
+                    options.expiresIn = this.tokenExpirationInterval;
                 ctx.body = {
                     token: `JWT ${jwt.sign(user, this.secret, options)}`,
                     user: user
