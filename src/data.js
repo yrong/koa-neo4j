@@ -116,9 +116,9 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             .then(checkPassed => {
                 if (!checkPassed)
                     throw new Error('Check lifecycle hook did not pass');
-                return params;
+                return [params, user];
             })
-            .then(pipe(params => [params, user], preProcessHook.execute))
+            .then(([params, user]) => preProcessHook.execute(params, user))
             .then(parseNeo4jInts('id', 'skip', 'limit'))
             .then(params => Promise.all([
                 neo4jConnection.executeCypher(cypherQueryFile, params),
