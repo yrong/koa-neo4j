@@ -138,9 +138,9 @@ class API {
     constructor(neo4jConnection, {method, route, allowedRoles = [], procedure,
         cypherQueryFile, check, preProcess, postProcess, postServe} = {}) {
         if (typeof procedure === 'function')
-            this.response = procedure;
+            this.invoke = procedure;
         else
-            this.response = createProcedure(neo4jConnection,
+            this.invoke = createProcedure(neo4jConnection,
                 {cypherQueryFile, check, preProcess, postProcess, postServe, name: route});
 
         this.method = method;
