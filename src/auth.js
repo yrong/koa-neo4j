@@ -20,18 +20,22 @@ class Authentication {
         this.userQuery = userCypherQueryFile;
         this.rolesQuery = rolesCypherQueryFile;
 
-
         this.passport.use(new LocalStrategy((username, password, done) => {
             this.neo4jConnection.executeCypher(this.userQuery, {username: username})
-                .then(([user]) => {
-                    const passwordsMatch = this.passwordMatches ?
-                        this.passwordMatches(password, user.password)
-                        : password === user.password;
-                    if (!user || !passwordsMatch)
+                .then(response => {
+                    const user = response[0];
+                    if (!user)
                         done(new Error('invalid username or password'));
                     else {
-                        delete user.password;
-                        done(null, user);
+                        const passwordsMatch = this.passwordMatches ?
+                            this.passwordMatches(password, user.password)
+                            : password === user.password;
+                        if (!passwordsMatch)
+                            done(new Error('invalid username or password'));
+                        else {
+                            delete user.password;
+                            done(null, user);
+                        }
                     }
                 }, done);
         }));
