@@ -18,7 +18,7 @@ const deepParse = (params, key, func) => {
     if (params[keyToFind])
         params[keyToReplace] = func.apply(params, [params[keyToFind]]);
     for (const innerKey of Object.keys(params))
-        if (typeof params[innerKey] === 'object')
+        if (params[innerKey] !== null && typeof params[innerKey] === 'object')
             deepParse(params[innerKey], key, func);
 };
 

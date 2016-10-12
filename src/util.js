@@ -44,18 +44,12 @@ const pipe = (...functions) => (...args) => {
     return args;
 };
 
-const getArgs = (func) => {
-    // First match everything inside the function argument parens.
-    const args = func.toString().match(/(?:function)?\s*.*?\(([^)]*)\)/)[1];
-
-    // Split the arguments string into an array comma delimited.
-    return args.split(',').map((arg) => {
-        // Ensure no inline comments are parsed and trim the whitespace.
-        return arg.replace(/\/\*.*\*\//, '').trim();
-    }).filter((arg) => {
-        // Ensure no undefined values are added.
-        return arg;
-    });
+const compareFnFromArray = (fn, array) => (first, second) => {
+    first = fn.apply(null, [first]);
+    second = fn.apply(null, [second]);
+    first = array.indexOf(first);
+    second = array.indexOf(second);
+    return first - second;
 };
 
 const areSameDay = (dateFirst, dateSecond) =>
@@ -99,4 +93,4 @@ const httpPost = (route, port, data, headers) =>
 
 
 export {keyValues, haveIntersection, readMissingFromDefault,
-    enumerate, pipe, getArgs, areSameDay, httpGet, httpPost, httpCall};
+    enumerate, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};

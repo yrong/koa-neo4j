@@ -46,8 +46,8 @@ class Neo4jConnection {
                     session.close();
                 })
                 .catch(error => {
-                    reject(new Error(error.fields ? JSON.stringify(error.fields[0])
-                        : String(error)));
+                    error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
+                    reject(`error while executing Cypher: ${error}`);
                 });
         })
             .then(parser.parse);
@@ -120,6 +120,7 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             })
             .then(([params, user]) => preProcessHook.execute(params, user))
             .then(parseNeo4jInts('id', 'skip', 'limit'))
+            .then(params => {console.log(params); return params;})
             .then(params => Promise.all([
                 neo4jConnection.executeCypher(cypherQueryFile, params),
                 Promise.resolve(params)
