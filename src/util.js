@@ -86,5 +86,5 @@ const httpPost = (route, port, data, headers) =>
     httpCall('POST', 'localhost', route, port, data, headers);
 
 
-export {keyValues, haveIntersection, readMissingFromDefault,
+export {keyValues, haveIntersection,
     enumerate, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};
