@@ -8,7 +8,7 @@ import cors from 'kcors';
 import queryString from 'query-string';
 import {Authentication} from './auth';
 import {Neo4jConnection, createProcedure, API} from './data';
-import {haveIntersection, readMissingFromDefault} from './util';
+import {haveIntersection} from './util';
 
 const defaultOptions = {
     apis: [],
@@ -24,11 +24,10 @@ const defaultOptions = {
 class KoaNeo4jApp extends Application {
     constructor(options) {
         super();
-        options = readMissingFromDefault(options, defaultOptions);
+        options = {...defaultOptions, ...options};
 
         this.router = new Router();
         this.configuredAuthentication = false;
-        this.configuredCors = false;
 
         this.methods = {
             'GET': this.router.get,
