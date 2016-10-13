@@ -38,7 +38,9 @@ const pipe = (...functions) => (...args) => {
     return args;
 };
 
-const compareFnFromArray = (fn, array) => (first, second) => {
+const compareFnFromArray = (array, fn) => (first, second) => {
+    if (!fn)
+        fn = x => x;
     first = fn.apply(null, [first]);
     second = fn.apply(null, [second]);
     first = array.indexOf(first);
