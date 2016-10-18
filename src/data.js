@@ -74,16 +74,12 @@ class Hook {
                 'lifecycle is not a function');
 
         this.execute = (...args) => {
-            let next = Promise.resolve(args);
-            for (const phase of this.phases)
-                next = next.then(response => {
-                    let args;
-                    if (Array.isArray(response))
-                        args = response;
-                    else
-                        args = [response];
-                    return phase(...args);
-                });
+            let phase = this.phases[0];
+            let next = Promise.resolve(phase(...args));
+            for (let i =  1; i < this.phases.length; i++) {
+                phase = this.phases[i];
+                next = next.then(response => phase(response));
+            }
             return next;
         };
     }
@@ -120,7 +116,6 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             })
             .then(([params, user]) => preProcessHook.execute(params, user))
             .then(parseNeo4jInts('id', 'skip', 'limit'))
-            .then(params => {console.log(params); return params;})
             .then(params => Promise.all([
                 neo4jConnection.executeCypher(cypherQueryFile, params),
                 Promise.resolve(params)
