@@ -74,12 +74,10 @@ class Hook {
                 'lifecycle is not a function');
 
         this.execute = (...args) => {
-            let phase = this.phases[0];
-            let next = Promise.resolve(phase(...args));
-            for (let i =  1; i < this.phases.length; i++) {
-                phase = this.phases[i];
-                next = next.then(response => phase(response));
-            }
+            let next = Promise.resolve(this.phases[0](...args));
+            for (let i =  1; i < this.phases.length; i++)
+                next = Promise.all([this.phases[i], next])
+                    .then(([phase, response]) => phase(response));
             return next;
         };
     }
