@@ -132,7 +132,11 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
 
         response
             .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
-            .catch(error => { console.error(`Error in postServe : ${error}`); });
+            .catch(error => {
+                console.error(
+                    chalk.red(`Error in postServe of ${name}`));
+                console.log(error);
+            });
         return response.then(([result, params, ctx]) => result);
     };
 };
