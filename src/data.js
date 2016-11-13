@@ -7,7 +7,6 @@ import fs from 'file-system';
 import chalk from 'chalk';
 import parser from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
-import {pipe, getArgs} from './util';
 
 class Neo4jConnection {
     constructor({boltUrl, user, password} = {}) {
@@ -112,18 +111,28 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
                     throw new Error('Check lifecycle hook did not pass');
                 return [params, ctx];
             })
-            .then(([params, ctx]) => preProcessHook.execute(params, ctx))
-            .then(parseNeo4jInts('id', 'skip', 'limit'))
-            .then(params => Promise.all([
-                neo4jConnection.executeCypher(cypherQueryFile, params),
-                Promise.resolve(params)
+            .then(([params, ctx]) => Promise.all([
+                preProcessHook.execute(params, ctx),
+                ctx
             ]))
-            .then(([result, params]) => Promise.all([
-                postProcessHook.execute(result, params),
-                Promise.resolve(params)
+            .then(([params, ctx]) => Promise.all([
+                parseNeo4jInts('id', 'skip', 'limit')(params),
+                ctx
+            ]))
+            .then(([params, ctx]) => Promise.all([
+                neo4jConnection.executeCypher(cypherQueryFile, params),
+                params,
+                ctx
+            ]))
+            .then(([result, params, ctx]) => Promise.all([
+                postProcessHook.execute(result, params, ctx),
+                params,
+                ctx
             ]));
 
-        response.then(([result, params]) => postServeHook.execute(result, params));
+        response
+            .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
+            .catch(error => { console.error(`Error in postServe : ${error}`); });
         return response.then(([result, params]) => result);
     };
 };
