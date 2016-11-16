@@ -113,6 +113,11 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             })
             .then(([params, ctx]) => Promise.all([
                 preProcessHook.execute(params, ctx),
+                params,
+                ctx
+            ]))
+            .then(([preProcessReturnValue, params, ctx]) => Promise.all([
+                preProcessReturnValue || params,
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
