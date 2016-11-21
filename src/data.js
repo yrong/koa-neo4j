@@ -54,8 +54,8 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(functionOrArrayOfFunctions, procedureName, hookName) {
-        this.timeout = 4000;
+    constructor(functionOrArrayOfFunctions, procedureName, hookName, timeout = 4000) {
+        this.timeout = timeout;
         this.name = hookName;
         this.procedureName = procedureName;
         if (!Array.isArray(functionOrArrayOfFunctions))
@@ -89,8 +89,12 @@ class Hook {
         ])
             .catch((error) => {
                 if (error === 'TimeOutError')
-                    throw new Error(`${this.name} lifecycle of ${this.procedureName} timed out, ` +
-                            'no response after 4 seconds');
+                    throw new Error(`${this.name} lifecycle of '${this.procedureName}' timed out, `
+                            + `no response after ${this.timeout / 1000} seconds`);
+                if (typeof error === 'string')
+                    error += `, in ${this.name} lifecycle of '${this.procedureName}'`;
+                else
+                    error.message += `, in ${this.name} lifecycle of '${this.procedureName}'`;
                 throw error;
             });
     }
@@ -102,8 +106,25 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
     name = 'createProcedure'} = {}) => {
     const checkHook = new Hook(check, name, 'check');
     const preProcessHook = new Hook(preProcess, name, 'preProcess');
+    let cypherExecutionHook;
+    let paramsResultExecutionHook;
+    if (cypherQueryFile)
+        cypherExecutionHook = new Hook(
+            (params, cypherQueryFile) => neo4jConnection.executeCypher(cypherQueryFile, params),
+            name, 'cypherExecution');
+    else
+        paramsResultExecutionHook = new Hook(
+            params => {
+                if (Array.isArray(params.result))
+                    return Promise.all(params.result);
+                else if (params.result)
+                    return Promise.resolve(params.result);
+                return Promise.reject(
+                    new Error("neither 'cypherQueryFile' nor 'params.result' were present"));
+            }, name, 'paramsResultExecution');
+
     const postProcessHook = new Hook(postProcess, name, 'postProcess');
-    const postServeHook = new Hook(postServe, name, 'postServe');
+    const postServeHook = new Hook(postServe, name, 'postServe', 10000);
 
     return (params, ctx) => {
         const response = checkHook.execute(params, ctx)
@@ -114,11 +135,6 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             })
             .then(([params, ctx]) => Promise.all([
                 preProcessHook.execute(params, ctx),
-                params,
-                ctx
-            ]))
-            .then(([preProcessReturnValue, params, ctx]) => Promise.all([
-                preProcessReturnValue || params,
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
@@ -126,9 +142,8 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
-                cypherQueryFile ?
-                    neo4jConnection.executeCypher(cypherQueryFile, params)
-                    : Promise.all(params.result),
+                cypherQueryFile ? cypherExecutionHook.execute(params, cypherQueryFile)
+                    : paramsResultExecutionHook.execute(params),
                 params,
                 ctx
             ]))
@@ -139,7 +154,11 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
             ]));
 
         response
-            .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
+            .catch(error => [])
+            .then(([result, params, ctx]) => {
+                if (result || params || ctx)
+                    return postServeHook.execute(result, params, ctx);
+            })
             .catch(error => {
                 console.error(chalk.red(`Error in postServe of '${name}'`));
                 console.log(error);

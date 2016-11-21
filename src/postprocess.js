@@ -15,12 +15,13 @@ const errorOnEmptyResult = (message) => (result) => {
     return result;
 };
 
-const map = (func) => (result) => result.map(func);
+const map = (func) => (result) => {
+    return Array.isArray(result) ? result.map(func) : func(result);
+};
 
-const convertToPreProcess = (variableNameToAppendToParams) =>
-    (result, params) => {
-        params[variableNameToAppendToParams] = result;
-        return params;
+const convertToPreProcess = (variableNameToAppendToParams) => (result, params) => {
+    params[variableNameToAppendToParams] = result;
+    return params;
 };
 
 export {logResult, fetchOne, errorOnEmptyResult, map, convertToPreProcess};
