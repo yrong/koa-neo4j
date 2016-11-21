@@ -29,6 +29,16 @@ function * enumerate(array) {
     }
 }
 
+function * zip(arrayFirst, arraySecond) {
+    let index = 0;
+    for (const element of arrayFirst) {
+        if (!arraySecond[index])
+            break;
+        yield [element, arraySecond[index]];
+        index++;
+    }
+}
+
 const pipe = (...functions) => (...args) => {
     for (const func of functions)
         if (Array.isArray(args))
@@ -89,4 +99,4 @@ const httpPost = (route, port, data, headers) =>
 
 
 export {keyValues, haveIntersection,
-    enumerate, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};
+    enumerate, zip, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};

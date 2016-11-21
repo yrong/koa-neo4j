@@ -74,9 +74,10 @@ class Hook {
 
         this.execute = (...args) => {
             let next = Promise.resolve(this.phases[0](...args));
+            const rest = args.slice(1);
             for (let i =  1; i < this.phases.length; i++)
-                next = Promise.all([this.phases[i], next])
-                    .then(([phase, response]) => phase(response));
+                next = Promise.all([this.phases[i], next, rest])
+                    .then(([phase, response, rest]) => phase(response, ...rest));
             return next;
         };
     }
@@ -125,7 +126,9 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
-                neo4jConnection.executeCypher(cypherQueryFile, params),
+                cypherQueryFile ?
+                    neo4jConnection.executeCypher(cypherQueryFile, params)
+                    : Promise.all(params.result),
                 params,
                 ctx
             ]))
@@ -138,7 +141,7 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, use
         response
             .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
             .catch(error => {
-                console.error(chalk.red(`Error in postServe of ${name}`));
+                console.error(chalk.red(`Error in postServe of '${name}'`));
                 console.log(error);
             });
         return response.then(([result, params, ctx]) => result);

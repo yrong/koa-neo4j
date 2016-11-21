@@ -16,6 +16,7 @@ var config = {
     entry: {
         './index': './src/index',
         './preprocess': ['./src/preprocess'],
+        './postprocess': ['./src/postprocess'],
         './util': ['./src/util'],
         './bdd': ['./src/bdd']
     },
