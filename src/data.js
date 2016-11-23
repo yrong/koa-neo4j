@@ -31,12 +31,14 @@ class Neo4jConnection {
         this.queries[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
     }
 
-    executeCypher(cypherQueryFilePath, queryParams) {
+    executeCypher(cypherQueryFilePath, queryParams, pathIsQuery = false) {
         return new Promise((resolve, reject) => {
             if (!this.queries[cypherQueryFilePath])
                 this.addCypherQueryFile(cypherQueryFilePath);
 
-            const query = this.queries[cypherQueryFilePath];
+            let query = cypherQueryFilePath;
+            if (!pathIsQuery)
+                query = this.queries[cypherQueryFilePath];
             const session = this.driver.session();
 
             session.run(query, queryParams)
@@ -101,16 +103,18 @@ class Hook {
 }
 
 
-const createProcedure = (neo4jConnection, {cypherQueryFile, check = (params, user) => true,
+const createProcedure = (neo4jConnection, {cypherQueryFile, cypher, check = (params, user) => true,
     preProcess = params => params, postProcess = result => result, postServe = result => result,
     name = 'createProcedure'} = {}) => {
     const checkHook = new Hook(check, name, 'check');
     const preProcessHook = new Hook(preProcess, name, 'preProcess');
     let cypherExecutionHook;
     let paramsResultExecutionHook;
-    if (cypherQueryFile)
+    if (cypherQueryFile || cypher)
         cypherExecutionHook = new Hook(
-            (params, cypherQueryFile) => neo4jConnection.executeCypher(cypherQueryFile, params),
+            (params, cypherQueryFile) =>
+                neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
+                    params, params.cypher),
             name, 'cypherExecution');
     else
         paramsResultExecutionHook = new Hook(
