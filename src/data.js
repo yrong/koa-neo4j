@@ -7,6 +7,7 @@ import fs from 'file-system';
 import chalk from 'chalk';
 import parser from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
+import {Procedure} from './procedure';
 
 class Neo4jConnection {
     constructor({boltUrl, user, password} = {}) {
@@ -56,20 +57,24 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(functionOrArrayOfFunctions, neo4jConnection,
+    constructor(functions, neo4jConnection,
                 procedureName, hookName, timeout = 4000) {
         this.timeout = timeout;
         this.name = hookName;
         this.procedureName = procedureName;
-        if (!Array.isArray(functionOrArrayOfFunctions))
-            if (typeof functionOrArrayOfFunctions === 'function')
-                functionOrArrayOfFunctions = [functionOrArrayOfFunctions];
+        if (!Array.isArray(functions))
+            if (typeof functions === 'function' || functions.isProcedure)
+                functions = [functions];
             else
                 throw new Error('hook should be function or array of functions');
         this.phases = [];
         this.context = {};
-        for (let func of functionOrArrayOfFunctions) {
-            if (func instanceof Procedure)
+        if (hookName === 'checkOwner')
+            console.log(functions)
+        for (let func of functions) {
+            // instanceof doesn't work due to webpack
+            // if (func instanceof Procedure)
+            if (func.isProcedure)
                 func = createProcedure(neo4jConnection, func);
             else if (typeof func !== 'function')
                 throw new Error(`element ${func} passed as ${this.procedureName} lifecycle ` +
@@ -89,7 +94,12 @@ class Hook {
 
     asyncify(func) {
         return (...args) => Promise.race([
-            Promise.resolve(func.apply(this.context, args)),
+            Promise.resolve(func.apply(this.context, args))
+                .then(response => {
+                    if (Array.isArray(response))
+                        return Promise.all(response);
+                    return response;
+                }),
             new Promise((resolve, reject) => setTimeout(() => reject('TimeOutError'), this.timeout))
         ])
             .catch((error) => {
@@ -102,22 +112,6 @@ class Hook {
                     error.message += `, in ${this.name} lifecycle of '${this.procedureName}'`;
                 throw error;
             });
-    }
-}
-
-class Procedure {
-    constructor({
-        cypherQueryFile, cypher, check = (params, user) => true,
-        preProcess = params => params, postProcess = result => result, postServe = result => result,
-        name = 'createProcedure'
-    } = {}) {
-        this.cypherQueryFile = cypherQueryFile;
-        this.cypher = cypher;
-        this.check = check;
-        this.preProcess = preProcess;
-        this.postProcess = postProcess;
-        this.postServe = postServe;
-        this.name = name;
     }
 }
 
@@ -154,7 +148,7 @@ const createProcedure = (neo4jConnection, procedure) => {
         const response = checkHook.execute(params, ctx)
             .then(checkPassed => {
                 if (!checkPassed)
-                    throw new Error('Check lifecycle hook did not pass');
+                    throw new Error(`Check lifecycle hook of ${options.name} did not pass`);
                 return [params, ctx];
             })
             .then(([params, ctx]) => Promise.all([

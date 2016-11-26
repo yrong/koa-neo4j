@@ -7,10 +7,13 @@ const logResult = (result) => {
     return result;
 };
 
-const fetchOne = (result) => result[0];
+const fetchOne = (result) => {
+    return Array.isArray(result) ? result[0] : result;
+};
 
 const errorOnEmptyResult = (message) => (result) => {
-    if (!result || Array.isArray(result) && result.length === 0)
+    if (typeof result === 'undefined' || result === null || Array.isArray(result)
+        && (result.length === 0 || result.length === 1 && result[0] === null))
         throw new Error(message);
     return result;
 };

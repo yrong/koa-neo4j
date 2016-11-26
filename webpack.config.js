@@ -17,7 +17,7 @@ var config = {
         './index': './src/index',
         './preprocess': ['./src/preprocess'],
         './postprocess': ['./src/postprocess'],
-        './procedures': ['./src/procedures'],
+        './procedure': ['./src/procedure'],
         './util': ['./src/util'],
         './bdd': ['./src/bdd']
     },
