@@ -56,7 +56,8 @@ class Neo4jConnection {
 }
 
 class Hook {
-    constructor(functionOrArrayOfFunctions, procedureName, hookName, timeout = 4000) {
+    constructor(functionOrArrayOfFunctions, neo4jConnection,
+                procedureName, hookName, timeout = 4000) {
         this.timeout = timeout;
         this.name = hookName;
         this.procedureName = procedureName;
@@ -67,12 +68,14 @@ class Hook {
                 throw new Error('hook should be function or array of functions');
         this.phases = [];
         this.context = {};
-        for (const func of functionOrArrayOfFunctions)
-            if (typeof func === 'function')
-                this.phases.push(this.asyncify(func));
-            else
-                throw new Error(`element ${func} in array passed as ${this.procedureName} ` +
-                'lifecycle is not a function');
+        for (let func of functionOrArrayOfFunctions) {
+            if (func instanceof Procedure)
+                func = createProcedure(neo4jConnection, func);
+            else if (typeof func !== 'function')
+                throw new Error(`element ${func} passed as ${this.procedureName} lifecycle ` +
+                    "is neither a 'function' nor a 'procedure'");
+            this.phases.push(this.asyncify(func));
+        }
 
         this.execute = (...args) => {
             let next = Promise.resolve(this.phases[0](...args));
@@ -102,20 +105,35 @@ class Hook {
     }
 }
 
+class Procedure {
+    constructor({
+        cypherQueryFile, cypher, check = (params, user) => true,
+        preProcess = params => params, postProcess = result => result, postServe = result => result,
+        name = 'createProcedure'
+    } = {}) {
+        this.cypherQueryFile = cypherQueryFile;
+        this.cypher = cypher;
+        this.check = check;
+        this.preProcess = preProcess;
+        this.postProcess = postProcess;
+        this.postServe = postServe;
+        this.name = name;
+    }
+}
 
-const createProcedure = (neo4jConnection, {cypherQueryFile, cypher, check = (params, user) => true,
-    preProcess = params => params, postProcess = result => result, postServe = result => result,
-    name = 'createProcedure'} = {}) => {
-    const checkHook = new Hook(check, name, 'check');
-    const preProcessHook = new Hook(preProcess, name, 'preProcess');
+const createProcedure = (neo4jConnection, procedure) => {
+    const options = new Procedure(procedure);
+    const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
+    const preProcessHook = new Hook(options.preProcess, neo4jConnection,
+        options.name, 'preProcess');
     let cypherExecutionHook;
     let paramsResultExecutionHook;
-    if (cypherQueryFile || cypher)
+    if (options.cypherQueryFile || options.cypher)
         cypherExecutionHook = new Hook(
             (params, cypherQueryFile) =>
                 neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
                     params, params.cypher),
-            name, 'cypherExecution');
+            neo4jConnection, options.name, 'cypherExecution');
     else
         paramsResultExecutionHook = new Hook(
             params => {
@@ -125,10 +143,12 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, cypher, check = (par
                     return Promise.resolve(params.result);
                 return Promise.reject(
                     new Error("neither 'cypherQueryFile' nor 'params.result' were present"));
-            }, name, 'paramsResultExecution');
+            }, neo4jConnection, options.name, 'paramsResultExecution');
 
-    const postProcessHook = new Hook(postProcess, name, 'postProcess');
-    const postServeHook = new Hook(postServe, name, 'postServe', 10000);
+    const postProcessHook = new Hook(options.postProcess, neo4jConnection,
+        options.name, 'postProcess');
+    const postServeHook = new Hook(options.postServe, neo4jConnection,
+        options.name, 'postServe', 10000);
 
     return (params, ctx) => {
         const response = checkHook.execute(params, ctx)
@@ -146,7 +166,8 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, cypher, check = (par
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
-                cypherQueryFile ? cypherExecutionHook.execute(params, cypherQueryFile)
+                typeof params.result === 'undefined' ?
+                    cypherExecutionHook.execute(params, options.cypherQueryFile)
                     : paramsResultExecutionHook.execute(params),
                 params,
                 ctx
@@ -164,7 +185,7 @@ const createProcedure = (neo4jConnection, {cypherQueryFile, cypher, check = (par
                     return postServeHook.execute(result, params, ctx);
             })
             .catch(error => {
-                console.error(chalk.red(`Error in postServe of '${name}'`));
+                console.error(chalk.red(`Error in postServe of '${options.name}'`));
                 console.log(error);
             });
         return response.then(([result, params, ctx]) => result);
@@ -188,4 +209,4 @@ class API {
     }
 }
 
-export {Neo4jConnection, createProcedure, API};
+export {Neo4jConnection, Procedure, createProcedure, API};
