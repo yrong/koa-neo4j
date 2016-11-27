@@ -19,7 +19,7 @@ const checkWith = ({
                 if (exception)
                     params.result = exception;
                 else
-                    params.result = func.apply(null, [params, ctx]);
+                    params.result = condition.apply(null, [params, ctx]);
                 return params;
             }
         ]
