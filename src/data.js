@@ -125,24 +125,18 @@ const createProcedure = (neo4jConnection, procedure) => {
     const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
         options.name, 'preProcess');
-    let cypherExecutionHook;
-    let paramsResultExecutionHook;
-    if (options.cypherQueryFile || options.cypher)
-        cypherExecutionHook = new Hook(
-            (params, cypherQueryFile) =>
-                neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
-                    params, params.cypher),
-            neo4jConnection, options.name, 'cypherExecution');
-    else
-        paramsResultExecutionHook = new Hook(
-            params => {
-                if (Array.isArray(params.result))
-                    return Promise.all(params.result);
-                else if (params.result)
-                    return Promise.resolve(params.result);
-                return Promise.reject(
-                    new Error("neither 'cypherQueryFile' nor 'params.result' were present"));
-            }, neo4jConnection, options.name, 'paramsResultExecution');
+    const executionHook = new Hook((params, cypherQueryFile) => {
+        if (typeof params.result !== 'undefined')
+            if (Array.isArray(params.result))
+                return Promise.all(params.result);
+            else
+                return Promise.resolve(params.result);
+        else if (params.cypher || cypherQueryFile)
+            return neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
+                params, params.cypher);
+        return Promise.reject(
+            new Error("neither 'cypherQueryFile' nor 'params.result' were present"));
+    }, neo4jConnection, options.name, 'execution');
 
     const postProcessHook = new Hook(options.postProcess, neo4jConnection,
         options.name, 'postProcess');
@@ -165,9 +159,7 @@ const createProcedure = (neo4jConnection, procedure) => {
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
-                typeof params.result === 'undefined' ?
-                    cypherExecutionHook.execute(params, options.cypherQueryFile)
-                    : paramsResultExecutionHook.execute(params),
+                executionHook.execute(params, options.cypherQueryFile),
                 params,
                 ctx
             ]))
