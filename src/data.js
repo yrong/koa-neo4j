@@ -34,7 +34,7 @@ class Neo4jConnection {
 
     executeCypher(cypherQueryFilePath, queryParams, pathIsQuery = false) {
         return new Promise((resolve, reject) => {
-            if (!this.queries[cypherQueryFilePath])
+            if (!pathIsQuery && !this.queries[cypherQueryFilePath])
                 this.addCypherQueryFile(cypherQueryFilePath);
 
             let query = cypherQueryFilePath;
