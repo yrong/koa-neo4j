@@ -61,7 +61,8 @@ const checkOwner = ({
     });
 
 // Use allowedRoles for this functionality
-// Made to be used as 'except', e.g. in checkOwner({ except: userHasAnyOfRoles(['admin', 'reviewer']) })
+// Made to be used as 'except', e.g.
+// checkOwner({ except: userHasAnyOfRoles(['admin', 'reviewer']) })
 const userHasAnyOfRoles = roles => (params, ctx) => {
     if (!ctx.user)
         throw new Error('user not logged in');
