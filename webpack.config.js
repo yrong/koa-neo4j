@@ -17,9 +17,10 @@ var config = {
         './index': './src/index',
         './preprocess': ['./src/preprocess'],
         './postprocess': ['./src/postprocess'],
+        './check': './src/check',
         './procedure': ['./src/procedure'],
         './util': ['./src/util'],
-        './bdd': ['./src/bdd']
+        './bdd': './src/bdd'
     },
     devtool: 'source-map',
     output: {

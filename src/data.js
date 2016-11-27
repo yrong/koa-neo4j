@@ -63,16 +63,16 @@ class Hook {
         this.name = hookName;
         this.procedureName = procedureName;
         if (!Array.isArray(functions))
+            // TODO instanceof not working due to webpack!
+            // if (typeof functions === 'function' || functions instanceof Procedure)
             if (typeof functions === 'function' || functions.isProcedure)
                 functions = [functions];
             else
                 throw new Error('hook should be function or array of functions');
         this.phases = [];
         this.context = {};
-        if (hookName === 'checkOwner')
-            console.log(functions)
         for (let func of functions) {
-            // instanceof doesn't work due to webpack
+            // TODO instanceof not working due to webpack!
             // if (func instanceof Procedure)
             if (func.isProcedure)
                 func = createProcedure(neo4jConnection, func);
