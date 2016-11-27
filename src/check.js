@@ -2,7 +2,7 @@
  * Created by keyvan on 11/26/16.
  */
 
-import {parseIds, logParams} from './preprocess';
+import {parseIds} from './preprocess';
 import {fetchOne} from './postprocess';
 import {Procedure} from './data';
 
