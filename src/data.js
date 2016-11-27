@@ -63,8 +63,8 @@ class Hook {
         this.name = hookName;
         this.procedureName = procedureName;
         if (!Array.isArray(functions))
-            // TODO instanceof not working due to webpack!
-            // if (typeof functions === 'function' || functions instanceof Procedure)
+        // TODO instanceof not working due to webpack!
+        // if (typeof functions === 'function' || functions instanceof Procedure)
             if (typeof functions === 'function' || functions.isProcedure)
                 functions = [functions];
             else
@@ -110,7 +110,7 @@ class Hook {
             .catch((error) => {
                 if (error === 'TimeOutError')
                     throw new Error(`${this.name} lifecycle of '${this.procedureName}' timed out, `
-                            + `no response after ${this.timeout / 1000} seconds`);
+                        + `no response after ${this.timeout / 1000} seconds`);
                 if (typeof error === 'string')
                     error += `, in ${this.name} lifecycle of '${this.procedureName}'`;
                 else
@@ -126,17 +126,24 @@ const createProcedure = (neo4jConnection, procedure) => {
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
         options.name, 'preProcess');
     const executionHook = new Hook((params, cypherQueryFile) => {
-        if (typeof params.result !== 'undefined')
+        let result, paramsResult, paramsCypher;
+        if (typeof params.result !== 'undefined') {
             if (Array.isArray(params.result))
-                return Promise.all(params.result);
+                result = Promise.all(params.result);
             else
-                return Promise.resolve(params.result);
-        else if (params.cypher || cypherQueryFile)
-            return neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
+                result = Promise.resolve(params.result);
+            paramsResult = true;
+        }
+        else if (params.cypher || cypherQueryFile) {
+            result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
                 params, params.cypher);
-        return Promise.reject(
-            new Error("none of 'params.result', 'params.cypher' and " +
-                "'cypherQueryFile' were present"));
+            paramsCypher = true;
+        }
+        else
+            result = Promise.reject(
+                new Error("none of 'params.result', 'params.cypher' and " +
+                    "'cypherQueryFile' were present"));
+        return {result, paramsResult, paramsCypher};
     }, neo4jConnection, options.name, 'execution');
 
     const postProcessHook = new Hook(options.postProcess, neo4jConnection,
@@ -164,10 +171,13 @@ const createProcedure = (neo4jConnection, procedure) => {
                 params,
                 ctx
             ]))
-            .then(([result, params, ctx]) => {
-                delete params.result;
-                delete params.cypher;
-                return [result, params, ctx];
+            .then(([{result, paramsResult, paramsCypher}, params, ctx]) => {
+                if (paramsResult)
+                    delete params.result;
+                if (paramsCypher)
+                    delete params.cypher;
+                console.log({result, paramsResult, paramsCypher})
+                return Promise.all([result, params, ctx]);
             })
             .then(([result, params, ctx]) => Promise.all([
                 postProcessHook.execute(result, params, ctx),
