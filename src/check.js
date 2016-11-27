@@ -2,9 +2,28 @@
  * Created by keyvan on 11/26/16.
  */
 
-import {parseIds} from './preprocess';
+import {parseIds, logParams} from './preprocess';
 import {fetchOne} from './postprocess';
 import {Procedure} from './data';
+
+const checkWith = ({
+    name = 'checkWith',
+    func = (params, ctx) => true,
+    except = (params, ctx) => false
+} = {}) =>
+    new Procedure({
+        name: name,
+        preProcess: [
+            (params, ctx) => [params, except.apply(null, [params, ctx])],
+            ([params, exception], ctx) => {
+                if (exception)
+                    params.result = exception;
+                else
+                    params.result = func.apply(null, [params, ctx]);
+                // return params;
+            }
+        ]
+    });
 
 // check Hook
 // checkOwner
@@ -23,7 +42,7 @@ const checkOwner = ({
         name: 'checkOwner',
         preProcess: [
             parseIds(resourceIdParamName),
-            (params, ctx) => [params, except(params, ctx)],
+            (params, ctx) => [params, except.apply(null, [params, ctx])],
             ([params, exception], ctx) => {
                 if (exception)
                     params.result = exception;
@@ -54,4 +73,4 @@ const userHasAnyOfRoles = roles => (params, ctx) => {
 
 const userIsAdmin = userHasAnyOfRoles(['admin']);
 
-export {checkOwner, userHasAnyOfRoles, userIsAdmin};
+export {checkWith, checkOwner, userHasAnyOfRoles, userIsAdmin};

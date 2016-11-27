@@ -98,7 +98,12 @@ class Hook {
                 .then(response => {
                     if (Array.isArray(response))
                         return Promise.all(response);
-                    return response;
+                    if (typeof response !== 'undefined')
+                        return response;
+                    if (typeof args[0] === 'object' && !Array.isArray(args[0]))
+                        return args[0];
+                    throw new Error('have you forgotten to return in the previous function ' +
+                        "in the pipe? Hook's first argument not in correct format");
                 }),
             new Promise((resolve, reject) => setTimeout(() => reject('TimeOutError'), this.timeout))
         ])
