@@ -166,6 +166,11 @@ const createProcedure = (neo4jConnection, procedure) => {
                 params,
                 ctx
             ]))
+            .then(([result, params, ctx]) => {
+                delete params.result;
+                delete params.cypher;
+                return [result, params, ctx];
+            })
             .then(([result, params, ctx]) => Promise.all([
                 postProcessHook.execute(result, params, ctx),
                 params,

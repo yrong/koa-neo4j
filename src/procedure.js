@@ -46,11 +46,7 @@ const checkOwner = ({
                 return params;
             }
         ],
-        postProcess: [fetchOne, (result, params) => {
-            delete params.result;
-            delete params.cypher;
-            return result;
-        }]
+        postProcess: fetchOne
     });
 
 export {Procedure, checkOwner};
