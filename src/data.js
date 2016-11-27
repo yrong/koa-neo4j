@@ -176,7 +176,6 @@ const createProcedure = (neo4jConnection, procedure) => {
                     delete params.result;
                 if (paramsCypher)
                     delete params.cypher;
-                console.log({result, paramsResult, paramsCypher})
                 return Promise.all([result, params, ctx]);
             })
             .then(([result, params, ctx]) => Promise.all([
