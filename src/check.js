@@ -20,7 +20,7 @@ const checkWith = ({
                     params.result = exception;
                 else
                     params.result = func.apply(null, [params, ctx]);
-                // return params;
+                return params;
             }
         ]
     });
