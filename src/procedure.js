@@ -6,7 +6,7 @@ class Procedure {
     constructor({
         cypherQueryFile, cypher, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result, postServe = result => result,
-        name = 'createProcedure'
+        name = 'procedure'
     } = {}) {
         this.cypherQueryFile = cypherQueryFile;
         this.cypher = cypher;
