@@ -35,7 +35,7 @@ const checkOwner = ({
     matchClause, query,
     // matchClause = 'MATCH (user)-[:HAS]->(resource)',
     // query = 'MATCH (user)-[:HAS]->(resource) ' +
-    //          'WHERE id(user) = 102 AND id(resource) = 103 RETURN count(resource)',
+    //         'WHERE id(user) = 102 AND id(resource) = 103 RETURN count(resource)',
     except = (params, ctx) => false
 } = {}) =>
     new Procedure({
