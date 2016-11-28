@@ -51,7 +51,7 @@ const checkOwner = ({
                         `${matchClause} WHERE id(user) = ${ctx.user.id} ` +
                             `AND id(resource) = {${resourceIdParamName}} ` +
                             'RETURN count(resource)' :
-                        `$MATCH ${pattern} WHERE id(user) = ${ctx.user.id} ` +
+                        `MATCH ${pattern} WHERE id(user) = ${ctx.user.id} ` +
                             `AND id(resource) = {${resourceIdParamName}} ` +
                             'RETURN count(resource)';
                 return params;
