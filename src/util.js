@@ -97,6 +97,5 @@ const httpGet = (route, port) => httpCall('GET', 'localhost', route, port);
 const httpPost = (route, port, data, headers) =>
     httpCall('POST', 'localhost', route, port, data, headers);
 
-
-export {keyValues, haveIntersection,
-    enumerate, zip, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};
+export {keyValues, enumerate, zip} from 'pythonic';
+export {haveIntersection, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};

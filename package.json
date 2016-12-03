@@ -79,6 +79,7 @@
     "parse-neo4j": "^0.6.3",
     "passport-jwt": "^2.1.0",
     "passport-local": "^1.0.0",
+    "pythonic": "0.0.4",
     "query-string": "^4.2.3",
     "regenerator-runtime": "^0.9.5"
   }
