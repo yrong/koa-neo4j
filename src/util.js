@@ -5,11 +5,6 @@
 
 import http from 'http';
 
-function * keyValues(obj) {
-    for (const key of Object.keys(obj))
-        yield [key, obj[key]];
-}
-
 const haveIntersection = (arrayFirst, arraySecond) => {
     if (!arrayFirst || !arraySecond)
         return false;
@@ -20,24 +15,6 @@ const haveIntersection = (arrayFirst, arraySecond) => {
             return true;
     return false;
 };
-
-function * enumerate(array) {
-    let index = 0;
-    for (const element of array) {
-        yield [index, element];
-        index++;
-    }
-}
-
-function * zip(arrayFirst, arraySecond) {
-    let index = 0;
-    for (const element of arrayFirst) {
-        if (!arraySecond[index])
-            break;
-        yield [element, arraySecond[index]];
-        index++;
-    }
-}
 
 const pipe = (...functions) => (...args) => {
     for (const func of functions)
