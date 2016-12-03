@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j) [![Build Status](https://travis-ci.org/satratech/koa-neo4j.svg?branch=master)](https://travis-ci.org/satratech/koa-neo4j) [![Join the chat at https://gitter.im/satratech/koa-neo4j](https://badges.gitter.im/satratech/koa-neo4j.svg)](https://gitter.im/satratech/koa-neo4j?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j) [![Build Status](https://travis-ci.org/satratech/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j) 
 # koa-neo4j
 `koa-neo4j` is a framework for creating web servers that embody application's logic powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
 
@@ -25,7 +25,7 @@ npm install koa-neo4j --save
 ```
 
 ### Usage
-You can find a comprehensive example at [koa-neo4j-example](https://github.com/satratech/koa-neo4j-example) 
+You can find a comprehensive example at [koa-neo4j-example](https://github.com/assister-ai/koa-neo4j-starter-kit)
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
 
@@ -87,4 +87,4 @@ TODO: docs
 TODO: docs
 
 ### License
-[MIT](https://github.com/satratech/koa-neo4j/blob/master/LICENSE)
+[MIT](https://github.com/assister-ai/koa-neo4j/blob/master/LICENSE)
