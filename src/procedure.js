@@ -4,12 +4,13 @@
 
 class Procedure {
     constructor({
-        cypherQueryFile, cypher, check = (params, user) => true,
+        cypherQueryFile, cypher, timeout = 4000, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result, postServe = result => result,
         name = 'procedure'
     } = {}) {
         this.cypherQueryFile = cypherQueryFile;
         this.cypher = cypher;
+        this.timeout = timeout;
         this.check = check;
         this.preProcess = preProcess;
         this.postProcess = postProcess;

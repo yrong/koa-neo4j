@@ -124,7 +124,7 @@ const createProcedure = (neo4jConnection, procedure) => {
     const options = new Procedure(procedure);
     const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
-        options.name, 'preProcess');
+        options.name, 'preProcess', procedure.timeout);
     const executionHook = new Hook((params, cypherQueryFile) => {
         let result, paramsResult, paramsCypher;
         if (typeof params.result !== 'undefined') {
@@ -144,12 +144,12 @@ const createProcedure = (neo4jConnection, procedure) => {
                 new Error("none of 'params.result', 'params.cypher' and " +
                     "'cypherQueryFile' were present"));
         return {result, paramsResult, paramsCypher};
-    }, neo4jConnection, options.name, 'execution');
+    }, neo4jConnection, options.name, 'execution', procedure.timeout);
 
     const postProcessHook = new Hook(options.postProcess, neo4jConnection,
-        options.name, 'postProcess');
+        options.name, 'postProcess', procedure.timeout);
     const postServeHook = new Hook(options.postServe, neo4jConnection,
-        options.name, 'postServe', 10000);
+        options.name, 'postServe', procedure.timeout * 3);
 
     return (params, ctx) => {
         const response = checkHook.execute(params, ctx)
@@ -185,14 +185,18 @@ const createProcedure = (neo4jConnection, procedure) => {
             ]));
 
         response
-            .catch(error => [])
+            .catch(error => {
+                console.error(chalk.red(`Error in postProcess of '${options.name}'`));
+                console.dir(error);
+                return [];
+            })
             .then(([result, params, ctx]) => {
                 if (result || params || ctx)
                     return postServeHook.execute(result, params, ctx);
             })
             .catch(error => {
                 console.error(chalk.red(`Error in postServe of '${options.name}'`));
-                console.log(error);
+                console.dir(error);
             });
         return response.then(([result, params, ctx]) => result);
     };
