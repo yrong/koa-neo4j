@@ -15,10 +15,18 @@ const deepParse = (params, key, func) => {
     let [keyToFind, keyToReplace] = [key, key];
     if (typeof key === 'object') {
         const keys = Object.keys(key);
-        if (keys.length !== 1)
-            throw new Error(`parse error, invalid key ${JSON.stringify(key)}`);
-        keyToFind = keys[0];
-        keyToReplace = key[keyToFind];
+        if (keys.length !== 1) {
+            for (const keyToFind of keys) {
+                const newKey = {};
+                newKey[keyToFind] = key[keyToFind];
+                deepParse(params, newKey, func)
+            }
+            return;
+        }
+        else {
+            keyToFind = keys[0];
+            keyToReplace = key[keyToFind];
+        }
     }
     if (params[keyToFind])
         if (!Array.isArray(params[keyToFind]))
