@@ -40,24 +40,12 @@ class Authentication {
                 }, done);
         }));
 
-        this.passport.use(new JwtStrategy(
-            {
-                jwtFromRequest: ExtractJwt.fromAuthHeader(),
-                secretOrKey: secret
-            }, (user, done) => {
-                // Check whether payload is user
-                if (!user.id)
-                    done(new Error('invalid token'));
-                else
-                    done(null, user);
-            }));
-
         // koa-passport uses generators which will be deprecated in koa v3,
         // below block should be refactored accordingly
         // The author of koa-passport has not considered the use cases of done(err),
         // hence we need to wrap calls in a promise
-        this.authenticateLocal = async (ctx, next) => await new Promise(
-            (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, next)
+        this.authenticateLocal = (ctx, next) => new Promise(
+            (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, () => {})
                 .catch(reject))
             .then((user) => {
                 // koa-passport returns false if object is not formatted as {username, password}
@@ -75,10 +63,23 @@ class Authentication {
                     user: user
                 };
             })
-            .catch(error => ctx.throw(error.message || String(error), 422));
+            .catch(error => ctx.throw(error.message || String(error), 422))
+            .then(next);
 
-        this.authenticateJwt = async (ctx, next) => await new Promise((resolve, reject) =>
-            this.passport.authenticate('jwt', {session: false}, resolve)(ctx, next)
+        this.passport.use(new JwtStrategy(
+            {
+                jwtFromRequest: ExtractJwt.fromAuthHeader(),
+                secretOrKey: secret
+            }, (user, done) => {
+                // Check whether payload is user
+                if (!user.id)
+                    done(new Error('invalid token'));
+                else
+                    done(null, user);
+            }));
+
+        this.authenticateJwt = (ctx, next) => new Promise((resolve, reject) =>
+            this.passport.authenticate('jwt', {session: false}, resolve)(ctx, () => {})
                 .catch(reject))
             // TODO next line connects to DB, token already embodies roles,
             // remove when access token is implemented
@@ -88,7 +89,8 @@ class Authentication {
                 return user;
             })
             // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
-            .then(user => { ctx.user = user; });
+            .then(user => { ctx.user = user; })
+            .then(next);
     }
 
     getRoles(user) {

@@ -74,7 +74,7 @@ class KoaNeo4jApp extends Application {
         const handler = async(ctx, next) => {
             if (api.requiresJwtAuthentication)
                 try {
-                    await this.authentication.authenticateJwt(ctx, next);
+                    await this.authentication.authenticateJwt(ctx, () => {});
                 } catch (error) {
                     // No Authorization header
                     ctx.throw('authorization required', 401);
