@@ -70,6 +70,5 @@ const parseUnixTimes = parseWith(stringOrUnixTime => {
     return neo4jInt(new Date(stringOrUnixTime).getTime());
 });
 
-export {Integer} from 'neo4j-driver/lib/v1/integer';
 export {neo4jInt, logParams, parseWith, parseNeo4jInts, parseIds,
     parseInts, parseFloats, parseDates, parseUnixTimes};

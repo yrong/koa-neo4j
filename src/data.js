@@ -89,6 +89,10 @@ class Hook {
             for (let i =  1; i < this.phases.length; i++)
                 next = Promise.all([this.phases[i], next, rest])
                     .then(([phase, response, rest]) => phase(response, ...rest));
+            next.catch(error => {
+                console.error(chalk.red(`Error in postProcess of '${this.name}'`));
+                console.dir(error);
+            });
             return next;
         };
     }
@@ -185,19 +189,8 @@ const createProcedure = (neo4jConnection, procedure) => {
             ]));
 
         response
-            .catch(error => {
-                console.error(chalk.red(`Error in postProcess of '${options.name}'`));
-                console.dir(error);
-                return [];
-            })
-            .then(([result, params, ctx]) => {
-                if (result || params || ctx)
-                    return postServeHook.execute(result, params, ctx);
-            })
-            .catch(error => {
-                console.error(chalk.red(`Error in postServe of '${options.name}'`));
-                console.dir(error);
-            });
+            .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
+
         return response.then(([result, params, ctx]) => result);
     };
 };
