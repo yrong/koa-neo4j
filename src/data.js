@@ -204,12 +204,12 @@ const createProcedure = (neo4jConnection, procedure) => {
 
 class API {
     constructor(neo4jConnection, {method, route, allowedRoles = [], procedure,
-        cypherQueryFile, check, preProcess, postProcess, postServe} = {}) {
+        cypherQueryFile, check, timeout, preProcess, postProcess, postServe} = {}) {
         if (typeof procedure === 'function')
             this.invoke = procedure;
         else
             this.invoke = createProcedure(neo4jConnection,
-                {cypherQueryFile, check, preProcess, postProcess, postServe, name: route});
+                {cypherQueryFile, timeout, check, preProcess, postProcess, postServe, name: route});
 
         this.method = method;
         this.route = route;
