@@ -204,8 +204,8 @@ const createProcedure = (neo4jConnection, procedure) => {
 
 class API {
     constructor(neo4jConnection, options) {
-        if (typeof procedure === 'function')
-            this.invoke = procedure;
+        if (typeof options.procedure === 'function')
+            this.invoke = options.procedure;
         else
             this.invoke = createProcedure(neo4jConnection, options);
 
