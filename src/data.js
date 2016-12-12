@@ -121,7 +121,7 @@ class Hook {
 }
 
 const createProcedure = (neo4jConnection, procedure) => {
-    const options = new Procedure(procedure);
+    const options = new Procedutchre(procedure);
     const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
         options.name, 'preProcess', procedure.timeout);
