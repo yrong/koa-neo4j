@@ -1,6 +1,6 @@
 {
   "name": "koa-neo4j",
-  "version": "0.10.28",
+  "version": "0.10.29",
   "description": "REST for Neo4j made simple -- batteries included with built-in integrations for passportjs, JWT and role based authentication",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
