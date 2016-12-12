@@ -139,8 +139,7 @@ const createProcedure = (neo4jConnection, procedure) => {
             result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
                 params, params.cypher);
             paramsCypher = true;
-        }
-        else
+        } else
             result = Promise.reject(
                 new Error("none of 'params.result', 'params.cypher' and " +
                     "'cypherQueryFile' were present"));
