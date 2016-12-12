@@ -1,27 +1,27 @@
-var webpack = require('webpack');
-var path = require('path');
-var fs = require("file-system");
+const webpack = require('webpack');
+const path = require('path');
+const fs = require('file-system');
 
-var mods = {};
-fs.readdirSync("node_modules")
-    .filter(x => [".bin"].indexOf(x) === -1)
-    .forEach(mod => {
-        mods[mod] = "commonjs " + mod;
-    });
+const entries = fs.readdirSync('src')
+    .filter(x => x.slice(-3) === '.js' && ['spec'].indexOf(x) === -1)
+    .map(x => `./${x.slice(0, -3)}`)
+    .reduce((obj, x) => {
+        obj[x] = [`./src/${x.slice(2)}`];
+        return obj;
+    }, {});
 
-var plugins = [];
+const externals = fs.readdirSync('node_modules').concat(Object.keys(entries))
+    .filter(x => ['.bin'].indexOf(x) === -1)
+    .reduce((obj, mod) => {
+        obj[mod] = 'commonjs ' + mod;
+        return obj;
+    }, {});
 
-var config = {
+const plugins = [];
+
+const config = {
     target: 'node',
-    entry: {
-        './index': './src/index',
-        './preprocess': ['./src/preprocess'],
-        './postprocess': ['./src/postprocess'],
-        './check': './src/check',
-        './procedure': ['./src/procedure'],
-        './util': ['./src/util'],
-        './bdd': './src/bdd'
-    },
+    entry: entries,
     devtool: 'source-map',
     output: {
         path: './',
@@ -30,23 +30,18 @@ var config = {
         libraryTarget: 'umd',
         umdNamedDefine: true
     },
-    externals: mods,
+    externals: externals,
     module: {
-        loaders: [
-            // Support for ES6 modules and the latest ES syntax.
+        rules: [
             {
                 test: /\.jsx?$/,
                 exclude: /(node_modules)/,
-                loader: "babel"
+                loader: 'babel-loader'
             }
         ]
-},
-    resolveLoader: {
-        root: path.join(__dirname, 'node_modules')
     },
     resolve: {
-        root: path.resolve('./src'),
-        extensions: ['', '.js']
+        extensions: ['.js']
     },
     plugins: plugins
 };
