@@ -109,7 +109,7 @@ describe 'End-to-end tests', ->
             .then (response) ->
                 console.log response
                 expect response
-                    .toEqual "ConflictError: postProcess lifecycle of '/async-timeout-hook-failure/:it' timed out, no response after 4 seconds"
+                    .toEqual "ConflictError: operation timed out, no response after 4 seconds, in postProcess lifecycle of '/async-timeout-hook-failure/:it'"
                 done()
 
     describe 'async hook with reject failure', ->

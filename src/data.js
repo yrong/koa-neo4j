@@ -89,10 +89,6 @@ class Hook {
             for (let i =  1; i < this.phases.length; i++)
                 next = Promise.all([this.phases[i], next, rest])
                     .then(([phase, response, rest]) => phase(response, ...rest));
-            next.catch(error => {
-                console.error(chalk.red(`Error in postProcess of '${this.name}'`));
-                console.dir(error);
-            });
             return next;
         };
     }
@@ -110,16 +106,16 @@ class Hook {
                     throw new Error('have you forgotten to return in the previous function ' +
                         "in the pipe? Hook's first argument not in correct format");
                 }),
-            new Promise((resolve, reject) => setTimeout(() => reject('TimeOutError'), this.timeout))
+            new Promise((resolve, reject) => setTimeout(() => reject(
+                `operation timed out, no response after ${this.timeout / 1000} seconds`
+            ), this.timeout))
         ])
             .catch((error) => {
-                if (error === 'TimeOutError')
-                    throw new Error(`${this.name} lifecycle of '${this.procedureName}' timed out, `
-                        + `no response after ${this.timeout / 1000} seconds`);
+                const complementary = `, in ${this.name} lifecycle of '${this.procedureName}'`;
                 if (typeof error === 'string')
-                    error += `, in ${this.name} lifecycle of '${this.procedureName}'`;
+                    error += complementary;
                 else
-                    error.message += `, in ${this.name} lifecycle of '${this.procedureName}'`;
+                    error.message += complementary;
                 throw error;
             });
     }
@@ -190,7 +186,7 @@ const createProcedure = (neo4jConnection, procedure) => {
 
         response
             .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
-
+            .catch(error => console.dir(error));
         return response.then(([result, params, ctx]) => result);
     };
 };
