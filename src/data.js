@@ -4,6 +4,7 @@
 
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'file-system';
+import chai from 'chai';
 import chalk from 'chalk';
 import parser from 'parse-neo4j';
 import {parseNeo4jInts} from './preprocess';
@@ -121,7 +122,7 @@ class Hook {
 }
 
 const createProcedure = (neo4jConnection, procedure) => {
-    const options = new Procedutchre(procedure);
+    const options = new Procedure(procedure);
     const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
         options.name, 'preProcess', procedure.timeout);
@@ -203,19 +204,20 @@ const createProcedure = (neo4jConnection, procedure) => {
 };
 
 class API {
-    constructor(neo4jConnection, {method, route, allowedRoles = [], procedure,
-        cypherQueryFile, check, timeout, preProcess, postProcess, postServe} = {}) {
+    constructor(neo4jConnection, options) {
         if (typeof procedure === 'function')
             this.invoke = procedure;
         else
-            this.invoke = createProcedure(neo4jConnection,
-                {cypherQueryFile, timeout, check, preProcess, postProcess, postServe, name: route});
+            this.invoke = createProcedure(neo4jConnection, options);
 
-        this.method = method;
-        this.route = route;
-        this.allowedRoles = allowedRoles;
-        this.requiresJwtAuthentication = allowedRoles &&
-            Array.isArray(allowedRoles) && allowedRoles.length > 0;
+        chai.assert.typeOf(options.method, 'string');
+        chai.assert.typeOf(options.route, 'string');
+
+        this.method = options.method;
+        this.route = options.route;
+        this.allowedRoles = options.allowedRoles || [];
+        this.requiresJwtAuthentication = this.allowedRoles &&
+            Array.isArray(this.allowedRoles) && this.allowedRoles.length > 0;
     }
 }
 
