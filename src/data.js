@@ -125,7 +125,7 @@ const createProcedure = (neo4jConnection, procedure) => {
     const options = new Procedure(procedure);
     const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
     const preProcessHook = new Hook(options.preProcess, neo4jConnection,
-        options.name, 'preProcess', procedure.timeout);
+        options.name, 'preProcess', options.timeout);
     const executionHook = new Hook((params, cypherQueryFile) => {
         let result, paramsResult, paramsCypher;
         if (typeof params.result !== 'undefined') {
@@ -145,12 +145,12 @@ const createProcedure = (neo4jConnection, procedure) => {
                 new Error("none of 'params.result', 'params.cypher' and " +
                     "'cypherQueryFile' were present"));
         return {result, paramsResult, paramsCypher};
-    }, neo4jConnection, options.name, 'execution', procedure.timeout);
+    }, neo4jConnection, options.name, 'execution', options.timeout);
 
     const postProcessHook = new Hook(options.postProcess, neo4jConnection,
-        options.name, 'postProcess', procedure.timeout);
+        options.name, 'postProcess', options.timeout);
     const postServeHook = new Hook(options.postServe, neo4jConnection,
-        options.name, 'postServe', procedure.timeout * 3);
+        options.name, 'postServe', options.timeout * 3);
 
     return (params, ctx) => {
         const response = checkHook.execute(params, ctx)
