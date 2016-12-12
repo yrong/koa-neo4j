@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j) [![Build Status](https://travis-ci.org/satratech/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j) 
+[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j) [![Build Status](https://travis-ci.org/assister-ai/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j) 
 # koa-neo4j
 `koa-neo4j` is a framework for creating web servers that embody application's logic powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
 
