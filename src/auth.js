@@ -5,12 +5,13 @@
 import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
+import {Strategy as FacebookStrategy} from 'passport-facebook';
 import jwt from 'jsonwebtoken';
 import {neo4jInt} from './preprocess';
 
 class Authentication {
     constructor(neo4jConnection, {secret, passwordMatches, tokenExpirationInterval,
-        userCypherQueryFile, rolesCypherQueryFile} = {}) {
+        userCypherQueryFile, rolesCypherQueryFile, facebook, google, twitter} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.passport = new KoaPassport();
 
@@ -19,6 +20,9 @@ class Authentication {
         this.tokenExpirationInterval = tokenExpirationInterval || '1h';
         this.userQuery = userCypherQueryFile;
         this.rolesQuery = rolesCypherQueryFile;
+        this.facebook = facebook;
+        this.google = google;
+        this.twitter = twitter;
 
         this.passport.use(new LocalStrategy((username, password, done) => {
             this.neo4jConnection.executeCypher(this.userQuery, {username: username})
@@ -47,23 +51,13 @@ class Authentication {
         this.authenticateLocal = (ctx, next) => new Promise(
             (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, () => {})
                 .catch(reject))
-            .then((user) => {
+            .then(user => {
                 // koa-passport returns false if object is not formatted as {username, password}
                 if (!user)
                     ctx.throw('invalid POST data, expected {username, password[, remember]}', 400);
-                return Promise.all([Promise.resolve(user), this.getRoles(user)]);
+                return user;
             })
-            .then(([user, [{roles} = {}]]) => {
-                user.roles = roles;
-                const options = {};
-                if (!ctx.request.body.remember)
-                    options.expiresIn = this.tokenExpirationInterval;
-                ctx.body = {
-                    token: `JWT ${jwt.sign(user, this.secret, options)}`,
-                    user: user
-                };
-            })
-            .catch(error => ctx.throw(error.message || String(error), 422))
+            .then(user => this.loginRespond(user, ctx))
             .then(next);
 
         this.passport.use(new JwtStrategy(
@@ -81,20 +75,66 @@ class Authentication {
         this.authenticateJwt = (ctx, next) => new Promise((resolve, reject) =>
             this.passport.authenticate('jwt', {session: false}, resolve)(ctx, () => {})
                 .catch(reject))
-            // TODO next line connects to DB, token already embodies roles,
-            // remove when access token is implemented
-            .then(user => Promise.all([user, this.getRoles(user)]))
+            .then(user => this.login(user, ctx))
+            .then(next);
+
+        if (this.facebook) {
+            this.passport.use(new FacebookStrategy({
+                    clientID: this.facebook.clientId,
+                    clientSecret: this.facebook.secret,
+                    callbackURL: this.facebook.callbackUrl
+                },
+                (token, tokenSecret, profile, done) => {
+                    // retrieve user ...
+                    this.neo4jConnection.executeCypher(this.facebook.cypherQueryFile, {
+                        token: token,
+                        tokenSecret: tokenSecret,
+                        profile: profile
+                    })
+                        .then(([user]) => user)
+                        .then(user => done(null, user))
+                        .catch(done);
+                }
+            ));
+
+            this.authenticateFacebook = (ctx, next) => new Promise((resolve, reject) =>
+                (resolve, reject) => this.passport.authenticate('facebook', resolve)(ctx, () => {
+                })
+                    .catch(reject))
+                .then(user => this.loginRespond(user, ctx))
+                .then(next);
+        }
+    }
+
+    getRoles(user) {
+        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)});
+    }
+
+    login(user, ctx) {
+        // TODO next line connects to DB, token already embodies roles,
+        // remove when access token is implemented
+        return Promise.all([user, this.getRoles(user)])
             .then(([user, [{roles} = {}]]) => {
                 user.roles = roles;
                 return user;
             })
             // koa-passport's ctx.login(user) is just too much hassle, setting ctx.user instead
-            .then(user => { ctx.user = user; })
-            .then(next);
+            .then(user => { ctx.user = user; return user; })
     }
 
-    getRoles(user) {
-        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)});
+    loginRespond(user, ctx) {
+        return Promise.all([user, this.getRoles(user)])
+            .then(([user, [{roles} = {}]]) => {
+                user.roles = roles;
+                const options = {};
+                if (!ctx.request.body.remember)
+                    options.expiresIn = this.tokenExpirationInterval;
+                ctx.body = {
+                    token: `JWT ${jwt.sign(user, this.secret, options)}`,
+                    user: user
+                };
+                return user;
+            })
     }
 }
 
