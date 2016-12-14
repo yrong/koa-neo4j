@@ -111,28 +111,4 @@ class Authentication {
     }
 }
 
-// var TwitterStrategy = require('passport-twitter').Strategy
-// passport.use(new TwitterStrategy({
-//         consumerKey: 'your-consumer-key',
-//         consumerSecret: 'your-secret',
-//         callbackURL: 'http://localhost:' + (process.env.PORT || 3000) + '/auth/twitter/callback'
-//     },
-//     function(token, tokenSecret, profile, done) {
-//         // retrieve user ...
-//         done(null, user)
-//     }
-// ))
-//
-// var GoogleStrategy = require('passport-google-auth').Strategy
-// passport.use(new GoogleStrategy({
-//         clientId: 'your-client-id',
-//         clientSecret: 'your-secret',
-//         callbackURL: 'http://localhost:' + (process.env.PORT || 3000) + '/auth/google/callback'
-//     },
-//     function(token, tokenSecret, profile, done) {
-//         // retrieve user ...
-//         done(null, user)
-//     }
-// ))
-
 export {Authentication};
