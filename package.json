@@ -1,7 +1,7 @@
 {
   "name": "koa-neo4j",
   "version": "0.10.36",
-  "description": "REST for Neo4j made simple -- batteries included with built-in integrations for passportjs, JWT and role based authentication",
+  "description": "REST for Neo4j made simple -- batteries included with built-in role based authentication via JWT",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
@@ -76,7 +76,6 @@
     "koa-router": "^7.0.1",
     "neo4j-driver": "1.1.0-M01",
     "parse-neo4j": "^0.6.4",
-    "passport-facebook": "^2.1.1",
     "passport-jwt": "^2.1.0",
     "passport-local": "^1.0.0",
     "pythonic": "0.0.4",

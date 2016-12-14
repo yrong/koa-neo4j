@@ -77,33 +77,6 @@ class Authentication {
                 .catch(reject))
             .then(user => this.login(user, ctx))
             .then(next);
-
-        if (this.facebook) {
-            this.passport.use(new FacebookStrategy({
-                    clientID: this.facebook.clientId,
-                    clientSecret: this.facebook.secret,
-                    callbackURL: this.facebook.callbackUrl
-                },
-                (token, tokenSecret, profile, done) => {
-                    // retrieve user ...
-                    this.neo4jConnection.executeCypher(this.facebook.cypherQueryFile, {
-                        token: token,
-                        tokenSecret: tokenSecret,
-                        profile: profile
-                    })
-                        .then(([user]) => user)
-                        .then(user => done(null, user))
-                        .catch(done);
-                }
-            ));
-
-            this.authenticateFacebook = (ctx, next) => new Promise((resolve, reject) =>
-                (resolve, reject) => this.passport.authenticate('facebook', resolve)(ctx, () => {
-                })
-                    .catch(reject))
-                .then(user => this.loginRespond(user, ctx))
-                .then(next);
-        }
     }
 
     getRoles(user) {

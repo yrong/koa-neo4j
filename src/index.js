@@ -107,8 +107,6 @@ class KoaNeo4jApp extends Application {
         this.authentication = new Authentication(this.neo4jConnection, options);
         this.use(this.authentication.passport.initialize());
         this.router.post(options.route, this.authentication.authenticateLocal);
-        if (options.facebook)
-            this.router.post(options.facebook.route, this.authentication.authenticateFacebook);
         this.configuredAuthentication = true;
     }
 
