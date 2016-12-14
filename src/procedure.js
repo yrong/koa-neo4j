@@ -16,8 +16,6 @@ class Procedure {
         this.postProcess = postProcess;
         this.postServe = postServe;
         this.name = route || name;
-        // TODO instanceof not working due to webpack!
-        this.isProcedure = true;
     }
 }
 

@@ -64,18 +64,14 @@ class Hook {
         this.name = hookName;
         this.procedureName = procedureName;
         if (!Array.isArray(functions))
-        // TODO instanceof not working due to webpack!
-        // if (typeof functions === 'function' || functions instanceof Procedure)
-            if (typeof functions === 'function' || functions.isProcedure)
+        if (typeof functions === 'function' || functions instanceof Procedure)
                 functions = [functions];
             else
                 throw new Error('hook should be function or array of functions');
         this.phases = [];
         this.context = {};
         for (let func of functions) {
-            // TODO instanceof not working due to webpack!
-            // if (func instanceof Procedure)
-            if (func.isProcedure)
+            if (func instanceof Procedure)
                 func = createProcedure(neo4jConnection, func);
             else if (typeof func !== 'function')
                 throw new Error(`element ${func} passed as ${this.procedureName} lifecycle ` +
@@ -99,12 +95,7 @@ class Hook {
                 .then(response => {
                     if (Array.isArray(response))
                         return Promise.all(response);
-                    if (typeof response !== 'undefined')
-                        return response;
-                    if (typeof args[0] === 'object' && !Array.isArray(args[0]))
-                        return args[0];
-                    throw new Error('have you forgotten to return in the previous function ' +
-                        "in the pipe? Hook's first argument not in correct format");
+                    return response;
                 }),
             new Promise((resolve, reject) => setTimeout(() => reject(
                 `operation timed out, no response after ${this.timeout / 1000} seconds`
