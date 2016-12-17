@@ -59,7 +59,7 @@ class Neo4jConnection {
 
 class Hook {
     constructor(functions, neo4jConnection,
-                procedureName, hookName, timeout = 4000) {
+                procedureName, hookName, timeout) {
         this.timeout = timeout;
         this.name = hookName;
         this.procedureName = procedureName;
