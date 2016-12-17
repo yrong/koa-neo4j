@@ -5,7 +5,6 @@
 import {KoaPassport} from 'koa-passport';
 import {Strategy as LocalStrategy} from 'passport-local';
 import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
-import {Strategy as FacebookStrategy} from 'passport-facebook';
 import jwt from 'jsonwebtoken';
 import {neo4jInt} from './preprocess';
 
