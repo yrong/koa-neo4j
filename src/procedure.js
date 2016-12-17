@@ -4,7 +4,7 @@
 
 class Procedure {
     constructor({
-        cypherQueryFile, cypher, timeout = 4000, check = (params, user) => true,
+        cypherQueryFile, cypher, timeout = 10000, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result, postServe = result => result,
         name = 'procedure', route
     } = {}) {

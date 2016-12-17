@@ -112,11 +112,12 @@ class Hook {
     }
 }
 
-const createProcedure = (neo4jConnection, procedure) => {
-    const options = new Procedure(procedure);
-    const checkHook = new Hook(options.check, neo4jConnection, options.name, 'check');
-    const preProcessHook = new Hook(options.preProcess, neo4jConnection,
-        options.name, 'preProcess', options.timeout);
+const createProcedure = (neo4jConnection, options) => {
+    const procedure = new Procedure(options);
+    const checkHook = new Hook(procedure.check, neo4jConnection,
+        procedure.name, 'check', procedure.timeout);
+    const preProcessHook = new Hook(procedure.preProcess, neo4jConnection,
+        procedure.name, 'preProcess', procedure.timeout);
     const executionHook = new Hook((params, cypherQueryFile) => {
         let result, paramsResult, paramsCypher;
         if (typeof params.result !== 'undefined') {
@@ -135,18 +136,18 @@ const createProcedure = (neo4jConnection, procedure) => {
                 new Error("none of 'params.result', 'params.cypher' or " +
                     "'cypherQueryFile' were present"));
         return {result, paramsResult, paramsCypher};
-    }, neo4jConnection, options.name, 'execution', options.timeout);
+    }, neo4jConnection, procedure.name, 'execution', procedure.timeout);
 
-    const postProcessHook = new Hook(options.postProcess, neo4jConnection,
-        options.name, 'postProcess', options.timeout);
-    const postServeHook = new Hook(options.postServe, neo4jConnection,
-        options.name, 'postServe', options.timeout * 3);
+    const postProcessHook = new Hook(procedure.postProcess, neo4jConnection,
+        procedure.name, 'postProcess', procedure.timeout);
+    const postServeHook = new Hook(procedure.postServe, neo4jConnection,
+        procedure.name, 'postServe', procedure.timeout * 3);
 
     return (params, ctx) => {
         const response = checkHook.execute(params, ctx)
             .then(checkPassed => {
                 if (!checkPassed)
-                    throw new Error(`Check lifecycle hook of ${options.name} did not pass`);
+                    throw new Error(`Check lifecycle hook of ${procedure.name} did not pass`);
                 return [params, ctx];
             })
             .then(([params, ctx]) => Promise.all([
@@ -158,7 +159,7 @@ const createProcedure = (neo4jConnection, procedure) => {
                 ctx
             ]))
             .then(([params, ctx]) => Promise.all([
-                executionHook.execute(params, options.cypherQueryFile),
+                executionHook.execute(params, procedure.cypherQueryFile),
                 params,
                 ctx
             ]))
