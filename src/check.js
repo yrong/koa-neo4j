@@ -68,8 +68,9 @@ const userHasAnyOfRoles = roles => (params, ctx) => {
         throw new Error("'ctx' not passed to procedure");
     if (!ctx.user)
         throw new Error('user not logged in');
+    roles = roles.map(role => role.toLowerCase());
     for (const role of roles)
-        if (ctx.user.roles.indexOf(role) >= 0)
+        if (ctx.user.roles.indexOf(role.toLowerCase()) >= 0)
             return true;
     return false;
 };
