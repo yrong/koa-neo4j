@@ -7,7 +7,8 @@ import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
 import {Authentication} from './auth';
-import {Neo4jConnection, createProcedure, API} from './data';
+import {Neo4jConnection, API} from './data';
+import {createProcedure} from './procedure';
 import {haveIntersection} from './util';
 
 const defaultOptions = {

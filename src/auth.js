@@ -10,7 +10,7 @@ import {neo4jInt} from './preprocess';
 
 class Authentication {
     constructor(neo4jConnection, {secret, passwordMatches, tokenExpirationInterval,
-        userCypherQueryFile, rolesCypherQueryFile, facebook, google, twitter} = {}) {
+        userCypherQueryFile, rolesCypherQueryFile} = {}) {
         this.neo4jConnection = neo4jConnection;
         this.passport = new KoaPassport();
 
@@ -19,9 +19,6 @@ class Authentication {
         this.tokenExpirationInterval = tokenExpirationInterval || '1h';
         this.userQuery = userCypherQueryFile;
         this.rolesQuery = rolesCypherQueryFile;
-        this.facebook = facebook;
-        this.google = google;
-        this.twitter = twitter;
 
         this.passport.use(new LocalStrategy((username, password, done) => {
             this.neo4jConnection.executeCypher(this.userQuery, {username: username})
@@ -79,14 +76,23 @@ class Authentication {
     }
 
     getRoles(user) {
-        return this.neo4jConnection.executeCypher(this.rolesQuery, {id: neo4jInt(user.id)});
+        return this.neo4jConnection.executeCypher(
+            this.rolesQuery || 'MATCH (user) WHERE id(user) = {id} RETURN {roles: labels(user)}',
+            {id: neo4jInt(user.id)}, !this.rolesQuery)
+            .then(response => {
+                const [{roles}] = response;
+                if (!roles)
+                    throw new Error(
+                        "'rolesCypherQueryFile' returned an invalid object, expected { roles }");
+                return roles.map(role => role.toLowerCase())
+            });
     }
 
     login(user, ctx) {
         // TODO next line connects to DB, token already embodies roles,
         // remove when access token is implemented
         return Promise.all([user, this.getRoles(user)])
-            .then(([user, [{roles} = {}]]) => {
+            .then(([user, roles]) => {
                 user.roles = roles;
                 return user;
             })
@@ -96,7 +102,7 @@ class Authentication {
 
     loginRespond(user, ctx) {
         return Promise.all([user, this.getRoles(user)])
-            .then(([user, [{roles} = {}]]) => {
+            .then(([user, roles]) => {
                 user.roles = roles;
                 const options = {};
                 if (!ctx.request.body.remember)
