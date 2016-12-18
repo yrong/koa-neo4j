@@ -32,10 +32,6 @@ const checkWith = ({
 const checkOwner = ({
     resourceIdParamName = 'id',
     pattern = '(user)-[:HAS]->(resource)',
-    matchClause, query,
-    // matchClause = 'MATCH (user)-[:HAS]->(resource)',
-    // query = 'MATCH (user)-[:HAS]->(resource) ' +
-    //         'WHERE id(user) = 102 AND id(resource) = 103 RETURN count(resource)',
     except = (params, ctx) => false
 } = {}) =>
     new Procedure({
@@ -47,11 +43,7 @@ const checkOwner = ({
                 if (exception)
                     params.result = exception;
                 else
-                    params.cypher = query || matchClause ?
-                        `${matchClause} WHERE id(user) = ${ctx.user.id} ` +
-                            `AND id(resource) = {${resourceIdParamName}} ` +
-                            'RETURN count(resource)' :
-                        `MATCH ${pattern} WHERE id(user) = ${ctx.user.id} ` +
+                    params.cypher = `MATCH ${pattern} WHERE id(user) = ${ctx.user.id} ` +
                             `AND id(resource) = {${resourceIdParamName}} ` +
                             'RETURN count(resource)';
                 return params;
