@@ -54,6 +54,7 @@ class Authentication {
                 return user;
             })
             .then(user => this.loginRespond(user, ctx))
+            .catch(error => ctx.throw(error, 422))
             .then(next);
 
         this.passport.use(new JwtStrategy(
