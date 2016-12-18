@@ -75,6 +75,6 @@ const userHasAnyOfRoles = roles => (params, ctx) => {
     return false;
 };
 
-const userIsAdmin = userHasAnyOfRoles(['admin']);
+const userIs = role => userHasAnyOfRoles([role]);
 
-export {checkWith, checkOwner, userHasAnyOfRoles, userIsAdmin};
+export {checkWith, checkOwner, userHasAnyOfRoles, userIs};
