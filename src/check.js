@@ -64,6 +64,8 @@ const checkOwner = ({
 // Made to be used as 'except', e.g.
 // checkOwner({ except: userHasAnyOfRoles(['admin', 'reviewer']) })
 const userHasAnyOfRoles = roles => (params, ctx) => {
+    if (!ctx)
+        throw new Error("'ctx' not passed to procedure");
     if (!ctx.user)
         throw new Error('user not logged in');
     for (const role of roles)
