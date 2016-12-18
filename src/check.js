@@ -41,11 +41,11 @@ const checkOwner = ({
             (params, ctx) => [params, except.apply(null, [params, ctx])],
             ([params, exception], ctx) => {
                 if (exception)
-                    params.result = exception;
+                    params.result = true;
                 else
                     params.cypher = `MATCH ${pattern} WHERE id(user) = ${ctx.user.id} ` +
                             `AND id(resource) = {${resourceIdParamName}} ` +
-                            'RETURN count(resource)';
+                            'RETURN count(resource) > 0';
                 return params;
             }
         ],
