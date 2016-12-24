@@ -6,11 +6,6 @@ import {v1 as neo4j} from 'neo4j-driver';
 
 const neo4jInt = neo4j.int;
 
-const logParams = params => {
-    console.log(JSON.stringify(params, null, 2));
-    return params;
-};
-
 const deepParse = (params, key, func) => {
     let [keyToFind, keyToReplace] = [key, key];
     if (typeof key === 'object') {
@@ -70,5 +65,6 @@ const parseUnixTimes = parseWith(stringOrUnixTime => {
     return neo4jInt(new Date(stringOrUnixTime).getTime());
 });
 
-export {neo4jInt, logParams, parseWith, parseNeo4jInts, parseIds,
+export {logValues as logParams} from './debug';
+export {neo4jInt, parseWith, parseNeo4jInts, parseIds,
     parseInts, parseFloats, parseDates, parseUnixTimes};

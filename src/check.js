@@ -17,7 +17,7 @@ const checkWith = ({
             (params, ctx) => [params, except.apply(null, [params, ctx])],
             ([params, exception], ctx) => {
                 if (exception)
-                    params.result = exception;
+                    params.result = true;
                 else
                     params.result = condition.apply(null, [params, ctx]);
                 return params;
@@ -30,12 +30,13 @@ const checkWith = ({
 // params before: {resourceIdParamName} <number> | <string> | <Neo4jInt>
 // params after: {resourceIdParamName} <Neo4jInt>
 const checkOwner = ({
+    name = 'checkOwner',
     resourceIdParamName = 'id',
     pattern = '(user)-[:HAS]->(resource)',
     except = (params, ctx) => false
 } = {}) =>
     new Procedure({
-        name: 'checkOwner',
+        name: name,
         preProcess: [
             parseIds(resourceIdParamName),
             (params, ctx) => [params, except.apply(null, [params, ctx])],

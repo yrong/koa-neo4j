@@ -27,4 +27,5 @@ const convertToPreProcess = (variableNameToAppendToParams) => (result, params) =
     return params;
 };
 
-export {logResult, fetchOne, errorOnEmptyResult, map, convertToPreProcess};
+export {logValues as logResult} from './debug';
+export {fetchOne, errorOnEmptyResult, map, convertToPreProcess};
