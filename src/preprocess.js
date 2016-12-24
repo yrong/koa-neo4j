@@ -37,7 +37,7 @@ const deepParse = (params, key, func) => {
             deepParse(params[innerKey], key, func);
 };
 
-const parseWith = (func) => (...keys) => params => {
+const parseWith = func => (...keys) => params => {
     for (const key of keys)
         deepParse(params, key, func);
     return params;
