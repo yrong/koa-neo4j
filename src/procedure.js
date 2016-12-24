@@ -95,8 +95,8 @@ class Procedure {
                 paramsCypher = true;
             } else
                 result = Promise.reject(
-                    new Error("none of 'params.result', 'params.cypher' or " +
-                        "'cypherQueryFile' were present"));
+                    new Error(`Error in execution lifecycle of ${this.name}, none of ` +
+                        "'params.result', 'params.cypher' or 'cypherQueryFile' were present"));
             return {result, paramsResult, paramsCypher};
         }, neo4jConnection, this.name, 'execution', this.timeout);
 
