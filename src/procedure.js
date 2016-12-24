@@ -75,7 +75,7 @@ class Procedure {
         this.name = route || name;
     }
 
-    invoke(neo4jConnection) {
+    getMiddleware(neo4jConnection) {
         const checkHook = new Hook(this.check, neo4jConnection,
             this.name, 'check', this.timeout);
         const preProcessHook = new Hook(this.preProcess, neo4jConnection,
@@ -147,6 +147,6 @@ class Procedure {
 }
 
 const createProcedure = (neo4jConnection, options) =>
-    (new Procedure(options)).invoke(neo4jConnection);
+    (new Procedure(options)).getMiddleware(neo4jConnection);
 
 export {Procedure, createProcedure};
