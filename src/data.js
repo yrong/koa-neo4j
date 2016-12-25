@@ -6,7 +6,7 @@ import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'file-system';
 import chai from 'chai';
 import chalk from 'chalk';
-import parser from 'parse-neo4j';
+import {parse} from 'parse-neo4j';
 import {Procedure, createProcedure} from './procedure';
 
 class Neo4jConnection {
@@ -52,7 +52,7 @@ class Neo4jConnection {
                     reject(`error while executing Cypher: ${error}`);
                 });
         })
-            .then(parser.parse);
+            .then(parse);
     }
 }
 
