@@ -47,7 +47,7 @@ var app = new KoaNeo4jApp({
     neo4j: {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
-        password: '<YOUR_NEO4j_PASSWORD>'
+        password: '<YOUR_NEO4J_PASSWORD>'
     }
 });
 
