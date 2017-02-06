@@ -94,7 +94,7 @@ class KoaNeo4jApp extends Application {
             try {
                 ctx.body = await api.invoke(params, ctx);
             } catch (error) {
-                ctx.throw(error.message || error, 409);
+                ctx.throw(error.message || error, error.status || 409);
             }
             await next();
         };

@@ -5,6 +5,13 @@
 
 import http from 'http';
 
+const contains = (iterable, element) => {
+    for (const arrayElement of iterable)
+        if (element === arrayElement)
+            return true;
+    return false;
+};
+
 const haveIntersection = (arrayFirst, arraySecond) => {
     if (!arrayFirst || !arraySecond)
         return false;
@@ -75,4 +82,5 @@ const httpPost = (route, port, data, headers) =>
     httpCall('POST', 'localhost', route, port, data, headers);
 
 export {keyValues, enumerate, zip} from 'pythonic';
-export {haveIntersection, pipe, compareFnFromArray, areSameDay, httpGet, httpPost, httpCall};
+export {haveIntersection, pipe, compareFnFromArray,
+    areSameDay, httpGet, httpPost, httpCall, contains};

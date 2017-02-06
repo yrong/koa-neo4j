@@ -4,7 +4,7 @@
 
 const webpack = require('webpack');
 const path = require('path');
-const fs = require('file-system');
+const fs = require('fs');
 
 const mods = {};
 fs.readdirSync('node_modules')

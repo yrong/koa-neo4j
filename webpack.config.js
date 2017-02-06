@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const fs = require('file-system');
+const fs = require('fs');
 
 const entries = fs.readdirSync('src')
     .filter(x => x.slice(-3) === '.js' && ['spec'].indexOf(x) === -1)
