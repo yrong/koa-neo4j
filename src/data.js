@@ -3,7 +3,7 @@
  */
 
 import {v1 as neo4j} from 'neo4j-driver';
-import fs from 'file-system';
+import fs from 'fs';
 import chai from 'chai';
 import chalk from 'chalk';
 import {parse} from 'parse-neo4j';
