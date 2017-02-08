@@ -292,9 +292,9 @@ Or if you can use async/await:
 ```javascript
 app.defineAPI({
     preProcess: [
-        async (params, ctx) => {
+        async params => {
             // ...
-            params.someValue = await myProcedure(params, ctx);
+            params.someValue = await myProcedure(params);
             return params
         },
         // ...
