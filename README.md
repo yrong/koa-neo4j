@@ -274,7 +274,7 @@ app.defineAPI({
     preProcess: [
         articlesAfterDate,
         blogsAfterDate,
-        function (params) {
+        function(params) {
             params.result = {
                 // params.date is created by parseDates hook function in articlesAfterDate
                 interval: `past ${new Date().getDate() - params.date.getDate()} days`,
