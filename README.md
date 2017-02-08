@@ -213,7 +213,7 @@ app.defineAPI({
 **ProTip:** if returned value in a hook function is a `Promise` or an array containing any `Promise`s, first argument of
 the next function would be the resolved value or an array with all it's elements resolved, respectively.
 
-#### check lifecycle: (params[, ctx]) -> <boolean>
+#### check lifecycle: (params[, ctx]) -> :boolean
 
 #### preProcess lifecycle: (params[, ctx]) -> params
 
