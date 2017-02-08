@@ -180,7 +180,65 @@ TODO: docs
 
 ### Procedures
 
-TODO: docs
+Procedures share semantics with APIs, they are defined in the same way that an API is defined, except they don't accept
+`route` and `allowedRoles`. You can create idiomatic and reusable blocks of backend code using procedures and build-in
+lifecycle methods:
+
+```javascript
+var parseIds = require('koa-neo4j/preprocess').parseIds;
+var parseDates = require('koa-neo4j/preprocess').parseDates;
+
+var logValues = require('koa-neo4j/debug').logValues;
+
+var errorOnEmptyResult = require('koa-neo4j/postprocess').errorOnEmptyResult;
+var fetchOne = require('koa-neo4j/postprocess').fetchOne;
+var convertToPreProcess = require('koa-neo4j/postprocess').convertToPreProcess;
+
+var articlesAfterDate = app.createProcedure({
+    preProcess: [
+        parseIds('author_id'),
+        parseDates({'timestamp': date}),
+        logValues
+    ],
+    cypherQueryFile: './cypher/articles_after_date.cyp',
+    postProcess: [
+        logValues,
+        errorOnEmptyResult('author not found'), // returns this message with a 404 http code
+        fetchOne,
+        convertToPreProcess('articles') // assigns params.articles to result of procedure
+    ]
+});
+
+var blogsAfterDate = app.createProcedure({
+    // ...
+});
+
+app.defineAPI({
+    allowedRoles: ['admin'],
+    route: '/author-activity/:author_id/:timestamp',
+    preProcess: [
+        articlesAfterDate,
+        blogsAfterDate,
+        function (params) {
+            params.result = {
+                interval: `past ${new Date().getDate() - params.date.getDate()} days`,  // params.date is created by parseDates hook in articlesAfterDate
+                articles: params.articles,
+                blogs: params.blogs
+            }
+        }
+    ]
+})
+```
+
+A `defineAPI` block can reuse a procedure's body via `procedure` key:
+
+```javascript
+app.defineAPI({
+    method: 'POST',
+    route: '/some-api',
+    procedure: some_procedure
+})
+```
 
 ### License
 
