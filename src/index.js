@@ -54,7 +54,7 @@ class KoaNeo4jApp extends Application {
                     await next();
                 } catch (error) {
                     ctx.body = String(error);
-                    ctx.status = error.status;
+                    ctx.status = error.status || 500;
                 }
             })
             .use(bodyParser({
