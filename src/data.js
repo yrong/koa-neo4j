@@ -48,11 +48,52 @@ class Neo4jConnection {
                     session.close();
                 })
                 .catch(error => {
+                    session.close();
                     error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
                     reject(`error while executing Cypher: ${error}`);
                 });
         })
             .then(parse);
+    }
+
+    executeCyphers(cyphers,params) {
+
+        let results = [];
+
+        let runCyphers = (session,array, fn)=>{
+            let index = 0;
+            return new Promise(function(resolve, reject) {
+                function next() {
+                    if (index < array.length) {
+                        fn(session,array[index++]).then(next, reject);
+                    } else {
+                        resolve();
+                    }
+                }
+                next();
+            })
+        }
+
+
+        let runCypher= (session,cypher)=>{
+            return session.run(cypher, params).then(result => {
+                results.push(result);
+            })
+        }
+
+        return new Promise((resolve, reject) => {
+            const session = this.driver.session();
+            runCyphers(session,cyphers,runCypher).then(function() {
+                session.close();
+                resolve(results);
+            }, function(error) {
+                session.close();
+                error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
+                reject(`error while executing Cypher: ${error}`);
+            });
+        }).then(function(results){
+            return results.map(parse)
+        });
     }
 }
 
