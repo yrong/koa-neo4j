@@ -24,16 +24,17 @@ on top of the widely-adapted [**koa**](http://koajs.com/) server, ripe for furth
  
 In addition it comes with *goodies*:
 
-- Hassle-free [Authentication](/#Authentication)
-- [Lifecycle hooks](/#Lifecycle-hooks), enabling one to tweak incoming and outgoing data based on one's needs, allowing utilisation of the full power of `nodejs` and `javascript` ecosystem in the process
-- Non-opinionated user management, you describe (in Cypher) how your users and roles are stored, the framework provides authentication and role-based access management
+- Hassle-free [Authentication](#authentication) and non-opinionated user management, you describe (in Cypher) how your
+users and roles are stored, the framework provides authentication and role-based access management
+- [Lifecycle hooks](#lifecycle-hooks), enabling one to tweak incoming and outgoing data based on one's needs, allowing
+utilisation of the full power of `nodejs` and `javascript` ecosystem in the process
 
-### Install
+## Install
 ```bash
 npm install koa-neo4j --save
 ```
 
-### Usage
+## Usage
 You can find a comprehensive example at [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
@@ -47,7 +48,7 @@ var app = new KoaNeo4jApp({
     },
 
     // Authentication config object, optional
-    // authentication: {...}
+    // authentication: {...} // explained below
 
     // APIs config object, optional (same effect could be achieved later by app.defineAPI)
     apis: [
@@ -70,6 +71,8 @@ app.listen(3000, function () {
 
 ```
 
+### Defining an API
+
 An API is defined by at least three keys:
 
 `method`, specifies the request type (GET|POST|PUT|DEL)
@@ -78,13 +81,16 @@ An API is defined by at least three keys:
 
 `cypherQueryFile`, path to the the `.cyp` file corresponding to this route
 
+Optionally you can specify roles whom can access this route with `allowedRoles` and
+also [lifecycle hooks](#lifecycle-hooks)
+
 Cypher queries, accept parameters via the curly brace syntax:
 ```cypher
 MATCH (a:Article)
 MATCH (a)-[:AUTHOR]->(au)
 RETURN a AS article, au AS author
 ORDER BY a.created_at DESC
-SKIP {skip} LIMIT {limit}
+SKIP $skip LIMIT $limit
 ```
 
 These parameters are matched with url parameters `/articles?skip=10&limit=10` or route parameters `/articles/:skip/:limit`.
@@ -94,7 +100,7 @@ In addition, any data accompanied by the request will also be passed to the Cyph
 curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/article
 ```
 becomes a POST request, {"title": "The Capital T Truth", "author": "David Foster Wallace"} will be
-passed to `./cypher/create_article.cyp` which can refer to these parameters by {title} and {author} 
+passed to `./cypher/create_article.cyp` which can refer to these parameters by `$title` and `$author`
 
 ### Authentication
 Authentication is facilitated through [JSON web token](https://github.com/auth0/node-jsonwebtoken), all it takes to
@@ -123,16 +129,16 @@ app.configureAuthentication({
 ```
 After authentication is configured, you can access it by the route you specified:
 
-![Invoking Authentication](/images/invoking_auth.png "Invoking Authentication")
+![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
 Note that if you don't specify `remember: true`, the generated token expires in an hour.
 
 Returned object contains a `token` which should be supplemented as `Authorization` header
 in subsequent calls to routes that have `allowedRoles` protection.
 
-In addition, a `user` key is returned that matches exactly the object returned by `userCypherQueryFile` except
+In addition, a `user` object is returned that matches the object returned by `userCypherQueryFile` except
 for the `password` key, which is deleted (so that security won't be compromised should
-clients decide to save this object).
+clients decide to save this object) and `roles` key, which is the object returned by `rolesCypherQueryFile`.
 
 ### Lifecycle hooks
 TODO: docs
