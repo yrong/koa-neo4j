@@ -319,7 +319,7 @@ app.defineAPI({
 app.defineAPI({
     method: 'POST',
     route: '/some-api',
-    procedure: some_procedure
+    procedure: someProcedure
 })
 ```
 
