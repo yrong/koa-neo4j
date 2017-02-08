@@ -266,7 +266,7 @@ app.defineAPI({
         blogsAfterDate,
         function (params) {
             params.result = {
-                // params.date is created by parseDates hook in articlesAfterDate
+                // params.date is created by parseDates hook function in articlesAfterDate
                 interval: `past ${new Date().getDate() - params.date.getDate()} days`,
                 articles: params.articles,
                 blogs: params.blogs
