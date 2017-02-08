@@ -145,9 +145,9 @@ app.configureAuthentication({
     // the returned `id` would later be passed to get roles of this user
     userCypherQueryFile: './cypher/user.cyp',
 
-    // rolesCypherQueryFile, optional. Invoked with `$id` returned from userCypherQueryFile, this query is expected to
-    // return a list of strings describing roles of this user, you can do all sorts of traversals that cypher allows
-    // to generate this list. Defaults to labels of the node matching the id:
+    // rolesCypherQueryFile, optional. Invoked with `$id` returned from userCypherQueryFile, this query is expected
+    // to return a list of strings describing roles of this user, you can do all sorts of traversals that cypher
+    // allows to generate this list. Defaults to labels of the node matching the id:
     // `MATCH (user) WHERE id(user) = $id RETURN {roles: labels(user)}`
     // rolesCypherQueryFile: './cypher/roles.cyp'
 });
@@ -266,7 +266,8 @@ app.defineAPI({
         blogsAfterDate,
         function (params) {
             params.result = {
-                interval: `past ${new Date().getDate() - params.date.getDate()} days`,  // params.date is created by parseDates hook in articlesAfterDate
+                // params.date is created by parseDates hook in articlesAfterDate
+                interval: `past ${new Date().getDate() - params.date.getDate()} days`,
                 articles: params.articles,
                 blogs: params.blogs
             }
