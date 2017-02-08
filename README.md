@@ -16,18 +16,19 @@ clients (web, mobile, etc.)
 
 `koa-neo4j` addresses all of the above issues:
 
-- Stands as a middle layer between clients and database 
+- Stands as a middle layer between clients and the database 
 - Gives structure to your server's logic in form of a file-based project; finally a home for Cypher!
 All of the clients can then talk to an instance of this server
 - Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so
 on top of the widely-adapted [**koa**](http://koajs.com/) server, ripe for further customization
  
-In addition it comes with *goodies*:
+In addition, it comes with *goodies*:
 
-- Hassle-free [Authentication](#authentication) and non-opinionated user management, you describe (in Cypher) how your
+- Hassle-free [authentication](#authentication) and non-opinionated user management, you describe (in Cypher) how your
 users and roles are stored, the framework provides authentication and role-based access management
 - [Lifecycle hooks](#lifecycle-hooks), enabling one to tweak incoming and outgoing data based on one's needs, allowing
 utilisation of the full power of `nodejs` and `javascript` ecosystem in the process
+- [Procedures](#procedures) as a means for creating reusable blocks of backend code 
 
 ## Install
 ```bash
@@ -131,7 +132,7 @@ After authentication is configured, you can access it by the route you specified
 
 ![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
-Note that if you don't specify `remember: true`, the generated token expires in an hour.
+Note that if you don't set `remember: true`, the generated token expires in an hour.
 
 Returned object contains a `token` which should be supplemented as `Authorization` header
 in subsequent calls to routes that have `allowedRoles` protection.
@@ -141,6 +142,9 @@ for the `password` key, which is deleted (so that security won't be compromised 
 clients decide to save this object) and `roles` key, which is the object returned by `rolesCypherQueryFile`.
 
 ### Lifecycle hooks
+TODO: docs
+
+### Procedures
 TODO: docs
 
 ### License
