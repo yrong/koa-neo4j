@@ -298,7 +298,7 @@ app.defineAPI({
             return params
         },
         // ...
-    ]
+    ],
     // ...
 })
 ```
