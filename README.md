@@ -242,7 +242,7 @@ var convertToPreProcess = require('koa-neo4j/postprocess').convertToPreProcess;
 var articlesAfterDate = app.createProcedure({
     preProcess: [
         parseIds('author_id'),
-        parseDates({'timestamp': date}),
+        parseDates({'timestamp': 'date'}),
         logValues
     ],
     cypherQueryFile: './cypher/articles_after_date.cyp',
