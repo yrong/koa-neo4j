@@ -276,7 +276,34 @@ app.defineAPI({
 })
 ```
 
-A `defineAPI` block can reuse a procedure's body via `procedure` key:
+**ProTip:** procedures created by `app.createProcedure` are callable and return a promise that resolves to result:
+```javascript
+var myProcedure = app.createProcedure({
+    // ...
+})
+
+myProcedure(params, ctx).then(function(result) {
+    console.log(result);
+})
+```
+
+Or if you can use async/await:
+
+```javascript
+app.defineAPI({
+    preProcess: [
+        async (params, ctx) => {
+            // ...
+            params.someValue = await myProcedure(params, ctx);
+            return params
+        },
+        // ...
+    ]
+    // ...
+})
+```
+
+**ProTip:** a `defineAPI` block can reuse a procedure's body via the `procedure` key:
 
 ```javascript
 app.defineAPI({
