@@ -217,9 +217,9 @@ the next function would be the resolved value or an array with all it's elements
 
 #### preProcess lifecycle: (params[, ctx]) -> params
 
-#### postProcess lifecycle: (result[, params, ctx]) -> result
-
 #### execution lifecycle
+
+#### postProcess lifecycle: (result[, params, ctx]) -> result
 
 #### postServe lifecycle: (result[, params, ctx]) -> result
 
