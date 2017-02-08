@@ -215,13 +215,23 @@ the next function would be the resolved value or an array with all it's elements
 
 #### check lifecycle: (params[, ctx]) -> :boolean
 
+TODO: docs
+
 #### preProcess lifecycle: (params[, ctx]) -> params
+
+TODO: docs
 
 #### execution lifecycle
 
+TODO: docs
+
 #### postProcess lifecycle: (result[, params, ctx]) -> result
 
+TODO: docs
+
 #### postServe lifecycle: (result[, params, ctx]) -> result
+
+TODO: docs
 
 ### Procedures
 
