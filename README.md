@@ -146,10 +146,19 @@ app.configureAuthentication({
     // return a list of strings describing roles of this user, you can do all sorts of traverses that cypher allows
     // to generate this list. Defaults to labels of the node matching the id:
     // `MATCH (user) WHERE id(user) = $id RETURN {roles: labels(user)}`
-    rolesCypherQueryFile: './cypher/roles.cyp'
+    // rolesCypherQueryFile: './cypher/roles.cyp'
 });
 ```
-After authentication is configured, you can access it by the route you specified:
+
+And your desired `$username` to `user` mapping in `userCypherQueryFile`:
+```cypher
+// Takes $username and returns a user object with at least 'id' and 'password'
+MATCH (author:Author)-[:HAS]->(account:UserAccount)
+WHERE account.user_name = $username
+RETURN {id: id(author), password: account.password_hash}
+```
+
+When authentication is configured, you can access it by the route you specified:
 
 ![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
