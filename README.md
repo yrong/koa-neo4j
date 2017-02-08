@@ -39,6 +39,7 @@ npm install koa-neo4j --save
 ## Usage
 
 You can find a comprehensive example at [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
+
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
 
@@ -71,7 +72,6 @@ var app = new KoaNeo4jApp({
 app.listen(3000, function() {
     console.log('App listening on port 3000.');
 });
-
 ```
 
 ### Defining an API
