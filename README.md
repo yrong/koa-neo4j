@@ -143,7 +143,7 @@ app.configureAuthentication({
     userCypherQueryFile: './cypher/user.cyp',
 
     // rolesCypherQueryFile, optional. Invoked with `$id` returned from userCypherQueryFile, this query is expected to
-    // return a list of strings describing roles of this user, you can do all sorts of traverses that cypher allows
+    // return a list of strings describing roles of this user, you can do all sorts of traversals that cypher allows
     // to generate this list. Defaults to labels of the node matching the id:
     // `MATCH (user) WHERE id(user) = $id RETURN {roles: labels(user)}`
     // rolesCypherQueryFile: './cypher/roles.cyp'
@@ -162,7 +162,7 @@ When authentication is configured, you can access it by the route you specified:
 
 ![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
-Note that if you don't set `remember: true`, the generated token expires in an hour.
+Note that if you don't set `"remember": true`, the generated token expires in an hour.
 
 Returned object contains a `token` which should be supplemented as `Authorization` header
 in subsequent calls to routes that have `allowedRoles` protection.
