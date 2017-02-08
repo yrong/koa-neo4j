@@ -31,11 +31,13 @@ utilisation of the full power of `nodejs` and `javascript` ecosystem in the proc
 - [Procedures](#procedures) as a means for creating reusable blocks of backend code 
 
 ## Install
+
 ```bash
 npm install koa-neo4j --save
 ```
 
 ## Usage
+
 You can find a comprehensive example at [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
@@ -125,6 +127,7 @@ passed to `./cypher/create_article.cyp` which refers to these parameters as `$ti
 In case of encountering same variable names, priority is applied: *`request data` > `route params` > `query params`*
 
 ### Authentication
+
 Authentication is facilitated through [JSON web token](https://github.com/auth0/node-jsonwebtoken), all it takes to
 have authentication in your app is to supplement `Authentication config object` either with `authentication` key
 when initiating the app instance or in `configureAuthentication` method:
@@ -172,10 +175,13 @@ for the `password` key, which is deleted (so that security won't be compromised 
 clients decide to save this object) and `roles` key, which is the object returned by `rolesCypherQueryFile`.
 
 ### Lifecycle hooks
+
 TODO: docs
 
 ### Procedures
+
 TODO: docs
 
 ### License
+
 [MIT](https://github.com/assister-ai/koa-neo4j/blob/master/LICENSE)
