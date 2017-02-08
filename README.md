@@ -1,24 +1,31 @@
-[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j) [![Build Status](https://travis-ci.org/assister-ai/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j)
+[![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j)
+[![Build Status](https://travis-ci.org/assister-ai/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j)
  
 # koa-neo4j
 
-`koa-neo4j` is a framework for creating web servers that embody application's logic powered by a [Neo4j Graph Database](https://neo4j.com/) backend.
+`koa-neo4j` is a framework for creating web servers that embody application's logic powered by
+a [Neo4j Graph Database](https://neo4j.com/) backend.
 
 In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
 
-- Database is exposed to the client, unless some explicit security mechanism is in place; one can *see* the innards of the database by `View page source`
-- There is no **one server to rule them all**, queries are `string`s, scattered around different clients (web, mobile, etc.)
+- Database is exposed to the client, unless some explicit security mechanism is in place; one can *see* the
+innards of the database by `View page source`
+- There is no **one server to rule them all**, queries are `string`s, scattered around different
+clients (web, mobile, etc.)
 - Third-party developers might not be familiar with Cypher
 
 `koa-neo4j` addresses all of the above issues:
 
 - Stands as a middle layer between clients and database 
-- Gives structure to your server's logic in form of a file-based project; finally a home for Cypher! All of the clients can then talk to an instance of this server
-- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so on top of the widely-adapted [**koa**](http://koajs.com/) server, ripe for further customization
+- Gives structure to your server's logic in form of a file-based project; finally a home for Cypher!
+All of the clients can then talk to an instance of this server
+- Converts Cypher files to REST routes, a cross-platform web standard that developers are familiar with, it does so
+on top of the widely-adapted [**koa**](http://koajs.com/) server, ripe for further customization
  
 In addition it comes with *goodies*:
- 
-- Lifecycle hooks, enabling one to tweak incoming and outgoing data based on one's needs, allowing her to utilize the full power of `nodejs` and `javascript` ecosystem in the process
+
+- Hassle-free [Authentication](/#Authentication)
+- [Lifecycle hooks](/#Lifecycle-hooks), enabling one to tweak incoming and outgoing data based on one's needs, allowing utilisation of the full power of `nodejs` and `javascript` ecosystem in the process
 - Non-opinionated user management, you describe (in Cypher) how your users and roles are stored, the framework provides authentication and role-based access management
 
 ### Install
@@ -27,11 +34,22 @@ npm install koa-neo4j --save
 ```
 
 ### Usage
-You can find a comprehensive example at [koa-neo4j-example](https://github.com/assister-ai/koa-neo4j-starter-kit)
+You can find a comprehensive example at [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
 
 var app = new KoaNeo4jApp({
+    // Neo4j config objects, mandatory
+    neo4j: {
+        boltUrl: 'bolt://localhost',
+        user: 'neo4j',
+        password: '<YOUR_NEO4J_PASSWORD>'
+    },
+
+    // Authentication config object, optional
+    // authentication: {...}
+
+    // APIs config object, optional (same effect could be achieved later by app.defineAPI)
     apis: [
         {
             method: 'GET',
@@ -43,12 +61,7 @@ var app = new KoaNeo4jApp({
             route: '/article',
             cypherQueryFile: './cypher/create_article.cyp'
         }
-    ],
-    neo4j: {
-        boltUrl: 'bolt://localhost',
-        user: 'neo4j',
-        password: '<YOUR_NEO4J_PASSWORD>'
-    }
+    ]
 });
 
 app.listen(3000, function () {
@@ -80,12 +93,48 @@ In addition, any data accompanied by the request will also be passed to the Cyph
 ```bash
 curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/article
 ```
-becomes a POST request, {"title": "The Capital T Truth", "author": "David Foster Wallace"} will be passed to `./cypher/create_article.cyp` which can refer to these parameters by {title} and {author} 
-
-### Lifecycle hooks
-TODO: docs
+becomes a POST request, {"title": "The Capital T Truth", "author": "David Foster Wallace"} will be
+passed to `./cypher/create_article.cyp` which can refer to these parameters by {title} and {author} 
 
 ### Authentication
+Authentication is facilitated through [JSON web token](https://github.com/auth0/node-jsonwebtoken), all it takes to
+have authentication in your app is to supplement `Authentication config object` either with `authentication` key
+when initiating the app instance or by `configureAuthentication` method:
+```javascript
+app.configureAuthentication({
+    // route, mandatory.
+    route: '/auth',
+
+    // secret, mandatory. This is the key that JWT uses to encode objects, best practice is to use a
+    // long and random password-like string
+    secret: 'secret',
+
+    // userCypherQueryFile, mandatory. This cypher query is invoked with `$username` and is expected to return
+    // a single object at least containing two keys: `{id: <user_id>, password: <user_password_or_hash>}`
+    // the returned `id` would later be passed to get roles of this user
+    userCypherQueryFile: './cypher/user.cyp',
+
+    // rolesCypherQueryFile, optional. Invoked with `$id` returned from userCypherQueryFile, this query is expected to
+    // return a list of strings describing roles of this user, you can do all sorts of traverses that cypher allows
+    // to generate this list. Defaults to labels of the node matching the id:
+    // `MATCH (user) WHERE id(user) = $id RETURN {roles: labels(user)}`
+    rolesCypherQueryFile: './cypher/roles.cyp'
+});
+```
+After authentication is configured, you can access it by the route you specified:
+
+![Invoking Authentication](/images/invoking_auth.png "Invoking Authentication")
+
+Note that if you don't specify `remember: true`, the generated token expires in an hour.
+
+Returned object contains a `token` which should be supplemented as `Authorization` header
+in subsequent calls to routes that have `allowedRoles` protection.
+
+In addition, a `user` key is returned that matches exactly the object returned by `userCypherQueryFile` except
+for the `password` key, which is deleted (so that security won't be compromised should
+clients decide to save this object).
+
+### Lifecycle hooks
 TODO: docs
 
 ### License
