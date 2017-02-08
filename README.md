@@ -55,13 +55,13 @@ var app = new KoaNeo4jApp({
     apis: [
         {
             method: 'GET',
-            route: '/articles/:skip/:limit',
-            cypherQueryFile: './cypher/articles.cyp'
+            route: '/authors',
+            cypherQueryFile: './cypher/authors.cyp'
         },
         {
-            method: 'POST',
-            route: '/article',
-            cypherQueryFile: './cypher/create_article.cyp'
+            method: 'GET',
+            route: '/articles/:skip/:limit',
+            cypherQueryFile: './cypher/articles.cyp'
         }
     ]
 });
@@ -78,35 +78,56 @@ An API is defined by at least three keys:
 
 `method`, specifies the request type (GET|POST|PUT|DEL)
 
-`route`, the path to this API (e.g. the first becomes http://localhost:3000/articles)
+`route`, the path to this API (e.g. the first API defined in `apis` above becomes http://localhost:3000/authors)
 
-`cypherQueryFile`, path to the the `.cyp` file corresponding to this route
+`cypherQueryFile`, path to the corresponding `.cyp` file
 
 Optionally you can specify roles whom can access this route with `allowedRoles` and
-also [lifecycle hooks](#lifecycle-hooks)
+also [lifecycle hooks](#lifecycle-hooks).
 
-Cypher queries, accept parameters via the curly brace syntax:
+As an example:
+
+```javascript
+app.defineAPI({
+    // allowedRoles: ['admin', 'author']    // roles are case insensitive
+    method: 'POST',
+    route: '/create-article',
+    cypherQueryFile: './cypher/create_article.cyp'
+})
+```
+
+And then in `./cypher/create_article.cyp`:
+
 ```cypher
-MATCH (a:Article)
-MATCH (a)-[:AUTHOR]->(au)
-RETURN a AS article, au AS author
-ORDER BY a.created_at DESC
-SKIP $skip LIMIT $limit
+CREATE (a:Article {
+    title: $title,
+    author: $author,
+    created_at: timestapm()
+})
+RETURN a
 ```
 
-These parameters are matched with url parameters `/articles?skip=10&limit=10` or route parameters `/articles/:skip/:limit`.
+Cypher queries, accept parameters via the `$` syntax.
 
-In addition, any data accompanied by the request will also be passed to the Cypher query, with the same variable names:
+These parameters are matched by query parameters `/articles?title=Hello&author=World` or route parameters
+(e.g. if route was defined as `/create-article/:author/:title` then `/create-article/World/Hello`)
+
+In addition, any data accompanied by the request will also be passed to the Cypher query, retaining the variable names,
+so for example:
+
 ```bash
-curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/article
+curl --data "title=The%20Capital%20T%20Truth&author=David%20Foster%20Wallace" localhost:3000/create-article
 ```
+
 becomes a POST request, {"title": "The Capital T Truth", "author": "David Foster Wallace"} will be
-passed to `./cypher/create_article.cyp` which can refer to these parameters by `$title` and `$author`
+passed to `./cypher/create_article.cyp` which refers to these parameters as `$title` and `$author`
+
+In case of encountering same variable names, priority is applied: *`request data` > `route params` > `query params`*
 
 ### Authentication
 Authentication is facilitated through [JSON web token](https://github.com/auth0/node-jsonwebtoken), all it takes to
 have authentication in your app is to supplement `Authentication config object` either with `authentication` key
-when initiating the app instance or by `configureAuthentication` method:
+when initiating the app instance or in `configureAuthentication` method:
 ```javascript
 app.configureAuthentication({
     // route, mandatory.
