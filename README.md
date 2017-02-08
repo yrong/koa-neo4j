@@ -176,7 +176,41 @@ clients decide to save this object) and `roles` key, which is the object returne
 
 ### Lifecycle hooks
 
-TODO: docs
+A lifecycle hook is a single function or a group of functions invoked at a certain phase in request-to-response cycle.
+It helps with shaping the data according to one's needs. Further, the framework comes with a number of build-in hook
+functions, ready to be dropped in their corresponding lifecycle.
+
+A hook function takes the form of a normal JavaScript function, with arguments consistent with the lifecycle in which
+it'd be deployed. If an array of functions is submitted for a lifecycle, each function in the array is executed,
+sequentially, and the returned object from the function would be passed as the first argument of the next function.
+
+```javascript
+app.defineAPI({
+    preProcess: [
+        function(params, ctx) {
+            // do something with params and/or ctx
+            return {modified: 'params'};
+        },  //     ‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾
+        //                   |
+        //         ↓‾‾‾‾‾‾‾‾‾‾
+        function(params, ctx) {
+            params.again = 'modified';
+            // params now is: {modified: 'params', again: 'modified'}
+            return params
+        },  //     ‾‾|‾‾‾
+        //           |
+        //           ↓
+        function(params, ctx) {
+            params.and = 'again';
+            // params now is: {modified: 'params', again: 'modified', and: 'again'}
+            return params
+        },
+        //      ... this can continue ...
+    ]
+});
+```
+
+#### preProcess lifecycle
 
 ### Procedures
 
