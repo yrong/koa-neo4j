@@ -262,6 +262,7 @@ commencing. A `false` return value produces an `error in check lifecycle` error.
 app.defineAPI({
     // ...
     check: function(params, ctx) {
+        // check user has enough money
         return params.amont < getBalance(ctx.user.id);
     },
     // ...
