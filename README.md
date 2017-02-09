@@ -330,13 +330,36 @@ TODO: docs
 
 Hook function signature: **(result[, params, ctx]) -> result**
 
-TODO: docs
+This lifecycle takes the `result` from execution lifecycle and amends further changes to the result before sending the
+it to the client.
+
+```javascript
+// Default:
+preProcess: function (result) {
+  // serves result of execution lifecycle, unchanged
+  return result;
+}
+```
+
+**postProcess built-in hook functions:** import/require from
+[`koa-neo4j/postprocess`](https://github.com/assister-ai/koa-neo4j/blob/master/src/postprocess.js)
+([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/postprocess.md))
 
 #### postServe lifecycle
 
 Hook function signature: **(result[, params, ctx]) -> result**
 
-TODO: docs
+Semantics of `postServe` is identical to `postProcess`, except that `postServe` is invoked **after** the response of the
+request is sent (served). This lifecycle suits time consuming tasks that are internal to logic and can be carried out
+after the request is served.
+
+```javascript
+// Default:
+preServe: function (result) {
+  // Doesn't do anything
+  return result;
+}
+```
 
 ### Procedures
 
