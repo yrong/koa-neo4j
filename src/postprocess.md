@@ -2,7 +2,7 @@
 
 ## fetchOne
 
-Returns result if result is not an array, returns first element otherwise.
+Returns `result` if `result` is not an array, returns first element otherwise.
 
 ```javascript
 var fetchOne = require('koa-neo4j/postprocess').fetchOne;
