@@ -4,7 +4,7 @@
 # koa-neo4j
 
 `koa-neo4j` is a framework for creating RESTful web servers. It's been built on top of the widely adapted
-[Koa](http://koajs.com/)) library and the NoSQL graph database technology of [Neo4j](https://neo4j.com/). `koa-neo4j`
+[Koa](http://koajs.com/) library and the NoSQL graph database technology of [Neo4j](https://neo4j.com/). `koa-neo4j`
 enables one to create web servers scalable both in terms of code complexity and horizontal growth in deployment.
 
 ![koa-neo4j logo](https://github.com/assister-ai/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
