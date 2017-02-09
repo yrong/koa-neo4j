@@ -8,6 +8,21 @@ a [Neo4j Graph Database](https://neo4j.com/) backend.
 
 ![koa-neo4j logo](https://github.com/assister-ai/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
 
+## Table of contents
+
+1. [Introduction](#introduction)
+2. [Install](#install)
+3. [Usage](#usage)
+    - [Defining an API](#defining-an-api)
+    - [Lifecycle hooks](#lifecycle-hooks)
+        - [check lifecycle](#check-lifecycle)
+        - [preProcess lifecycle](#preprocess-lifecycle)
+        - [postProcess lifecycle](#postprocess-lifecycle)
+        - [execution lifecycle](#execution-lifecycle)
+        - [postServe lifecycle](#postserve-lifecycle)
+    - [Procedures](#procedures)
+4. [License](#license)
+
 ## Introduction
 
 In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
@@ -219,11 +234,15 @@ app.defineAPI({
 **ProTip:** if returned value in a hook function is a `Promise` or an array containing any `Promise`s, first argument of
 the next function would be the resolved value or an array with all it's elements resolved, respectively.
 
-#### check lifecycle: (params[, ctx]) -> :boolean
+#### check lifecycle
+
+**Signature: (params[, ctx]) -> :boolean**
 
 TODO: docs
 
-#### preProcess lifecycle: (params[, ctx]) -> params
+#### preProcess lifecycle
+
+**Signature: (params[, ctx]) -> params**
 
 TODO: docs
 
@@ -231,11 +250,15 @@ TODO: docs
 
 TODO: docs
 
-#### postProcess lifecycle: (result[, params, ctx]) -> result
+#### postProcess lifecycle
+
+**Signature: (result[, params, ctx]) -> result**
 
 TODO: docs
 
-#### postServe lifecycle: (result[, params, ctx]) -> result
+#### postServe lifecycle
+
+**Signature: (result[, params, ctx]) -> result**
 
 TODO: docs
 
