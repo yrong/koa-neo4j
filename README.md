@@ -181,8 +181,8 @@ WHERE account.user_name = $username
 RETURN {id: id(author), password: account.password_hash}
 ```
 
-When authentication is configured, you can access it by the route you specified. Pass a JSON object to e.g. `/auth`
-in the following form:
+When authentication is configured, you can access it by sending a POST request to the route you specified. Pass a
+JSON object to e.g. `/auth` in the following form:
 
 ```json
 {
