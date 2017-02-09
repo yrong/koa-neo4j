@@ -295,11 +295,11 @@ app.defineAPI({
 
 **ProTip:** procedures created by `app.createProcedure` are callable and return a promise that resolves to result:
 ```javascript
-var myProcedure = app.createProcedure({
+var someProcedure = app.createProcedure({
     // ...
 });
 
-myProcedure(params, ctx).then(function(result) {
+someProcedure(params, ctx).then(function(result) {
     console.log(result);
 });
 ```
@@ -311,7 +311,7 @@ app.defineAPI({
     preProcess: [
         async params => {
             // ...
-            params.someValue = await myProcedure({some: 'parameter'});
+            params.someValue = await someProcedure({some: 'parameter'});
             return params;
         },
         // ...
