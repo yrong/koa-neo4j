@@ -327,7 +327,7 @@ preProcess: function (params) {
 #### execution lifecycle
 
 Execution happens between `preProcess` and `postProcess`, takes `params` as input and generates `result`. Currently
-there are 4 types of execution, if all were present in an [API](#define-an-api) or [Procedure](#procedures) definition,
+there are 4 types of execution, if all were present in an [API](#defining-an-api) or [Procedure](#procedures) definition,
 priority is applied:
 
 ##### *`params.result` > `params.cypher` > `params.cyphers` > `cypherQueryFile`*
