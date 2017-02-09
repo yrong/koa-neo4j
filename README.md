@@ -95,7 +95,7 @@ app.defineAPI({
     method: 'POST',
     route: '/create-article',
     cypherQueryFile: './cypher/create_article.cyp'
-})
+});
 ```
 
 And then in `./cypher/create_article.cyp`:
@@ -186,6 +186,7 @@ sequentially, and the returned object from the function would be passed as the f
 
 ```javascript
 app.defineAPI({
+    // ...
     preProcess: [
         function(params, ctx) {
             // do something with params and/or ctx
@@ -196,17 +197,18 @@ app.defineAPI({
         function(params, ctx) {
             params.again = 'modified';
             // params now is: {modified: 'params', again: 'modified'}
-            return params
+            return params;
         },  //     ‾‾|‾‾‾
         //           |
         //           ↓
         function(params, ctx) {
             params.and = 'again';
             // params now is: {modified: 'params', again: 'modified', and: 'again'}
-            return params
+            return params;
         },
         //      ... this can continue ...
-    ]
+    ],
+    // ...
 });
 ```
 
@@ -236,8 +238,8 @@ TODO: docs
 ### Procedures
 
 Procedures share semantics with APIs, they are defined in the same way that an API is defined, except they don't accept
-`route` and `allowedRoles`. You can create idiomatic and reusable blocks of backend code using procedures and build-in
-lifecycle methods:
+`method`, `route` and `allowedRoles`. You can create idiomatic and reusable blocks of backend code using procedures and
+built-in lifecycle methods:
 
 ```javascript
 var parseIds = require('koa-neo4j/preprocess').parseIds;
@@ -280,7 +282,8 @@ app.defineAPI({
                 interval: `past ${new Date().getDate() - params.date.getDate()} days`,
                 articles: params.articles,
                 blogs: params.blogs
-            }
+            };
+            return params;
         }
     ]
 })
@@ -290,11 +293,11 @@ app.defineAPI({
 ```javascript
 var myProcedure = app.createProcedure({
     // ...
-})
+});
 
 myProcedure(params, ctx).then(function(result) {
     console.log(result);
-})
+});
 ```
 
 Or if you can use async/await:
@@ -305,7 +308,7 @@ app.defineAPI({
         async params => {
             // ...
             params.someValue = await myProcedure(params);
-            return params
+            return params;
         },
         // ...
     ],
@@ -320,7 +323,7 @@ app.defineAPI({
     method: 'POST',
     route: '/some-api',
     procedure: someProcedure
-})
+});
 ```
 
 ### License
