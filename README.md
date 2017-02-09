@@ -335,7 +335,7 @@ it to the client.
 
 ```javascript
 // Default:
-preProcess: function (result) {
+postProcess: function (result) {
   // serves result of execution lifecycle, unchanged
   return result;
 }
