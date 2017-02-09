@@ -181,7 +181,16 @@ WHERE account.user_name = $username
 RETURN {id: id(author), password: account.password_hash}
 ```
 
-When authentication is configured, you can access it by the route you specified:
+When authentication is configured, you can access it by the route you specified. Pass a JSON object to e.g. `/auth`
+in the following form:
+
+```json
+{
+  "username": "<user_name>",
+  "password": "<user_password_or_hash>",
+  "remember": true
+}
+```
 
 ![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
