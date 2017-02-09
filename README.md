@@ -203,6 +203,12 @@ In addition, a `user` object is returned that matches the object returned by `us
 for the `password` key, which is deleted (so that security won't be compromised should
 clients decide to save this object) and `roles` key, which is the object returned by `rolesCypherQueryFile`.
 
+When a request to a route guarded by `allowedRoles` is received, the request either does not have an `Authorization`
+header set, in which case the server responds with a `403: Forbidden` error, or the `Authorization` header is present.
+In case of a valid header (not expired or manipulated), the request goes through and the user object would be attached
+to the [Koa context](https://github.com/koajs/koa/blob/v2.x/docs/api/context.md) and made available to
+[lifecycle hooks](#lifecycle-hooks) as `ctx.user`.
+
 ### Lifecycle hooks
 
 A lifecycle hook is a single function or a group of functions invoked at a certain phase in request-to-response cycle.
