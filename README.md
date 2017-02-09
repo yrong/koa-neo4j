@@ -252,15 +252,10 @@ the next function would be the resolved value or an array with all it's elements
 
 #### check lifecycle
 
-Hook function signature: **(params[, ctx]) -> :boolean**
-
 This lifecycle is the request's entry. It is useful for scenarios where you want to check parameters or user before
 commencing. A `false` return value produces an `error in check lifecycle` error.
 
-built-in hook functions: import/require from
-[`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)
-([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.md))
-
+Hook function signature: **(params[, ctx]) -> :boolean**
 
 ```javascript
 // Default:
@@ -268,6 +263,10 @@ check: function (params) {
   return true;
 }
 ```
+
+**built-in hook functions:** import/require from
+[`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)
+([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.md))
 
 #### preProcess lifecycle
 
