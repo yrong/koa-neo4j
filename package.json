@@ -1,7 +1,7 @@
 {
   "name": "koa-neo4j",
   "version": "1.0.5",
-  "description": "REST for Neo4j made simple -- batteries included with built-in role based authentication via JWT",
+  "description": "React of backend! Rapidly create REST APIs powered by Koa and Neo4j -- batteries included with built-in reusable backend components and role based authentication via JWT",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
