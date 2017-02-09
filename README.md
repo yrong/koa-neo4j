@@ -330,6 +330,6 @@ app.defineAPI({
 });
 ```
 
-### License
+## License
 
 [MIT](https://github.com/assister-ai/koa-neo4j/blob/master/LICENSE)
