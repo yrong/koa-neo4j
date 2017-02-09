@@ -272,6 +272,7 @@ app.defineAPI({
 ```javascript
 // Default:
 check: function (params) {
+  // Always passes
   return true;
 }
 ```
@@ -284,7 +285,40 @@ check: function (params) {
 
 Hook function signature: **(params[, ctx]) -> params**
 
-TODO: docs
+Using this lifecycle, one can adjust parameters before sending them to Cypher. Parsing strings is a usual suspect,
+the framework comes with many build-in parse functions for this lifecycle.
+
+```javascript
+// Example:
+app.defineAPI({
+    // ...
+    preProcess: [ 
+        // parse params.amount as float
+        parseFloat('amount'),
+
+        // give discount
+        function(params) {
+            // check user has enough money
+            params.amount = params.amount * 0.9;
+            return params;
+        },
+        // ...
+    ],
+    // ...
+});
+```
+
+```javascript
+// Default:
+preProcess: function (params) {
+  // Returns `params` unchanged
+  return params;
+}
+```
+
+**preProcess built-in hook functions:** import/require from
+[`koa-neo4j/preprocess`](https://github.com/assister-ai/koa-neo4j/blob/master/src/preprocess.js)
+([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/preprocess.md))
 
 #### execution lifecycle
 
