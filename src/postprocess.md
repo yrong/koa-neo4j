@@ -2,7 +2,7 @@
 
 ## fetchOne
 
-Returns result if result is not array, returns first element otherwise.
+Returns result if result is not an array, returns first element otherwise.
 
 ```javascript
 var fetchOne = require('koa-neo4j/postprocess').fetchOne;
@@ -35,6 +35,7 @@ Executes a function on each element of the result, gathers return values as the 
 
 ```javascript
 var map = require('koa-neo4j/postprocess').map;
+var errorOnEmptyResult = require('koa-neo4j/postprocess').errorOnEmptyResult;
 
 app.defineAPI({
     // ..
@@ -55,6 +56,7 @@ you've supplied as the argument to `convertToPreProcess`
 
 ```javascript
 var convertToPreProcess = require('koa-neo4j/postprocess').convertToPreProcess;
+var parseIds = require('koa-neo4j/preprocess').parseIds;
 
 var getAuthorId = app.createProcedure({
     // ...
