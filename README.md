@@ -58,7 +58,7 @@ npm install koa-neo4j --save
 
 ## Usage
 
-You can find a comprehensive example at [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
+To get started quickly you can clone [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
 
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
