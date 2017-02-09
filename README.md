@@ -355,7 +355,7 @@ after the request is served.
 
 ```javascript
 // Default:
-preServe: function (result) {
+postServe: function (result) {
   // Doesn't do anything
   return result;
 }
