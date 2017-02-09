@@ -17,9 +17,6 @@ a [Neo4j Graph Database](https://neo4j.com/) backend.
     - [Authentication](#authentication)
     - [Lifecycle hooks](#lifecycle-hooks)
         - [check lifecycle](#check-lifecycle)
-            - [check built-in hook functions](#check-built-in-hook-functions)
-                - [checkWith](#checkwith)
-                - [checkOwner](#checkowner)
         - [preProcess lifecycle](#preprocess-lifecycle)
         - [execution lifecycle](#execution-lifecycle)
         - [postProcess lifecycle](#postprocess-lifecycle)
@@ -260,9 +257,9 @@ Hook function signature: **(params[, ctx]) -> :boolean**
 This lifecycle is the request's entry. It is useful for scenarios where you want to check parameters or user before
 commencing. A `false` return value produces an `error in check lifecycle` error.
 
-[DOCS](https://github.com/assister-ai/koa-neo4j/tree/blob/src/check.md)
+[DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.md)
 
-import/require from [`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/tree/blob/src/check.js)
+import/require from [`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)
 
 ```javascript
 // Default:
