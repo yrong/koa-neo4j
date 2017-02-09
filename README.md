@@ -384,7 +384,7 @@ postServe: function (result) {
 
 Procedures share semantics with APIs, they are defined in the same way that an API is defined, except they don't accept
 `method`, `route` and `allowedRoles`. You can create idiomatic and reusable blocks of backend code using procedures and
-built-in lifecycle methods:
+built-in lifecycle hook functions:
 
 ```javascript
 var parseIds = require('koa-neo4j/preprocess').parseIds;
