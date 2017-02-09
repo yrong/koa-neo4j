@@ -254,8 +254,8 @@ the next function would be the resolved value or an array with all it's elements
 
 Hook function signature: **(params[, ctx]) -> :boolean**
 
-This lifecycle is the request's entry. It is useful for scenarios where you want to check parameters or user before
-commencing. A `false` return value produces an `error in check lifecycle` error.
+This lifecycle is the first one that a request goes through. It is useful for scenarios where you want to check
+the parameters or the user before commencing. A `false` return value produces an `error in check lifecycle` error.
 
 ```javascript
 // Example:
