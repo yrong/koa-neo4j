@@ -334,6 +334,26 @@ This lifecycle takes the `result` from execution lifecycle and amends further ch
 it to the client.
 
 ```javascript
+// Example:
+var fetchOne = require('koa-neo4j/postprocess').fetchOne;
+
+app.defineAPI({
+    // ...
+    postProcess: [
+        fetchOne,
+        function(result, params, ctx) {
+            return {
+                user: ctx.user,
+                balance_after: params.balance - result
+            };
+        },
+        // ...
+    ],
+    // ...
+});
+```
+
+```javascript
 // Default:
 postProcess: function (result) {
   // serves result of execution lifecycle, unchanged
