@@ -14,6 +14,7 @@ a [Neo4j Graph Database](https://neo4j.com/) backend.
 2. [Install](#install)
 3. [Usage](#usage)
     - [Defining an API](#defining-an-api)
+    - [Authentication](#authentication)
     - [Lifecycle hooks](#lifecycle-hooks)
         - [check lifecycle](#check-lifecycle)
         - [preProcess lifecycle](#preprocess-lifecycle)
