@@ -290,11 +290,13 @@ the framework comes with many build-in parse functions for this lifecycle.
 
 ```javascript
 // Example:
+var parseFloats = require('koa-neo4j/preprocess').parseFloats;
+
 app.defineAPI({
     // ...
     preProcess: [ 
         // parse params.amount as float
-        parseFloat('amount'),
+        parseFloats('amount'),
 
         // give discount
         function(params) {
