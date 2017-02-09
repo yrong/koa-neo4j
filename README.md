@@ -263,7 +263,7 @@ app.defineAPI({
     // ...
     check: function(params, ctx) {
         // check user has enough money
-        return params.amont < getBalance(ctx.user.id);
+        return params.amount < getBalance(ctx.user.id);
     },
     // ...
 });
