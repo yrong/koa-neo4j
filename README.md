@@ -298,9 +298,8 @@ app.defineAPI({
         // parse params.amount as float
         parseFloats('amount'),
 
-        // give discount
         function(params) {
-            // check user has enough money
+            // give 10% discount
             params.amount = params.amount * 0.9;
             return params;
         },
