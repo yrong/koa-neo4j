@@ -323,7 +323,62 @@ preProcess: function (params) {
 
 #### execution lifecycle
 
-TODO: docs
+Execution happens between `preProcess` and `postProcess`, takes `params` as input and generates `result`. Currently
+there are 4 types of execution, if all were present in an [API](#define-an-api) or [Procedure](#procedures) definition,
+priority is applied:
+
+##### *`params.result` > `params.cypher` > `params.cyphers` > `cypherQueryFile`*
+
+**ProTip:** `key` would be *consumed* as a result of any `params.<key>` execution, meaning that the `key` reference in
+`params` would be deleted in subsequent references to `params`.
+
+##### cypherQueryFile
+
+Happens if a cypherQueryFile is supplied. Executes the Cypher query contained in the file, passing `params` along which
+Cypher can access with [the `$` syntax](http://neo4j.com/docs/developer-manual/current/cypher/syntax/parameters/).
+
+##### params.cypher
+
+If you need string manipulation to create your Cypher query, you can do so in
+[preProcess lifecycle](#preprocess-lifecycle) by assigning `params.cypher` to your query. After all preProcess hook
+functions are executed, framework will see whether `params.cypher` is defined, and executes it if present.
+
+##### params.cyphers
+
+Contributed by [@yrong](https://github.com/yrong), accepts an array of strings containing Cypher queries, end `result`
+becomes an array containing result of conducting each of these queries.
+
+##### params.result
+
+`params.result` could be set to a value, a `Promise` or an array containing `Promise`s. `result` would then be the
+value, the resolved value of the `Promise` or an array with all it's elements resolved, respectively. This is useful
+when one wants the result to come from [procedures](#procedures), since calling a procedure returns a promise:
+
+```javascript
+// Example:
+var someProcedure = app.createProcedure({
+    // ...
+});
+
+app.defineAPI({
+    // ...
+    preProcess: [
+        // ...
+        function(params) {
+            params.result = [];
+            for (var i = 0; i < params.someArray.length; i++)
+                params.result.push(someProcedure({someParameter: params.someArray[i]}));
+            return params;
+        }
+    ],
+    postProcess: [
+        function(result) {
+            // `result` is now an array containing resolved values of calls to someProcedure
+            return result;
+        }
+    ]
+});
+```
 
 #### postProcess lifecycle
 
