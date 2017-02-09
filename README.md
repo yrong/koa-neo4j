@@ -3,8 +3,9 @@
  
 # koa-neo4j
 
-`koa-neo4j` is a framework for creating web servers that embody application's logic powered by
-a [Neo4j Graph Database](https://neo4j.com/) backend.
+`koa-neo4j` is a framework for creating RESTful web servers. It's been built on top of the widely adapted
+[Koa](http://koajs.com/)) library and the NoSQL graph database technology of [Neo4j](https://neo4j.com/). `koa-neo4j`
+enables one to create web servers scalable both in terms of code complexity and horizontal growth in deployment.
 
 ![koa-neo4j logo](https://github.com/assister-ai/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
 
@@ -26,7 +27,9 @@ a [Neo4j Graph Database](https://neo4j.com/) backend.
 
 ## Introduction
 
-In a Neo4j enabled application, conducting queries directly from client side might not be the best choice:
+Choosing a NoSQL graph database for persistence is wise for [a number of reasons](http://ontotext.com/graphdb-answers-kids/).
+While Neo4j provides the DB infrastructure for such choice, applications using Neo4j normally conduct queries directly
+from the client side, which might not be the best option:
 
 - Database is exposed to the client, unless some explicit security mechanism is in place; one can *see* the
 innards of the database by `View page source`
