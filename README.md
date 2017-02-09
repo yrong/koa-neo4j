@@ -269,7 +269,7 @@ commencing. A `false` return value produces an `error in check lifecycle` error.
 
 ##### check built-in hook functions
 
-Import from `[koa-neo4j/check](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)`
+Import from [`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)
 
 ###### checkWith
 
