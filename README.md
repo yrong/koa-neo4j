@@ -6,7 +6,7 @@
 `koa-neo4j` is a framework for creating web servers that embody application's logic powered by
 a [Neo4j Graph Database](https://neo4j.com/) backend.
 
-![koa-neo4j logo](/images/logo.png "koa-neo4j")
+![koa-neo4j logo](https:/github.com/assister-ai/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
 
 ## Introduction
 
@@ -311,7 +311,7 @@ app.defineAPI({
     preProcess: [
         async params => {
             // ...
-            params.someValue = await myProcedure(params);
+            params.someValue = await myProcedure({some: 'parameter'});
             return params;
         },
         // ...
