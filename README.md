@@ -197,7 +197,7 @@ clients decide to save this object) and `roles` key, which is the object returne
 ### Lifecycle hooks
 
 A lifecycle hook is a single function or a group of functions invoked at a certain phase in request-to-response cycle.
-It helps with shaping the data according to one's needs. Further, the framework comes with a number of build-in hook
+It helps with shaping the data according to one's needs. Further, the framework comes with a number of built-in hook
 functions, ready to be dropped in their corresponding lifecycle.
 
 A hook function takes the form of a normal JavaScript function, with arguments consistent with the lifecycle in which
