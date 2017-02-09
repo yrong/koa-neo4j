@@ -452,6 +452,7 @@ var fetchOne = require('koa-neo4j/postprocess').fetchOne;
 var convertToPreProcess = require('koa-neo4j/postprocess').convertToPreProcess;
 
 var articlesAfterDate = app.createProcedure({
+    // Providing a name facilitates debugging
     name: 'articlesAfterDate',
     preProcess: [
         parseIds('author_id'),
