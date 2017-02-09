@@ -129,7 +129,7 @@ CREATE (a:Article {
 RETURN a
 ```
 
-Cypher queries, accept parameters via the `$` syntax.
+Cypher queries, accept parameters via [the `$` syntax](http://neo4j.com/docs/developer-manual/current/cypher/syntax/parameters/).
 
 These parameters are matched by query parameters `/articles?title=Hello&author=World` or route parameters
 (e.g. if route was defined as `/create-article/:author/:title` then `/create-article/World/Hello`)
