@@ -289,7 +289,7 @@ check: function (params) {
 Hook function signature: **(params[, ctx]) -> params**
 
 Using this lifecycle, one can adjust parameters before sending them to Cypher. Parsing strings is a usual suspect,
-the framework comes with many build-in parse functions for this lifecycle.
+the framework comes with many built-in parse functions for this lifecycle.
 
 ```javascript
 // Example:
@@ -387,8 +387,8 @@ app.defineAPI({
 
 Hook function signature: **(result[, params, ctx]) -> result**
 
-This lifecycle takes the `result` from execution lifecycle and amends further changes to the result before sending the
-it to the client.
+This lifecycle takes the `result` from execution lifecycle and amends further changes to the result before sending it to
+the client.
 
 ```javascript
 // Example:
