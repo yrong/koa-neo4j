@@ -27,7 +27,8 @@ enables one to create web servers scalable both in terms of code complexity and 
 
 ## Introduction
 
-Choosing a NoSQL graph database for persistence is wise for [a number of reasons](http://ontotext.com/graphdb-answers-kids/).
+Choosing a NoSQL graph database for persistence is wise for
+[a number of reasons](https://github.com/assister-ai/koa-neo4j/blob/master/whygraphdb.md).
 While Neo4j provides the DB infrastructure for such choice, applications using Neo4j normally conduct queries directly
 from the client side, which might not be the best option:
 
