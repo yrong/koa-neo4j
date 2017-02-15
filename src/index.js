@@ -13,12 +13,12 @@ import {haveIntersection} from './util';
 
 const defaultOptions = {
     apis: [],
-    log: true,
     neo4j: {
         boltUrl: 'bolt://localhost',
         user: 'neo4j',
         password: 'neo4j'
-    }
+    },
+    sensitive:true
 };
 
 
@@ -27,14 +27,15 @@ class KoaNeo4jApp extends Application {
         super();
         options = {...defaultOptions, ...options};
 
-        this.router = new Router();
+        this.router = new Router({sensitive:options.sensitive});
         this.configuredAuthentication = false;
 
         this.methods = {
             'GET': this.router.get,
             'POST': this.router.post,
             'PUT': this.router.put,
-            'DEL': this.router.del
+            'DEL': this.router.del,
+            'PATCH':this.router.patch
         };
 
         this.neo4jConnection = new Neo4jConnection(options.neo4j);
@@ -44,17 +45,24 @@ class KoaNeo4jApp extends Application {
         if (options.authentication)
             this.configureAuthentication(options.authentication);
 
-        if (options.log)
+        if (!options.logger)
             this.use(logger());
 
         this
             .use(cors(options.cors))
             .use(async (ctx, next) => {
                 try {
+                    const start = new Date()
                     await next();
+                    const ms = new Date() - start
+                    if (options.logger)
+                        options.logger.info('%s %s - %s ms', ctx.method,ctx.originalUrl, ms)
                 } catch (error) {
-                    ctx.body = String(error);
-                    ctx.status = error.status || 500;
+                    if (options.exceptionWrapper)
+                        ctx.body = options.exceptionWrapper(error)
+                    else
+                        ctx.body = String(error)
+                    ctx.status = error.status || 500
                 }
             })
             .use(bodyParser({
