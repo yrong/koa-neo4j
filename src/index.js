@@ -63,6 +63,8 @@ class KoaNeo4jApp extends Application {
                     else
                         ctx.body = String(error)
                     ctx.status = error.status || 500
+                    if (options.logger)
+                        options.logger.error('%s %s - %s', ctx.method,ctx.originalUrl, String(error))
                 }
             })
             .use(bodyParser({
