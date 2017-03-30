@@ -6,6 +6,7 @@ import logger from 'koa-logger';
 import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
+import compose from 'koa-compose';
 import {Authentication} from './auth';
 import {Neo4jConnection, API} from './data';
 import {createProcedure} from './procedure';
@@ -72,7 +73,11 @@ class KoaNeo4jApp extends Application {
                     ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
                 }
             }))
-            .use(this.router.routes());
+
+        if(Array.isArray(options.middleware))
+            this.use(compose(options.middleware))
+
+        this.use(this.router.routes());
 
         this.executeCypher = this.neo4jConnection.executeCypher;
 
