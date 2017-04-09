@@ -20,7 +20,7 @@ const config = {
     entry: './src/spec/index.coffee',
     devtool: 'source-map',
     output: {
-        path: './spec',
+        path: path.resolve(__dirname, './spec'),
         filename: 'all.spec.js'
     },
     externals: mods,
