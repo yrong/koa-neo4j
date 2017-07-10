@@ -4,6 +4,7 @@
 
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'fs';
+import path from 'path';
 import chai from 'chai';
 import chalk from 'chalk';
 import {parse} from 'parse-neo4j';
@@ -33,6 +34,7 @@ class Neo4jConnection {
     }
 
     executeCypher(cypherQueryFilePath, queryParams, pathIsQuery = false) {
+        cypherQueryFilePath = path.resolve(process.cwd(), cypherQueryFilePath);
         return new Promise((resolve, reject) => {
             if (!pathIsQuery && !this.queries[cypherQueryFilePath])
                 this.addCypherQueryFile(cypherQueryFilePath);
