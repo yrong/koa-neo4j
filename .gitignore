@@ -5,6 +5,8 @@
 !webpack.config.jasmine.js
 !jasmine.runner.js
 
+package-lock.json
+
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 
 ### Linux ###

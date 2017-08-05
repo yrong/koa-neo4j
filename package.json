@@ -5,10 +5,11 @@
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint ./src --fix",
-    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
-    "build": "./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.jasmine.js",
-    "test": "npm run build && node $NODE_DEBUG_OPTION jasmine.runner.js"
+    "lint": "eslint ./src --fix",
+    "dev": "webpack --progress --colors --watch",
+    "build": "webpack && webpack --config webpack.config.jasmine.js",
+    "test": "npm run build && node $NODE_DEBUG_OPTION jasmine.runner.js",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -60,7 +61,7 @@
     "jasmine": "^2.5.0",
     "jasmine-given": "^2.6.4",
     "jasmine-spec-reporter": "^2.7.0",
-    "webpack": "^2.1.0-beta.27"
+    "webpack": "^3.4.1"
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",

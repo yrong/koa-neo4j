@@ -6,3 +6,4 @@ webpack.config.jasmine.js
 jasmine.runner.js
 !src/*
 src/spec/
+package-lock.json
