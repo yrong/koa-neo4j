@@ -93,10 +93,6 @@ class Procedure {
                 result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
                     params, params.cypher);
                 paramsCypher = true;
-            } else if (params.cyphers) {
-                result = neo4jConnection.executeCyphers(params.cyphers,
-                    params);
-                paramsCypher = true;
             } else
                 result = Promise.reject(
                     new Error(`Error in execution lifecycle of ${this.name}, none of ` +

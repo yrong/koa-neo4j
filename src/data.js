@@ -34,7 +34,7 @@ class Neo4jConnection {
     }
 
     executeCypher(cypherQueryFilePath, queryParams, pathIsQuery = false) {
-        if (pathIsQuery)
+        if (!pathIsQuery)
             cypherQueryFilePath = path.resolve(process.cwd(), cypherQueryFilePath);
         return new Promise((resolve, reject) => {
             if (!pathIsQuery && !this.queries[cypherQueryFilePath])
@@ -57,46 +57,6 @@ class Neo4jConnection {
                 });
         })
             .then(parse);
-    }
-
-    executeCyphers(cyphers,params) {
-
-        let results = [];
-
-        let runCyphers = (session,array, fn)=>{
-            let index = 0;
-            return new Promise(function(resolve, reject) {
-                function next() {
-                    if (index < array.length) {
-                        fn(session,array[index++]).then(next, reject);
-                    } else {
-                        resolve();
-                    }
-                }
-                next();
-            })
-        }
-
-
-        let runCypher= (session,cypher)=>{
-            return session.run(cypher, params).then(result => {
-                results.push(result);
-            })
-        }
-
-        return new Promise((resolve, reject) => {
-            const session = this.driver.session();
-            runCyphers(session,cyphers,runCypher).then(function() {
-                session.close();
-                resolve(results);
-            }, function(error) {
-                session.close();
-                error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
-                reject(`error while executing Cypher: ${error}`);
-            });
-        }).then(function(results){
-            return results.map(parse)
-        });
     }
 }
 
