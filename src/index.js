@@ -46,28 +46,8 @@ class KoaNeo4jApp extends Application {
         if (options.authentication)
             this.configureAuthentication(options.authentication);
 
-        if (!options.logger)
-            this.use(logger());
-
         this
             .use(cors(options.cors))
-            .use(async (ctx, next) => {
-                try {
-                    const start = new Date()
-                    await next();
-                    const ms = new Date() - start
-                    if (options.logger)
-                        options.logger.info('%s %s - %s ms', ctx.method,ctx.originalUrl, ms)
-                } catch (error) {
-                    if (options.exceptionWrapper)
-                        ctx.body = options.exceptionWrapper(error)
-                    else
-                        ctx.body = String(error)
-                    ctx.status = error.status || 500
-                    if (options.logger)
-                        options.logger.error('%s %s - %s', ctx.method,ctx.originalUrl, String(error))
-                }
-            })
             .use(bodyParser({
                 onerror(error, ctx) {
                     ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
