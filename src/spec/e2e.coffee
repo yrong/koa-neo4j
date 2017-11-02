@@ -1,4 +1,4 @@
-bdd = require './../../bdd'
+bdd = require './bdd'
 KoaNeo4jApp = require './../../index'
 {httpGet, httpPost} = require './../../util'
 

@@ -1,8 +1,3 @@
 *
-!*.js
-!*.js.map
-webpack.config.js
-webpack.config.jasmine.js
-jasmine.runner.js
-!src/*
-src/spec/
+!index.js
+!dist/*

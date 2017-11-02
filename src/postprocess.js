@@ -16,7 +16,8 @@ const onEmptyResult = (fn) => (result, params, ctx) => {
 const customError = (message, httpCode) => (result, params, ctx) =>
     ctx.throw(message, httpCode);
 
-const errorOnEmptyResult = (message, httpCode = 404) => onEmptyResult(customError(message, httpCode));
+const errorOnEmptyResult = (message, httpCode = 404) =>
+    onEmptyResult(customError(message, httpCode));
 
 const map = func => result => {
     return Array.isArray(result) ? result.map(func) : func.apply(null, [result]);

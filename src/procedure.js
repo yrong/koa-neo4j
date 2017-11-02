@@ -88,8 +88,7 @@ class Procedure {
                 else
                     result = Promise.resolve(params.result);
                 paramsResult = true;
-            }
-            else if (params.cypher || cypherQueryFile) {
+            }            else if (params.cypher || cypherQueryFile) {
                 result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
                     params, params.cypher);
                 paramsCypher = true;

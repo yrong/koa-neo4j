@@ -2,13 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
 
-const entries = fs.readdirSync('src')
-    .filter(x => x.slice(-3) === '.js' && ['spec'].indexOf(x) === -1)
-    .map(x => `./${x.slice(0, -3)}`)
-    .reduce((obj, x) => {
-        obj[x] = [`./src/${x.slice(2)}`];
-        return obj;
-    }, {});
+const entries = {bundle:'./src/index.js'}
 
 const externals = fs.readdirSync('node_modules').concat(Object.keys(entries))
     .filter(x => ['.bin'].indexOf(x) === -1)
@@ -24,7 +18,7 @@ const config = {
     entry: entries,
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, './'),
+        path: path.resolve(__dirname, './dist'),
         filename: '[name].js',
         library: '[name]',
         libraryTarget: 'umd',
