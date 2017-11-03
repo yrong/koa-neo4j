@@ -90,7 +90,10 @@ var app = new KoaNeo4jApp({
             route: '/articles/:skip/:limit',
             cypherQueryFile: './cypher/articles.cyp'
         }
-    ]
+    ],
+
+    // Koa middlewares could be injected and will be loaded before api invoked,e.g:a koa static file serving middleware as following
+    middleware:[convert(staticFile('./public'))]
 });
 
 app.listen(3000, function() {
@@ -345,7 +348,8 @@ Cypher can access with [the `$` syntax](http://neo4j.com/docs/developer-manual/c
 
 If you need string manipulation to create your Cypher query, you can do so in
 [preProcess lifecycle](#preprocess-lifecycle) by assigning `params.cypher` to your query. After all preProcess hook
-functions are executed, framework will see whether `params.cypher` is defined, and executes it if present.
+functions are executed, framework will see whether `params.cypher` is defined, and executes it if present. Except for
+primitive string, `params.cypher` may also be string array type which contains multiple cypher queries to execute.
 
 ##### params.result
 
@@ -384,7 +388,8 @@ app.defineAPI({
 Hook function signature: **(result[, params, ctx]) -> result**
 
 This lifecycle takes the `result` from execution lifecycle and amends further changes to the result before sending it to
-the client.
+the client. If `params.cypher` is array type assigned in execution lifecycle, `result` will also be an array contains execution
+results for each cypher query.
 
 ```javascript
 // Example:
