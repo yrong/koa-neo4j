@@ -41,7 +41,7 @@ class Authentication {
             })
             .catch(error => ctx.throw(400, error))
             .then(user => {
-                ctx.body = this.getToken(user, ctx.request.body.remember)
+                ctx.body = this.getToken(user, ctx.request.body.remember);
             })
             .catch(error => ctx.throw(422, error))
             .then(next);
@@ -69,7 +69,6 @@ class Authentication {
             .then(next);
 
 
-
         this.getUser = (username, password) => {
             return this.neo4jConnection.executeCypher(this.userQuery, {username: username})
                 .then(response => {
@@ -89,13 +88,15 @@ class Authentication {
 
         this.appendRoles = user => {
             return this.neo4jConnection.executeCypher(
-                this.rolesQuery || 'MATCH (user) WHERE id(user) = {id} RETURN {roles: labels(user)}',
+                this.rolesQuery || 'MATCH (user) WHERE id(user) = {id} ' +
+                'RETURN {roles: labels(user)}',
                 {id: neo4jInt(user.id)}, !this.rolesQuery)
                 .then(response => {
                     let [{roles}] = response;
                     if (!roles)
                         throw new Error(
-                            "'rolesCypherQueryFile' returned an invalid object, expected { roles }");
+                            "'rolesCypherQueryFile' returned an invalid object, " +
+                            'expected { roles }');
                     roles = roles.map(role => role.toLowerCase());
                     user.roles = roles;
                     return user;

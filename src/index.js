@@ -2,7 +2,6 @@
 
 import Application from 'koa';
 import Router from 'koa-router';
-import logger from 'koa-logger';
 import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
 import queryString from 'query-string';
@@ -46,36 +45,32 @@ class KoaNeo4jApp extends Application {
         if (options.authentication)
             this.configureAuthentication(options.authentication);
 
-        if (!options.logger)
-            this.use(logger());
-
         this
             .use(cors(options.cors))
-            .use(async (ctx, next) => {
-                try {
-                    const start = new Date()
-                    await next();
-                    const ms = new Date() - start
-                    if (options.logger)
-                        options.logger.info('%s %s - %s ms', ctx.method,ctx.originalUrl, ms)
-                } catch (error) {
-                    if (options.exceptionWrapper)
-                        ctx.body = options.exceptionWrapper(error)
-                    else
-                        ctx.body = String(error)
-                    ctx.status = error.status || 500
-                    if (options.logger)
-                        options.logger.error('%s %s - %s', ctx.method,ctx.originalUrl, String(error))
-                }
-            })
             .use(bodyParser({
                 onerror(error, ctx) {
                     ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
                 }
-            }))
+            }));
 
-        if(Array.isArray(options.middleware))
-            this.use(compose(options.middleware))
+        if (options.responseWrapper)
+            this.use(options.responseWrapper());
+        else
+            this.use(async (ctx, next) => {
+                try {
+                    const start = new Date();
+                    await next();
+                    const ms = new Date() - start;
+                    console.log('%s %s - %s ms', ctx.method, ctx.originalUrl, ms);
+                } catch (error) {
+                    ctx.body = String(error);
+                    ctx.status = error.status || 500;
+                    console.log('%s %s - %s', ctx.method, ctx.originalUrl, error.stack || error);
+                }
+            });
+
+        if (Array.isArray(options.middleware))
+            this.use(compose(options.middleware));
 
         this.use(this.router.routes());
 

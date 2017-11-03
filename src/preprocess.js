@@ -14,11 +14,10 @@ const deepParse = (params, key, func) => {
             for (const keyToFind of keys) {
                 const newKey = {};
                 newKey[keyToFind] = key[keyToFind];
-                deepParse(params, newKey, func)
+                deepParse(params, newKey, func);
             }
             return;
-        }
-        else {
+        }        else {
             keyToFind = keys[0];
             keyToReplace = key[keyToFind];
         }
@@ -29,7 +28,7 @@ const deepParse = (params, key, func) => {
         else {
             const toReplace = [];
             for (const value of params[keyToFind])
-                toReplace.push(func.apply(params, [value]))
+                toReplace.push(func.apply(params, [value]));
             params[keyToReplace] = toReplace;
         }
     for (const innerKey of Object.keys(params))
