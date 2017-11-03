@@ -1,6 +1,6 @@
-bdd = require './bdd'
-KoaNeo4jApp = require './../../index'
-{httpGet, httpPost} = require './../../util'
+bdd = (require './bdd').default
+KoaNeo4jApp = (require './../index').default
+{httpGet, httpPost} = require './../util'
 
 
 describe 'End-to-end tests', ->
@@ -25,6 +25,38 @@ describe 'End-to-end tests', ->
         .then done
         .catch (error) -> setTimeout ->
             throw error
+
+    describe 'setting params.result to 42 shhould return 42', ->
+
+        bdd.givenOnce 'a GET API is defined on /params/result setting params.result to 42', -> @app.defineAPI
+            method: 'GET',
+            route: '/params/result',
+            preProcess: (params) ->
+                params.result = 42
+                params
+
+        bdd.then '42 should be received from /params/result', (done) ->
+            httpGet '/params/result', 4949
+                .then (response) ->
+                    console.log response
+                    expect(response).toEqual 42
+                    done()
+
+    describe 'params.cypher', ->
+
+        bdd.givenOnce 'a GET API is defined on /params/cypher setting params.cypher to "RETURN 42"', -> @app.defineAPI
+            method: 'GET',
+            route: '/params/cypher',
+            preProcess: (params) ->
+                params.cypher = "RETURN 42"
+                params
+
+        bdd.then '42 should be received from /params/cypher', (done) ->
+            httpGet '/params/cypher', 4949
+                .then (response) ->
+                    console.log response
+                    expect(response).toEqual [ 42 ]
+                    done()
 
     describe 'a simple GET request with a `parameter` in cypher side', ->
 

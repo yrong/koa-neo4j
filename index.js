@@ -5,4 +5,4 @@
  *
  * @module koa-neo4j-fork
  */
-module.exports = require('./dist/index').default;
+module.exports = require('./dist/bundle').default;

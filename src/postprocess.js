@@ -14,7 +14,7 @@ const onEmptyResult = (fn) => (result, params, ctx) => {
 };
 
 const customError = (message, httpCode) => (result, params, ctx) =>
-    ctx.throw(message, httpCode);
+    ctx.throw(httpCode, message);
 
 const errorOnEmptyResult = (message, httpCode = 404) =>
     onEmptyResult(customError(message, httpCode));

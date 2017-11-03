@@ -4,6 +4,7 @@
 
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'fs';
+import path from 'path';
 import chai from 'chai';
 import chalk from 'chalk';
 import {parse} from 'parse-neo4j';
@@ -32,66 +33,42 @@ class Neo4jConnection {
         this.queries[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
     }
 
-    executeCypher(cypherQueryFilePath, queryParams, pathIsQuery = false) {
-        return new Promise((resolve, reject) => {
-            if (!pathIsQuery && !this.queries[cypherQueryFilePath])
-                this.addCypherQueryFile(cypherQueryFilePath);
+    async executeCypher(cypherQueryOrQueryFilePath, queryParams, pathIsQuery = false) {
+        const _executeCypher = (query, queryParams) => {
+            return new Promise((resolve, reject) => {
+                const session = this.driver.session();
 
-            let query = cypherQueryFilePath;
-            if (!pathIsQuery)
-                query = this.queries[cypherQueryFilePath];
-            const session = this.driver.session();
-
-            session.run(query, queryParams)
-                .then(result => {
-                    resolve(result);
-                    session.close();
-                })
-                .catch(error => {
-                    session.close();
-                    error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
-                    reject(`error while executing Cypher: ${error}`);
-                });
-        })
-            .then(parse);
-    }
-
-    executeCyphers(cyphers, params) {
-        const results = [];
-
-        const runCyphers = (session, array, fn) => {
-            let index = 0;
-            return new Promise(function (resolve, reject) {
-                function next() {
-                    if (index < array.length)
-                        fn(session, array[index++]).then(next, reject);
-                    else
-                        resolve();
-                }
-                next();
-            });
+                session.run(query, queryParams)
+                    .then(result => {
+                        session.close();
+                        resolve(result);
+                    })
+                    .catch(error => {
+                        session.close();
+                        error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
+                        reject(`error while executing Cypher: ${error}`);
+                    });
+            }).then(parse);
         };
 
+        if (!pathIsQuery) {
+            cypherQueryOrQueryFilePath = path.resolve(process.cwd(), cypherQueryOrQueryFilePath);
+            if (!this.queries[cypherQueryOrQueryFilePath])
+                this.addCypherQueryFile(cypherQueryOrQueryFilePath);
+        }
 
-        const runCypher = (session, cypher) => {
-            return session.run(cypher, params).then(result => {
-                results.push(result);
-            });
-        };
+        const query = pathIsQuery ? cypherQueryOrQueryFilePath :
+            this.queries[cypherQueryOrQueryFilePath];
 
-        return new Promise((resolve, reject) => {
-            const session = this.driver.session();
-            runCyphers(session, cyphers, runCypher).then(function () {
-                session.close();
-                resolve(results);
-            }, function (error) {
-                session.close();
-                error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
-                reject(`error while executing Cypher: ${error}`);
-            });
-        }).then(function (results) {
-            return results.map(parse);
-        });
+        let result = [];
+
+        if (Array.isArray(query) && query.length)
+            for (const entry of query)
+                result.push(await _executeCypher(entry, queryParams));
+
+        else
+            result = await _executeCypher(query, queryParams);
+        return result;
     }
 }
 

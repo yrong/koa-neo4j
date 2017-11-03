@@ -331,7 +331,7 @@ Execution happens between `preProcess` and `postProcess`, takes `params` as inpu
 there are 4 types of execution, if all were present in an [API](#defining-an-api) or [Procedure](#procedures) definition,
 priority is applied:
 
-##### *`params.result` > `params.cypher` > `params.cyphers` > `cypherQueryFile`*
+##### *`params.result` > `params.cypher` > `cypherQueryFile`*
 
 **ProTip:** `key` would be *consumed* as a result of any `params.<key>` execution, meaning that the `key` reference in
 `params` would be deleted in subsequent references to `params`.
@@ -346,11 +346,6 @@ Cypher can access with [the `$` syntax](http://neo4j.com/docs/developer-manual/c
 If you need string manipulation to create your Cypher query, you can do so in
 [preProcess lifecycle](#preprocess-lifecycle) by assigning `params.cypher` to your query. After all preProcess hook
 functions are executed, framework will see whether `params.cypher` is defined, and executes it if present.
-
-##### params.cyphers
-
-Contributed by [@yrong](https://github.com/yrong), accepts an array of strings containing Cypher queries, end `result`
-becomes an array containing result of conducting each of these queries.
 
 ##### params.result
 

@@ -49,7 +49,7 @@ class KoaNeo4jApp extends Application {
             .use(cors(options.cors))
             .use(bodyParser({
                 onerror(error, ctx) {
-                    ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
+                    ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
                 }
             }));
 
@@ -88,12 +88,12 @@ class KoaNeo4jApp extends Application {
                     await this.authentication.authenticateJwt(ctx, () => {});
                 } catch (error) {
                     // No Authorization header
-                    ctx.throw('authorization required', 401);
+                    ctx.throw(401, 'authorization required');
                 }
 
             if (api.requiresJwtAuthentication &&
                 !haveIntersection(ctx.user.roles, api.allowedRoles))
-                ctx.throw('user does not have permission for this resource', 403);
+                ctx.throw(403, 'user does not have permission for this resource');
 
             let params = {};
             if (ctx.url.indexOf('?') >= 0) {
@@ -104,7 +104,7 @@ class KoaNeo4jApp extends Application {
             try {
                 ctx.body = await api.invoke(params, ctx);
             } catch (error) {
-                ctx.throw(error.message || error, error.status || 409);
+                ctx.throw(error.status || 409, error.message || error);
             }
             await next();
         };

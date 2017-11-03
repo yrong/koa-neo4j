@@ -39,11 +39,11 @@ class Authentication {
                     throw new Error('invalid POST data, expected {username, password[, remember]}');
                 return user;
             })
-            .catch(error => ctx.throw(error, 400))
+            .catch(error => ctx.throw(400, error))
             .then(user => {
                 ctx.body = this.getToken(user, ctx.request.body.remember);
             })
-            .catch(error => ctx.throw(error, 422))
+            .catch(error => ctx.throw(422, error))
             .then(next);
 
         this.passport.use(new JwtStrategy(

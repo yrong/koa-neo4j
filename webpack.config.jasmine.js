@@ -20,13 +20,18 @@ const config = {
     entry: './src/spec/index.coffee',
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, './spec'),
+        path: path.resolve(__dirname, './dist/spec'),
         filename: 'all.spec.js'
     },
     externals: mods,
     module: {
         rules: [
-            { test: /\.coffee$/, loader: 'coffee-loader' }
+            { test: /\.coffee$/, loader: 'coffee-loader' },
+            {
+                test: /\.jsx?$/,
+                exclude: /(node_modules)/,
+                loader: 'babel-loader'
+            }
         ]
     },
     resolve: {
