@@ -2,7 +2,13 @@ const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
 
-const entries = {bundle:'./src/index.js'}
+const entries = fs.readdirSync('src')
+    .filter(x => x.slice(-3) === '.js' && ['spec'].indexOf(x) === -1)
+    .map(x => `./${x.slice(0, -3)}`)
+    .reduce((obj, x) => {
+        obj[x] = [`./src/${x.slice(2)}`];
+        return obj;
+    }, {});
 
 const externals = fs.readdirSync('node_modules').concat(Object.keys(entries))
     .filter(x => ['.bin'].indexOf(x) === -1)

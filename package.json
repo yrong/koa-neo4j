@@ -5,12 +5,12 @@
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint ./src --fix",
-    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
-    "prebuild":"npm run lint",
-    "build": "./node_modules/.bin/babel src -d dist && ./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.jasmine.js",
-    "test": "npm run build && node $NODE_DEBUG_OPTION jasmine.runner.js",
-    "prepublish":"npm run test"
+    "lint": "eslint ./src --fix",
+    "dev": "webpack --progress --colors --watch",
+    "prebuild": "npm run lint",
+    "build": "babel src -d dist && webpack && webpack --config webpack.config.jasmine.js",
+    "test": "npm run build && node jasmine.runner.js",
+    "prepublish": "npm run test"
   },
   "repository": {
     "type": "git",

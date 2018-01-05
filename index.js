@@ -3,6 +3,6 @@
 /**
  * The entry point.
  *
- * @module koa-neo4j-fork
+ * @module koa-neo4j
  */
-module.exports = require('./dist/bundle').default;
+module.exports = require('./dist/index');

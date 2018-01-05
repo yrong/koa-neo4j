@@ -1,5 +1,3 @@
-// Start using koa2 as normal
-
 import Application from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
@@ -127,3 +125,4 @@ class KoaNeo4jApp extends Application {
 }
 
 export default KoaNeo4jApp;
+export {Procedure} from './procedure'
