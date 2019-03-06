@@ -35,7 +35,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/assister-ai/koa-neo4j/issues"
+    "url": "https://github.com/yrong/koa-neo4j/issues"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

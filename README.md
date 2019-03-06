@@ -1,5 +1,5 @@
 [![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j)
-[![Build Status](https://travis-ci.org/assister-ai/koa-neo4j.svg?branch=master)](https://travis-ci.org/assister-ai/koa-neo4j)
+[![Build Status](https://travis-ci.org/yrong/koa-neo4j.svg?branch=master)](https://travis-ci.org/yrong/koa-neo4j)
  
 # koa-neo4j
 
@@ -7,7 +7,7 @@
 [Koa](http://koajs.com/) library and the NoSQL graph database technology of [Neo4j](https://neo4j.com/). `koa-neo4j`
 enables one to create web servers scalable both in terms of code complexity and horizontal growth in deployment.
 
-![koa-neo4j logo](https://github.com/assister-ai/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
+![koa-neo4j logo](https://github.com/yrong/koa-neo4j/raw/master/images/logo.png "koa-neo4j")
 
 ## Table of contents
 
@@ -28,7 +28,7 @@ enables one to create web servers scalable both in terms of code complexity and 
 ## Introduction
 
 Choosing a NoSQL graph database for persistence is wise for
-[a number of reasons](https://github.com/assister-ai/koa-neo4j/blob/master/whygraphdb.md).
+[a number of reasons](https://github.com/yrong/koa-neo4j/blob/master/whygraphdb.md).
 While Neo4j provides the DB infrastructure for such choice, applications using Neo4j normally conduct queries directly
 from the client side, which might not be the best option:
 
@@ -62,7 +62,7 @@ npm install koa-neo4j --save
 
 ## Usage
 
-To get started quickly you can clone [koa-neo4j-starter-kit](https://github.com/assister-ai/koa-neo4j-starter-kit)
+To get started quickly you can clone [koa-neo4j-starter-kit](https://github.com/yrong/koa-neo4j-starter-kit)
 
 ```javascript
 var KoaNeo4jApp = require('koa-neo4j');
@@ -199,7 +199,7 @@ JSON object to e.g. `/auth` in the following form:
 }
 ```
 
-![Invoking Authentication](https://github.com/assister-ai/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
+![Invoking Authentication](https://github.com/yrong/koa-neo4j/raw/master/images/invoking_auth.png "Invoking Authentication")
 
 Note that if you don't set `"remember": true`, the generated token expires in an hour.
 
@@ -285,8 +285,8 @@ check: function (params) {
 ```
 
 **check built-in hook functions:** import/require from
-[`koa-neo4j/check`](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.js)
-([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/check.md))
+[`koa-neo4j/check`](https://github.com/yrong/koa-neo4j/blob/master/src/check.js)
+([DOCS](https://github.com/yrong/koa-neo4j/blob/master/src/check.md))
 
 #### preProcess lifecycle
 
@@ -325,8 +325,8 @@ preProcess: function (params) {
 ```
 
 **preProcess built-in hook functions:** import/require from
-[`koa-neo4j/preprocess`](https://github.com/assister-ai/koa-neo4j/blob/master/src/preprocess.js)
-([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/preprocess.md))
+[`koa-neo4j/preprocess`](https://github.com/yrong/koa-neo4j/blob/master/src/preprocess.js)
+([DOCS](https://github.com/yrong/koa-neo4j/blob/master/src/preprocess.md))
 
 #### execution lifecycle
 
@@ -420,8 +420,8 @@ postProcess: function (result) {
 ```
 
 **postProcess built-in hook functions:** import/require from
-[`koa-neo4j/postprocess`](https://github.com/assister-ai/koa-neo4j/blob/master/src/postprocess.js)
-([DOCS](https://github.com/assister-ai/koa-neo4j/blob/master/src/postprocess.md))
+[`koa-neo4j/postprocess`](https://github.com/yrong/koa-neo4j/blob/master/src/postprocess.js)
+([DOCS](https://github.com/yrong/koa-neo4j/blob/master/src/postprocess.md))
 
 #### postServe lifecycle
 
@@ -534,4 +534,4 @@ app.defineAPI({
 
 ## License
 
-[MIT](https://github.com/assister-ai/koa-neo4j/blob/master/LICENSE)
+[MIT](https://github.com/yrong/koa-neo4j/blob/master/LICENSE)
