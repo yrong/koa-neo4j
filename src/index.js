@@ -80,7 +80,7 @@ class KoaNeo4jApp extends Application {
 
     defineAPI(options) {
         const api = new API(this.neo4jConnection, options);
-        const handler = async(ctx, next) => {
+        const handler = async (ctx, next) => {
             if (api.requiresJwtAuthentication)
                 try {
                     await this.authentication.authenticateJwt(ctx, () => {});
@@ -125,4 +125,4 @@ class KoaNeo4jApp extends Application {
 }
 
 export default KoaNeo4jApp;
-export {Procedure} from './procedure'
+export {Procedure} from './procedure';

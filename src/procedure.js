@@ -6,7 +6,7 @@ import {parseNeo4jInts} from './preprocess';
 
 class Hook {
     constructor(functions, neo4jConnection,
-                procedureName, hookName, timeout) {
+        procedureName, hookName, timeout) {
         this.timeout = timeout;
         this.name = hookName;
         this.procedureName = procedureName;
