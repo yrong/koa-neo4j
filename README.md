@@ -1,5 +1,6 @@
 [![npm version](https://badge.fury.io/js/koa-neo4j.svg)](https://www.npmjs.com/package/koa-neo4j)
 [![Build Status](https://travis-ci.org/yrong/koa-neo4j.svg?branch=master)](https://travis-ci.org/yrong/koa-neo4j)
+[![Badge](https://img.shields.io/badge/link-996.icu-%23FF4D5B.svg)](https://996.icu/#/en_US)
  
 # koa-neo4j
 
