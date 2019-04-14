@@ -534,4 +534,4 @@ app.defineAPI({
 
 ## License
 
-[MIT](https://github.com/yrong/koa-neo4j/blob/master/LICENSE)
+[Anti-996 License](https://github.com/996icu/996.ICU/blob/master/LICENSE)
