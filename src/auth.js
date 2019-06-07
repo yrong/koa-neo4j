@@ -31,7 +31,8 @@ class Authentication {
         // The author of koa-passport has not considered the use cases of done(err),
         // hence we need to wrap calls in a promise
         this.authenticateLocal = (ctx, next) => new Promise(
-            (resolve, reject) => this.passport.authenticate('local', resolve)(ctx, () => {})
+            (resolve, reject) => this.passport.authenticate('local',
+                (err, user) => resolve(user))(ctx, () => {})
                 .catch(reject))
             .then(user => {
                 // koa-passport returns false if object is not formatted as {username, password}
@@ -48,7 +49,7 @@ class Authentication {
 
         this.passport.use(new JwtStrategy(
             {
-                jwtFromRequest: ExtractJwt.fromAuthHeader(),
+                jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT'),
                 secretOrKey: secret
             }, (user, done) => {
                 // Check whether payload is user
@@ -59,7 +60,8 @@ class Authentication {
             }));
 
         this.authenticateJwt = (ctx, next) => new Promise((resolve, reject) =>
-            this.passport.authenticate('jwt', {session: false}, resolve)(ctx, () => {})
+            this.passport.authenticate('jwt',
+                {session: false}, (err, user) => resolve(user))(ctx, () => {})
                 .catch(reject))
             // TODO next line connects to DB, token already embodies roles,
             // change when access token is implemented

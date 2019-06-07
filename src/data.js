@@ -9,6 +9,8 @@ import chai from 'chai';
 import chalk from 'chalk';
 import {parse} from 'parse-neo4j';
 import {Procedure, createProcedure} from './procedure';
+import log4js from 'log4js-wrapper-advanced';
+const logger = log4js.getLogger();
 
 class Neo4jConnection {
     constructor({boltUrl, user, password} = {}) {
@@ -18,13 +20,13 @@ class Neo4jConnection {
         const session = this.driver.session();
         this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
             .then((result) => {
-                console.log(chalk.green(parse(result)));
+                logger.trace(chalk.green(parse(result)));
                 session.close();
             })
             .catch(error => {
-                console.error(
+                logger.error(
                     chalk.red('Error connecting to the Neo4j instance, check connection options'));
-                console.log(error);
+                logger.error(error);
                 throw error;
             });
     }
@@ -37,7 +39,9 @@ class Neo4jConnection {
         const _executeCypher = (query, queryParams) => {
             return new Promise((resolve, reject) => {
                 const session = this.driver.session();
-
+                logger.trace(
+                    chalk.green(JSON.stringify({cypher: query, params: queryParams}, null, '\t'))
+                );
                 session.run(query, queryParams)
                     .then(result => {
                         session.close();
@@ -49,6 +53,27 @@ class Neo4jConnection {
                         reject(`error while executing Cypher: ${error}`);
                     });
             }).then(parse);
+        };
+
+        const _executeCyphers = async (query, queryParams) => {
+            const session = this.driver.session();
+            const results = [];
+            try {
+                logger.trace(
+                    chalk.green(JSON.stringify({cypher: query, params: queryParams}, null, '\t'))
+                );
+                const tx = session.beginTransaction();
+                for (const entry of query)
+                    results.push(await tx.run(entry, queryParams).then(parse));
+
+                await tx.commit();
+                session.close();
+            } catch (error) {
+                session.close();
+                const errorDesc = error.fields ? JSON.stringify(error.fields[0]) : String(error);
+                throw new Error(`error while executing Cypher:${errorDesc}`);
+            }
+            return results;
         };
 
         if (!pathIsQuery) {
@@ -63,9 +88,7 @@ class Neo4jConnection {
         let result = [];
 
         if (Array.isArray(query) && query.length)
-            for (const entry of query)
-                result.push(await _executeCypher(entry, queryParams));
-
+            result = await _executeCyphers(query, queryParams);
         else
             result = await _executeCypher(query, queryParams);
         return result;

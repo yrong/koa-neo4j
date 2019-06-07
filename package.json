@@ -1,14 +1,14 @@
 {
   "name": "koa-neo4j",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Rapidly create REST APIs, powered by Koa and Neo4j -- batteries included with built-in role based authentication via JWT and reusable backend components",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "lint": "eslint ./src --fix",
-    "dev": "webpack --progress --colors --watch",
+    "lint": "./node_modules/.bin/eslint ./src --fix",
+    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
     "prebuild": "npm run lint",
-    "build": "babel src -d dist && webpack && webpack --config webpack.config.jasmine.js",
+    "build": "./node_modules/.bin/babel src -d dist && ./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.jasmine.js",
     "test": "npm run build && node jasmine.runner.js",
     "prepublish": "npm run test"
   },
@@ -60,20 +60,17 @@
   },
   "dependencies": {
     "chai": "^3.5.0",
-    "chalk": "^1.1.3",
-    "jsonwebtoken": "^7.1.9",
-    "kcors": "^2.1.1",
-    "koa": "^2.3.0",
-    "koa-bodyparser": "^3.2.0",
-    "koa-compose": "^3.2.1",
-    "koa-logger": "^2.0.0",
-    "koa-passport": "^2.2.2",
-    "koa-router": "^7.0.1",
-    "neo4j-driver": "^1.0.5",
-    "parse-neo4j": "^0.6.7",
-    "passport-jwt": "^2.1.0",
-    "passport-local": "^1.0.0",
-    "pythonic": "0.0.4",
-    "query-string": "^4.2.3"
+    "chalk": "^2.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "kcors": "^2.2.2",
+    "koa": "^2.7.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-passport": "^4.1.3",
+    "koa-router": "^7.4.0",
+    "log4js-wrapper-advanced": "^1.0.4",
+    "neo4j-driver": "^1.7.5",
+    "parse-neo4j": "^0.6.11",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0"
   }
 }

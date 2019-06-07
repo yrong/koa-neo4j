@@ -2,12 +2,11 @@ import Application from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import cors from 'kcors';
-import queryString from 'query-string';
-import compose from 'koa-compose';
 import {Authentication} from './auth';
 import {Neo4jConnection, API} from './data';
 import {createProcedure} from './procedure';
 import {haveIntersection} from './util';
+import http from 'http';
 
 const defaultOptions = {
     apis: [],
@@ -26,7 +25,6 @@ class KoaNeo4jApp extends Application {
         options = {...defaultOptions, ...options};
 
         this.router = new Router({sensitive:options.sensitive});
-        this.configuredAuthentication = false;
 
         this.methods = {
             'GET': this.router.get,
@@ -39,21 +37,23 @@ class KoaNeo4jApp extends Application {
         this.neo4jConnection = new Neo4jConnection(options.neo4j);
         this.neo4jInitialized = this.neo4jConnection.initialized;
 
+        const server = http.createServer(this.callback());
+        this.server = server;
 
-        if (options.authentication)
-            this.configureAuthentication(options.authentication);
+        if (!options.loadMiddlewareByApp) {
+            this.configuredAuthentication = false;
+            if (options.authentication)
+                this.configureAuthentication(options.authentication);
 
-        this
-            .use(cors(options.cors))
-            .use(bodyParser({
-                onerror(error, ctx) {
-                    ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
-                }
-            }));
 
-        if (options.responseWrapper)
-            this.use(options.responseWrapper());
-        else
+            this
+                .use(cors(options.cors))
+                .use(bodyParser({
+                    onerror(error, ctx) {
+                        ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
+                    }
+                }));
+
             this.use(async (ctx, next) => {
                 try {
                     const start = new Date();
@@ -66,16 +66,13 @@ class KoaNeo4jApp extends Application {
                     console.log('%s %s - %s', ctx.method, ctx.originalUrl, error.stack || error);
                 }
             });
+        }
 
-        if (Array.isArray(options.middleware))
-            this.use(compose(options.middleware));
-
-        this.use(this.router.routes());
-
-        this.executeCypher = this.neo4jConnection.executeCypher;
-
-        for (const api of options.apis)
-            this.defineAPI(api);
+        if (!options.loadRouteByApp) {
+            this.use(this.router.routes());
+            for (const api of options.apis)
+                this.defineAPI(api);
+        }
     }
 
     defineAPI(options) {
@@ -94,16 +91,8 @@ class KoaNeo4jApp extends Application {
                 ctx.throw(403, 'user does not have permission for this resource');
 
             let params = {};
-            if (ctx.url.indexOf('?') >= 0) {
-                params = `?${ctx.url.split('?')[1]}`;
-                params = queryString.parse(params);
-            }
-            params = {...params, ...ctx.params, ...ctx.request.body};
-            try {
-                ctx.body = await api.invoke(params, ctx);
-            } catch (error) {
-                ctx.throw(error.status || 409, error.message || error);
-            }
+            params = {...params, ...ctx.query, ...ctx.params, ...ctx.request.body};
+            ctx.body = await api.invoke(params, ctx);
             await next();
         };
         this.methods[api.method].apply(this.router, [api.route, handler]);
@@ -125,4 +114,3 @@ class KoaNeo4jApp extends Application {
 }
 
 export default KoaNeo4jApp;
-export {Procedure} from './procedure';

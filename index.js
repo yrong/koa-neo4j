@@ -5,4 +5,4 @@
  *
  * @module koa-neo4j
  */
-module.exports = require('./dist/index');
+module.exports = require('./dist/index').default;
