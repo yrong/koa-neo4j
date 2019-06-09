@@ -1,5 +1,5 @@
 bdd = (require './bdd').default
-KoaNeo4jApp = (require './../index').default
+KoaNeo4jApp = (require '../index').default
 {httpGet, httpPost} = require './../util'
 
 
@@ -9,8 +9,8 @@ describe 'End-to-end tests', ->
         @app = new KoaNeo4jApp
             neo4j:
                 boltUrl: 'bolt://localhost',
-                user: 'neo4j',
-                password: 'neo4j'
+                user: process.env.NEO4J_USER||'neo4j',
+                password: process.env.NEO4J_PASSWORD||'neo4j'
 
     bdd.whenOnce 'app is initialized on 4949', (done) ->
         app = @app
