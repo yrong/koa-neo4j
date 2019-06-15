@@ -440,6 +440,19 @@ postServe: function (result) {
 }
 ```
 
+#### global transaction
+
+When globalTransaction flag is set, neo4j cypher will be committed after finish postProcessing and rollback if exception thrown
+
+```javascript
+app.defineAPI({
+    preProcess:func1,
+    postProcess:func2,
+    globalTransaction:true
+});
+```
+
+
 ### Procedures
 
 Procedures share semantics with APIs, they are defined in the same way that an API is defined, except they don't accept

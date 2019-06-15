@@ -1,3 +1,6 @@
 *
 !index.js
 !dist/*
+dist/spec
+dist/bundle.js
+dist/bundle.js.map

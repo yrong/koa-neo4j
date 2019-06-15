@@ -1,7 +1,3 @@
-/**
- * Created by keyvan on 8/16/16.
- */
-
 import {v1 as neo4j} from 'neo4j-driver';
 import fs from 'fs';
 import path from 'path';
@@ -35,41 +31,53 @@ class Neo4jConnection {
         this.queries[cypherQueryFilePath] = fs.readFileSync(cypherQueryFilePath, 'utf8');
     }
 
-    async executeCypher(cypherQueryOrQueryFilePath, queryParams, pathIsQuery = false) {
-        const _executeCypher = (query, queryParams) => {
-            return new Promise((resolve, reject) => {
-                const session = this.driver.session();
+    async executeCypher(cypherQueryOrQueryFilePath, queryParams,
+        pathIsQuery = false, globalTransaction = false) {
+        const _executeCypher = async (query, queryParams) => {
+            let result, session, tx;
+            const {_neo4j_session, _neo4j_tx, ...params} = queryParams;
+            try {
+                session = _neo4j_session || this.driver.session();
                 logger.trace(
-                    chalk.green(JSON.stringify({cypher: query, params: queryParams}, null, '\t'))
+                    chalk.green(JSON.stringify({query: query, params: params}, null, '\t'))
                 );
-                session.run(query, queryParams)
-                    .then(result => {
-                        session.close();
-                        resolve(result);
-                    })
-                    .catch(error => {
-                        session.close();
-                        error = error.fields ? JSON.stringify(error.fields[0]) : String(error);
-                        reject(`error while executing Cypher: ${error}`);
-                    });
-            }).then(parse);
+                if (globalTransaction) {
+                    tx = _neo4j_tx || session.beginTransaction();
+                    result = await tx.run(query, params).then(parse);
+                } else {
+                    result = await session.run(query, params).then(parse);
+                    await session.close();
+                }
+            } catch (error) {
+                await session.close();
+                const errorDesc = error.fields ? JSON.stringify(error.fields[0]) : String(error);
+                throw new Error(`error while executing Cypher:${errorDesc}`);
+            }
+            return result;
         };
 
         const _executeCyphers = async (query, queryParams) => {
-            const session = this.driver.session();
-            const results = [];
+            let session, tx;
+            const results = [], {_neo4j_session, _neo4j_tx, ...params} = queryParams;
             try {
+                session = _neo4j_session || this.driver.session();
+                tx = _neo4j_tx || session.beginTransaction();
                 logger.trace(
-                    chalk.green(JSON.stringify({cypher: query, params: queryParams}, null, '\t'))
+                    chalk.green(JSON.stringify({query: query, params: params}, null, '\t'))
                 );
-                const tx = session.beginTransaction();
-                for (const entry of query)
-                    results.push(await tx.run(entry, queryParams).then(parse));
+                if (globalTransaction)
+                    for (const entry of query)
+                        results.push(await tx.run(entry, params).then(parse));
 
-                await tx.commit();
-                session.close();
+                else {
+                    for (const entry of query)
+                        results.push(await tx.run(entry, params).then(parse));
+
+                    await tx.commit();
+                    await session.close();
+                }
             } catch (error) {
-                session.close();
+                await session.close();
                 const errorDesc = error.fields ? JSON.stringify(error.fields[0]) : String(error);
                 throw new Error(`error while executing Cypher:${errorDesc}`);
             }

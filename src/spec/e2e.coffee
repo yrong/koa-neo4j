@@ -1,6 +1,7 @@
 bdd = (require './bdd').default
 KoaNeo4jApp = (require '../index').default
 {httpGet, httpPost} = require './../util'
+logWrapper = require('log4js-wrapper-advanced')
 
 
 describe 'End-to-end tests', ->
@@ -11,6 +12,7 @@ describe 'End-to-end tests', ->
                 boltUrl: 'bolt://localhost',
                 user: process.env.NEO4J_USER||'neo4j',
                 password: process.env.NEO4J_PASSWORD||'neo4j'
+        logWrapper.initialize({"defaultLevel":"trace"})
 
     bdd.whenOnce 'app is initialized on 4949', (done) ->
         app = @app
@@ -26,7 +28,7 @@ describe 'End-to-end tests', ->
         .catch (error) -> setTimeout ->
             throw error
 
-    describe 'setting params.result to 42 shhould return 42', ->
+    describe 'setting params.result to 42 should return 42', ->
 
         bdd.givenOnce 'a GET API is defined on /params/result setting params.result to 42', -> @app.defineAPI
             method: 'GET',
@@ -56,6 +58,50 @@ describe 'End-to-end tests', ->
                 .then (response) ->
                     console.log response
                     expect(response).toEqual [ 42 ]
+                    done()
+
+    describe 'params.cypher.transaction', ->
+
+        bdd.givenOnce  'a POST API is defined on /transaction/fail', -> @app.defineAPI
+              method: 'POST'
+              route: '/transaction/fail'
+              globalTransaction: true
+              postProcess: () ->
+                  Promise.reject 'operation not successful'
+
+        bdd.givenOnce  'a POST API is defined on /transaction/success', -> @app.defineAPI
+              method: 'POST'
+              route: '/transaction/success'
+              globalTransaction: true
+
+        bdd.then 'clean test node first', (done) ->
+            httpPost '/transaction/success', 4949, { cypher:["match (n:Test) delete n"] }
+                .then (response) ->
+                    console.log response
+                    done()
+
+        bdd.then 'create node success', (done) ->
+            httpPost '/transaction/success', 4949, { cypher:["CREATE (n:Test) set n.test=1 return n"] }
+                .then (response) ->
+                    console.log response
+                    expect response[0].length
+                        .toEqual 1
+                    done()
+
+        bdd.then 'create node fail', (done) ->
+              httpPost '/transaction/fail', 4949, { cypher:["CREATE (n:Test) set n.test=1"] }
+                  .then (response) ->
+                      console.log response
+                      expect response
+                          .toEqual "operation not successful, in postProcess lifecycle of '/transaction/fail'"
+                      done()
+
+        bdd.then 'only one node created', (done) ->
+          httpPost '/transaction/success', 4949, { cypher:["match (n:Test) return n"] }
+                .then (response) ->
+                    console.log response
+                    expect response[0].length
+                        .toEqual 1
                     done()
 
     describe 'a simple GET request with a `parameter` in cypher side', ->

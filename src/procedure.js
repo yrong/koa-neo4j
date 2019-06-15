@@ -3,6 +3,9 @@
  */
 
 import {parseNeo4jInts} from './preprocess';
+import chalk from 'chalk';
+import log4js from 'log4js-wrapper-advanced';
+const logger = log4js.getLogger();
 
 class Hook {
     constructor(functions, neo4jConnection,
@@ -63,7 +66,7 @@ class Procedure {
     constructor({
         cypherQueryFile, cypher, timeout = 4000, check = (params, user) => true,
         preProcess = params => params, postProcess = result => result, postServe = result => result,
-        name = 'procedure', route
+        name = 'procedure', route, globalTransaction = false
     } = {}) {
         this.cypherQueryFile = cypherQueryFile;
         this.cypher = cypher;
@@ -73,6 +76,7 @@ class Procedure {
         this.postProcess = postProcess;
         this.postServe = postServe;
         this.name = route || name;
+        this.globalTransaction = globalTransaction;
     }
 
     getMiddleware(neo4jConnection) {
@@ -89,8 +93,13 @@ class Procedure {
                     result = Promise.resolve(params.result);
                 paramsResult = true;
             }            else if (params.cypher || cypherQueryFile) {
+                if (params.globalTransaction) {
+                    logger.trace(chalk.green('global transaction start!'));
+                    params._neo4j_session = neo4jConnection.driver.session();
+                    params._neo4j_tx = params._neo4j_session.beginTransaction();
+                }
                 result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
-                    params, params.cypher);
+                    params, params.cypher, params.globalTransaction);
                 paramsCypher = true;
             } else
                 result = Promise.reject(
@@ -136,10 +145,24 @@ class Procedure {
                     params,
                     ctx
                 ]));
-
             response
-                .then(([result, params, ctx]) => postServeHook.execute(result, params, ctx))
-                .catch(error => console.dir(error));
+                .then(([result, params, ctx]) => {
+                    if (this.globalTransaction && params._neo4j_tx
+                        && params._neo4j_tx.isOpen()) {
+                        params._neo4j_tx.commit();
+                        params._neo4j_session.close();
+                        logger.trace(chalk.green('global transaction commit!'));
+                    }
+                    return postServeHook.execute(result, params, ctx);
+                })
+                .catch(() => {
+                    if (this.globalTransaction && params._neo4j_tx
+                        && params._neo4j_tx.isOpen()) {
+                        params._neo4j_tx.rollback();
+                        params._neo4j_session.close();
+                        logger.error(chalk.red('global transaction rollback!'));
+                    }
+                });
             return response.then(([result, params, ctx]) => result);
         };
     }
