@@ -1,5 +1,6 @@
 /**
  * Created by keyvan on 11/27/16.
+ * Enhanced by ronyang on 06/25/19
  */
 
 import {parseNeo4jInts} from './preprocess';
@@ -84,7 +85,31 @@ class Procedure {
             this.name, 'check', this.timeout);
         const preProcessHook = new Hook(this.preProcess, neo4jConnection,
             this.name, 'preProcess', this.timeout);
-        const executionHook = new Hook((params, cypherQueryFile) => {
+
+        const beginTransaction = (params, ctx) => {
+            logger.trace(chalk.green('global transaction start!'));
+            ctx.globalTransaction = true;
+            ctx._neo4j_session = neo4jConnection.driver.session();
+            ctx._neo4j_tx = ctx._neo4j_session.beginTransaction();
+        };
+        const endTransaction = async (error, params, ctx) => {
+            if (error)
+                logger.error(chalk.red(error.toString()));
+
+            if (ctx.globalTransaction && ctx._neo4j_tx &&
+                ctx._neo4j_tx.isOpen()) {
+                if (error) {
+                    logger.error(chalk.red('global transaction rollback!'));
+                    await ctx._neo4j_tx.rollback();
+                } else {
+                    logger.trace(chalk.green('global transaction commit!'));
+                    await ctx._neo4j_tx.commit();
+                }
+                await ctx._neo4j_session.close();
+            }
+        };
+
+        const executionHook = new Hook((params, cypherQueryFile, ctx) => {
             let result, paramsResult, paramsCypher;
             if (typeof params.result !== 'undefined') {
                 if (Array.isArray(params.result))
@@ -93,13 +118,11 @@ class Procedure {
                     result = Promise.resolve(params.result);
                 paramsResult = true;
             }            else if (params.cypher || cypherQueryFile) {
-                if (params.globalTransaction) {
-                    logger.trace(chalk.green('global transaction start!'));
-                    params._neo4j_session = neo4jConnection.driver.session();
-                    params._neo4j_tx = params._neo4j_session.beginTransaction();
-                }
+                if (this.globalTransaction)
+                    beginTransaction(params, ctx);
+
                 result = neo4jConnection.executeCypher(params.cypher || cypherQueryFile,
-                    params, params.cypher, params.globalTransaction);
+                    params, params.cypher, ctx);
                 paramsCypher = true;
             } else
                 result = Promise.reject(
@@ -112,6 +135,7 @@ class Procedure {
             this.name, 'postProcess', this.timeout);
         const postServeHook = new Hook(this.postServe, neo4jConnection,
             this.name, 'postServe', this.timeout * 3);
+
 
         return (params, ctx) => {
             const response = checkHook.execute(params, ctx)
@@ -129,7 +153,7 @@ class Procedure {
                     ctx
                 ]))
                 .then(([params, ctx]) => Promise.all([
-                    executionHook.execute(params, this.cypherQueryFile),
+                    executionHook.execute(params, this.cypherQueryFile, ctx),
                     params,
                     ctx
                 ]))
@@ -144,25 +168,20 @@ class Procedure {
                     postProcessHook.execute(result, params, ctx),
                     params,
                     ctx
+                ]))
+                .then(([result, params, ctx]) => Promise.all([
+                    result,
+                    params,
+                    ctx,
+                    endTransaction(null, params, ctx)
                 ]));
             response
                 .then(([result, params, ctx]) => {
-                    if (this.globalTransaction && params._neo4j_tx
-                        && params._neo4j_tx.isOpen()) {
-                        params._neo4j_tx.commit();
-                        params._neo4j_session.close();
-                        logger.trace(chalk.green('global transaction commit!'));
-                    }
                     return postServeHook.execute(result, params, ctx);
                 })
-                .catch(() => {
-                    if (this.globalTransaction && params._neo4j_tx
-                        && params._neo4j_tx.isOpen()) {
-                        params._neo4j_tx.rollback();
-                        params._neo4j_session.close();
-                        logger.error(chalk.red('global transaction rollback!'));
-                    }
-                });
+                .catch((error) => Promise.all([
+                    endTransaction(error, params, ctx)]
+                ));
             return response.then(([result, params, ctx]) => result);
         };
     }

@@ -32,20 +32,19 @@ class Neo4jConnection {
     }
 
     async executeCypher(cypherQueryOrQueryFilePath, queryParams,
-        pathIsQuery = false, globalTransaction = false) {
-        const _executeCypher = async (query, queryParams) => {
+        pathIsQuery = false, ctx) {
+        const _executeCypher = async (query, queryParams, ctx) => {
             let result, session, tx;
-            const {_neo4j_session, _neo4j_tx, ...params} = queryParams;
             try {
-                session = _neo4j_session || this.driver.session();
+                session = ctx && ctx._neo4j_session || this.driver.session();
                 logger.trace(
-                    chalk.green(JSON.stringify({query: query, params: params}, null, '\t'))
+                    chalk.green(JSON.stringify({query: query, params: queryParams}, null, '\t'))
                 );
-                if (globalTransaction) {
-                    tx = _neo4j_tx || session.beginTransaction();
-                    result = await tx.run(query, params).then(parse);
+                if (ctx && ctx.globalTransaction) {
+                    tx = ctx._neo4j_tx || session.beginTransaction();
+                    result = await tx.run(query, queryParams).then(parse);
                 } else {
-                    result = await session.run(query, params).then(parse);
+                    result = await session.run(query, queryParams).then(parse);
                     await session.close();
                 }
             } catch (error) {
@@ -56,23 +55,21 @@ class Neo4jConnection {
             return result;
         };
 
-        const _executeCyphers = async (query, queryParams) => {
+        const _executeCyphers = async (query, queryParams, ctx) => {
             let session, tx;
-            const results = [], {_neo4j_session, _neo4j_tx, ...params} = queryParams;
+            const results = [];
             try {
-                session = _neo4j_session || this.driver.session();
-                tx = _neo4j_tx || session.beginTransaction();
+                session = ctx && ctx._neo4j_session || this.driver.session();
+                tx = ctx && ctx._neo4j_tx || session.beginTransaction();
                 logger.trace(
-                    chalk.green(JSON.stringify({query: query, params: params}, null, '\t'))
+                    chalk.green(JSON.stringify({query: query, params: queryParams}, null, '\t'))
                 );
-                if (globalTransaction)
+                if (ctx && ctx.globalTransaction)
                     for (const entry of query)
-                        results.push(await tx.run(entry, params).then(parse));
-
+                        results.push(await tx.run(entry, queryParams).then(parse));
                 else {
                     for (const entry of query)
-                        results.push(await tx.run(entry, params).then(parse));
-
+                        results.push(await tx.run(entry, queryParams).then(parse));
                     await tx.commit();
                     await session.close();
                 }
@@ -96,9 +93,9 @@ class Neo4jConnection {
         let result = [];
 
         if (Array.isArray(query) && query.length)
-            result = await _executeCyphers(query, queryParams);
+            result = await _executeCyphers(query, queryParams, ctx);
         else
-            result = await _executeCypher(query, queryParams);
+            result = await _executeCypher(query, queryParams, ctx);
         return result;
     }
 }

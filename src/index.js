@@ -91,8 +91,7 @@ class KoaNeo4jApp extends Application {
                 !haveIntersection(ctx.user.roles, api.allowedRoles))
                 ctx.throw(403, 'user does not have permission for this resource');
 
-            let params = {globalTransaction: options.globalTransaction};
-            params = {...params, ...ctx.query, ...ctx.params, ...ctx.request.body};
+            const params = {...{}, ...ctx.query, ...ctx.params, ...ctx.request.body};
             ctx.body = await api.invoke(params, ctx);
             await next();
         };

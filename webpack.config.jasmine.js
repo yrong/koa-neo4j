@@ -17,7 +17,7 @@ const plugins = [];
 
 const config = {
     target: 'node',
-    entry: './src/spec/index.coffee',
+    entry: './test/spec/index.coffee',
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, './dist/spec'),

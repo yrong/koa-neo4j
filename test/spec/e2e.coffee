@@ -1,6 +1,6 @@
 bdd = (require './bdd').default
-KoaNeo4jApp = (require '../index').default
-{httpGet, httpPost} = require './../util'
+KoaNeo4jApp = (require '../../src').default
+{httpGet, httpPost} = require '../../src/util'
 logWrapper = require('log4js-wrapper-advanced')
 
 
@@ -151,13 +151,14 @@ describe 'End-to-end tests', ->
 
     describe 'async timeout hook success', ->
 
-        bdd.givenOnce 'a GET API with async postProcess hook responds within 4 seconds', -> @app.defineAPI
+        bdd.givenOnce 'a GET API with async postProcess hook responds within 50 milliseconds', -> @app.defineAPI
             method: 'GET',
             route: '/async-timeout-hook-success/:it',
             cypherQueryFile: './cypher/tests/it.cyp',
+            timeout:50,
             postProcess: (result, params) ->
                 new Promise (resolve) ->
-                    setTimeout resolve, 2000
+                    setTimeout resolve, 10
                 .then () ->
                     result[0].really = params.it
                     result
@@ -171,23 +172,24 @@ describe 'End-to-end tests', ->
 
     describe 'async timeout hook failure', ->
 
-        bdd.givenOnce 'a GET API with async postProcess hook **no response** within 4 seconds', -> @app.defineAPI
+        bdd.givenOnce 'a GET API with async postProcess hook **no response** within 50 milliseconds', -> @app.defineAPI
             method: 'GET',
             route: '/async-timeout-hook-failure/:it',
             cypherQueryFile: './cypher/tests/it.cyp',
+            timeout:50,
             postProcess: (result, params) ->
                 new Promise (resolve) ->
-                    setTimeout resolve, 4500
+                    setTimeout resolve, 60
                 .then () ->
                     result[0].really = params.it
                     result
 
-        bdd.then 'postProcess should fail because it takes longer than 4 seconds', (done) ->
+        bdd.then 'postProcess should fail because it takes longer than 50 milliseconds', (done) ->
             httpGet '/async-timeout-hook-failure/hooks!', 4949
             .then (response) ->
                 console.log response
                 expect response
-                    .toEqual "operation timed out, no response after 4 seconds, in postProcess lifecycle of '/async-timeout-hook-failure/:it'"
+                    .toEqual "operation timed out, no response after 0.05 seconds, in postProcess lifecycle of '/async-timeout-hook-failure/:it'"
                 done()
 
     describe 'async hook with reject failure', ->

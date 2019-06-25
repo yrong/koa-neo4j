@@ -4,7 +4,7 @@ const logWrapper = require('log4js-wrapper-advanced')
 
 const KoaNeo4jApp = require('../dist/index').default
 
-describe("scirichon-crud-handler", () => {
+describe("koa-neo4j-transaction", () => {
     let app,request
 
     const wait = (timeout=10)=> {
