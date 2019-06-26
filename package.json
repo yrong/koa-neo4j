@@ -9,8 +9,8 @@
     "dev": "./node_modules/.bin/webpack --progress --colors --watch",
     "prebuild": "npm run lint",
     "build": "./node_modules/.bin/babel src -d dist && ./node_modules/.bin/webpack --config webpack.config.jasmine.js",
-    "test": "NEO4J_PASSWORD=neo4j node jasmine.runner.js",
-    "mocha_test": "NEO4J_PASSWORD=neo4j mocha",
+    "test": "NEO4J_PASSWORD=admin node jasmine.runner.js",
+    "mocha_test": "NEO4J_PASSWORD=admin mocha",
     "prepublish": "npm run build&&npm run test"
   },
   "repository": {
