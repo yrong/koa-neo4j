@@ -1,4 +1,4 @@
-import {v1 as neo4j} from 'neo4j-driver';
+import neo4j from 'neo4j-driver';
 import fs from 'fs';
 import path from 'path';
 import chai from 'chai';
@@ -9,10 +9,10 @@ import log4js from 'log4js-wrapper-advanced';
 const logger = log4js.getLogger();
 
 class Neo4jConnection {
-    constructor({boltUrl, user, password} = {}) {
+    constructor({url, user, password} = {}) {
         this.queries = {};
 
-        this.driver = neo4j.driver(boltUrl, neo4j.auth.basic(user, password));
+        this.driver = neo4j.driver(url, neo4j.auth.basic(user, password));
         const session = this.driver.session();
         this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
             .then((result) => {

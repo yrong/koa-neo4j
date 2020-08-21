@@ -1,6 +1,6 @@
 {
   "name": "koa-neo4j",
-  "version": "1.5.1",
+  "version": "2.0.0-beta.1",
   "description": "Rapidly create REST APIs, powered by Koa and Neo4j -- batteries included with built-in role based authentication via JWT and reusable backend components",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
@@ -71,7 +71,7 @@
     "koa-passport": "^4.1.3",
     "koa-router": "^7.4.0",
     "log4js-wrapper-advanced": "^1.0.5",
-    "neo4j-driver": "^1.7.5",
+    "neo4j-driver": "^4.1.1",
     "parse-neo4j": "^0.6.11",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0"

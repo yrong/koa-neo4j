@@ -2,7 +2,7 @@
  * Created by keyvan on 8/29/16.
  */
 
-import {v1 as neo4j} from 'neo4j-driver';
+import neo4j from 'neo4j-driver';
 
 const neo4jInt = neo4j.int;
 

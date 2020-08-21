@@ -9,7 +9,7 @@ describe 'End-to-end tests', ->
     bdd.givenOnce 'a KoaNeo4jApp with connection configuration', ->
         @app = new KoaNeo4jApp
             neo4j:
-                boltUrl: 'bolt://localhost',
+                url: 'neo4j://localhost',
                 user: process.env.NEO4J_USER||'neo4j',
                 password: process.env.NEO4J_PASSWORD||'neo4j'
         logWrapper.initialize({"defaultLevel":"trace"})

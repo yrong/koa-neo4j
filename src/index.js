@@ -11,7 +11,7 @@ import http from 'http';
 const defaultOptions = {
     apis: [],
     neo4j: {
-        boltUrl: 'bolt://localhost',
+        url: 'neo4j://localhost',
         user: 'neo4j',
         password: 'neo4j'
     },

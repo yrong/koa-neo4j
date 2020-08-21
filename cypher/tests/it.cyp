@@ -1,1 +1,1 @@
-RETURN {it: {it}}
+RETURN {it: $it}
