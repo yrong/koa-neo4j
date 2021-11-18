@@ -17,10 +17,10 @@ describe("koa-neo4j-transaction", () => {
         logWrapper.initialize({"defaultLevel":"trace"})
         app = new KoaNeo4jApp({
             neo4j: {
-                url: `neo4j://${process.env['NEO4J_HOST']||'localhost'}`,
+                url: `neo4j://localhost:7687`,
                 user: process.env['NEO4J_USER']||'neo4j',
-                password: process.env['NEO4J_PASSWORD']||'neo4j'
-            }
+                password: process.env['NEO4J_PASSWD']||'admin'
+            },
         })
         await app.neo4jConnection.initialized
         app.defineAPI({

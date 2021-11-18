@@ -12,7 +12,8 @@ class Neo4jConnection {
     constructor({url, user, password} = {}) {
         this.queries = {};
 
-        this.driver = neo4j.driver(url, neo4j.auth.basic(user, password));
+        this.driver = neo4j.driver(url, neo4j.auth.basic(user, password),
+            { disableLosslessIntegers: true });
         const session = this.driver.session();
         this.initialized = session.run('RETURN "Neo4j instance successfully connected."')
             .then((result) => {
